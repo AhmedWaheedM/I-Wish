@@ -1,0 +1,138 @@
+CREATE DATABASE IF NOT EXISTS iwish
+USE iwish;
+-- =========================
+-- Drop tables if exist
+-- =========================
+DROP TABLE IF EXISTS contribution;
+DROP TABLE IF EXISTS friends;
+DROP TABLE IF EXISTS wishlist_item;
+DROP TABLE IF EXISTS wishlist;
+DROP TABLE IF EXISTS item;
+DROP TABLE IF EXISTS user;
+
+-- =========================
+-- User Table
+-- =========================
+CREATE TABLE User (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(100) NOT NULL,
+    balance DECIMAL(10,2) DEFAULT 0
+);
+
+-- =========================
+-- WishList Table
+-- =========================
+CREATE TABLE Wishlist (
+    wishlist_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    current_amount DECIMAL(10,2) DEFAULT 0,
+    total_items_amount DECIMAL(10,2) DEFAULT 0,
+    CONSTRAINT fk_wishlist_user
+        FOREIGN KEY (user_id) REFERENCES user(user_id)
+        ON DELETE CASCADE
+);
+
+-- =========================
+-- Item Table
+-- =========================
+CREATE TABLE Item (
+    item_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    description TEXT
+);
+
+-- =========================
+-- WishList_Item Table
+-- =========================
+CREATE TABLE WishListItem (
+    rec_id INT AUTO_INCREMENT PRIMARY KEY,
+    wishlist_id INT NOT NULL,
+    item_id INT NOT NULL,
+    CONSTRAINT fk_wishlistitem_wishlist
+        FOREIGN KEY (wishlist_id) REFERENCES wishlist(wishlist_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_wishlistitem_item
+        FOREIGN KEY (item_id) REFERENCES item(item_id)
+        ON DELETE CASCADE
+);
+
+-- =========================
+-- Friends Table
+-- =========================
+CREATE TABLE Friends (
+    user1_id INT NOT NULL,
+    user2_id INT NOT NULL,
+    status VARCHAR(20),
+    PRIMARY KEY (user1_id, user2_id),
+    CONSTRAINT fk_friends_user1
+        FOREIGN KEY (user1_id) REFERENCES user(user_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_friends_user2
+        FOREIGN KEY (user2_id) REFERENCES user(user_id)
+        ON DELETE CASCADE
+);
+
+-- =========================
+-- Contribution Table
+-- =========================
+CREATE TABLE Contribution (
+    wishlist_item_id INT NOT NULL,
+    contributor_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (wishlist_item_id, contributor_id),
+    CONSTRAINT fk_contribution_wishlistitem
+        FOREIGN KEY (wishlist_item_id) REFERENCES wishlist_item(rec_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_contribution_user
+        FOREIGN KEY (contributor_id) REFERENCES user(user_id)
+        ON DELETE CASCADE
+);
+
+
+-- =========================
+-- Insert Users
+-- =========================
+INSERT INTO User (username, password, balance) VALUES
+('ahmed', '1234', 500),
+('mohamed', '1234', 300),
+('sara', '1234', 800);
+
+-- =========================
+-- Insert WishLists
+-- =========================
+INSERT INTO Wishlist (user_id, current_amount, total_items_amount) VALUES
+(1, 100, 500),
+(2, 50, 300);
+
+-- =========================
+-- Insert Items
+-- =========================
+INSERT INTO Item (name, price, description) VALUES
+('Headphones', 200, 'Wireless headphones'),
+('Smart Watch', 300, 'Fitness smartwatch'),
+('Backpack', 150, 'Laptop backpack');
+
+-- =========================
+-- Insert WishList Items
+-- =========================
+INSERT INTO WishListItem (wishlist_id, item_id) VALUES
+(1, 1),
+(1, 2),
+(2, 3);
+
+-- =========================
+-- Insert Friends
+-- =========================
+INSERT INTO Friends (user1_id, user2_id, status) VALUES
+(1, 2, 'accepted'),
+(1, 3, 'pending');
+
+-- =========================
+-- Insert Contributions
+-- =========================
+INSERT INTO Contribution (wishlist_item_id, contributor_id, amount) VALUES
+(1, 2, 50),
+(1, 3, 30),
+(2, 2, 20);
