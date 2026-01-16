@@ -46,3 +46,6 @@ Before running the application, you must initialize the database using the provi
 
 - **Database Fixes**: Resolved foreign key constraint naming conflicts in the `Wishlist_Item` and `Contribution` tables.
 - **Table Naming**: Standardized table naming to `Wishlist_Item` (CamelCase with underscore) for consistency.
+- **Frontend Overhaul**: Implemented a modern **Dashboard UI** (see `dashboard.fxml`).
+    - The app now runs in **Frontend-Only Mode** (Mock Data) by default for easier UI testing.
+    - Database initialization is currently disabled in `IWishManager.java`.

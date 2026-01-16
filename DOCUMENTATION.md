@@ -52,3 +52,11 @@ If you encounter this error, it is likely due to lingering constraints from prev
 ### "Failed to open referenced table"
 This usually occurs if existing tables are not dropped or if there is a case sensitivity mismatch in table names.
 **Solution:** The script now uses consistent casing (`Wishlist_Item`, `User`, `Item`) for all tables and foreign key references.
+
+## Frontend Development Mode
+
+The application is currently configured to run in **Frontend-Only Mode** for UI development.
+
+-   **Database Bypass**: The application does **NOT** connect to the MySQL database by default.
+-   **Mock Data**: The Dashboard uses hardcoded mock data for items and activities.
+-   **Enabling Database**: To connect the application to this database, uncomment the `initHandlers()` call in `src/main/java/iWishManger/IWishManager.java`.
