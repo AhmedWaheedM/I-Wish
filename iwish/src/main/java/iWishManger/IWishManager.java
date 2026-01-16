@@ -26,7 +26,7 @@ public class IWishManager {
     public void start(Stage stage) {
         this.stage = stage;
 
-        initHandlers();
+        // initHandlers();
         showLoginScene();
     }
 
@@ -42,7 +42,7 @@ public class IWishManager {
     private void showLoginScene() {
         try {
             FXMLLoader loader = new FXMLLoader(
-                App.class.getResource("primary.fxml")
+                App.class.getResource("dashboard.fxml")
             );
 
             Parent root = loader.load();
