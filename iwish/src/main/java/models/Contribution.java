@@ -1,5 +1,6 @@
 package models;
-public class Contribution {
+import java.io.Serializable;
+public class Contribution implements Serializable {
 
     private User user;
     private WishListItem wishListItem;

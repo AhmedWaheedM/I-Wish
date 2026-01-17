@@ -1,8 +1,8 @@
 package models;
 
 import java.util.List;
-
-public class WishListItem {
+import java.io.Serializable;
+public class WishListItem implements Serializable {
 
     private int recId;
     private int wishListId;

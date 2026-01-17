@@ -1,6 +1,6 @@
 package models;
-
-public class Friend {
+import java.io.Serializable;
+public class Friend implements Serializable {
 
     private User user1;
     private User user2;
