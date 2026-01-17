@@ -1,4 +1,4 @@
-package controllers;
+package clientSide.controllers;
 
 public interface IFiledsChecker {
 

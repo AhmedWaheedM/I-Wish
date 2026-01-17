@@ -1,4 +1,4 @@
-package dbLayer;
+package serverSide.dbLayer;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
