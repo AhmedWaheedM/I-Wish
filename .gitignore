@@ -38,3 +38,5 @@ nbdist/
 .classpath
 .project
 .settings/
+
+target/
