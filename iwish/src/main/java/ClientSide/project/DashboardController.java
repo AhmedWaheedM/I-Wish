@@ -1,4 +1,4 @@
-package edu.iti.javaii.project;
+package ClientSide.project;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
