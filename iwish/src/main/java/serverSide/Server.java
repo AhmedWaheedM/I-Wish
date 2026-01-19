@@ -14,14 +14,10 @@ public class Server {
             
             while (true) {
                 Socket s = serverSocket.accept();
-                new ClientHandler(s);
+                new ClientHandler(s).start();
             }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) {
-        new Server();
     }
 }

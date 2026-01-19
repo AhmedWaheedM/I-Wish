@@ -4,6 +4,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import dtos.Request;
 import models.User;
 
 public class ClientHandler extends Thread {
@@ -27,7 +28,7 @@ public class ClientHandler extends Thread {
             inputStream = new ObjectInputStream(socket.getInputStream());
 
             while (isRunning) {
-                Object request = inputStream.readObject();
+                Request request = (Request) inputStream.readObject();
                 Object response = RequestRouter.handleRequest(request);
                 outputStream.writeObject(response);
                 outputStream.flush();
