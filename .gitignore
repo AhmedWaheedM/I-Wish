@@ -40,3 +40,4 @@ nbdist/
 .settings/
 
 target/
+db.properties
