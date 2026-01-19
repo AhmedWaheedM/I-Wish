@@ -8,7 +8,7 @@ public class WishListItemHandler extends DBHandler {
     private WishListHandler wishListHandler;
     
     public WishListItemHandler(ItemHandler itemHandler, WishListHandler wishListHandler) {
-        super("WishListItem");
+        super("Wishlist_Item");
         this.itemHandler = itemHandler;
         this.wishListHandler = wishListHandler;
     }
