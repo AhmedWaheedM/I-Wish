@@ -2,6 +2,7 @@ package serverSide;
 
 
 
+import dtos.Request;
 import dtos.requestDtos.Item.AddItemRequest;
 import dtos.requestDtos.Item.DeleteItemRequest;
 import dtos.requestDtos.Item.GetItemPriceRequest;
@@ -51,12 +52,14 @@ public class RequestRouter {
         wishListItemHandler = new WishListItemHandler(itemHandler, wishListHandler);
     }
 
-    public static Object handleRequest(Object request) {
+    public static Object handleRequest(Request request) {
+
+        
 
         // ===== Users =====
         if (request instanceof LoginRequest) {
             LoginRequest r = (LoginRequest) request;
-            return usersHandler.Login(r.getEmail(), r.getPassword());
+            return usersHandler.Login(r.getUserName(), r.getPassword());
         }
 
         if (request instanceof User) {
