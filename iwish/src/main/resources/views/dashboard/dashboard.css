@@ -1,0 +1,202 @@
+/* Main Colors */
+* {
+    -fx-font-family: 'Segoe UI', sans-serif;
+}
+
+.root {
+    -fx-background-color: #f3f4f6; /* Lighter background */
+}
+
+/* Sidebar */
+.sidebar {
+    -fx-background-color: #111827; /* Darker blue/black */
+    -fx-pref-width: 260;
+}
+
+.logo-label {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-padding: 30 20 20 20;
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9ca3af; /* Light gray */
+    -fx-alignment: CENTER_LEFT;
+    -fx-font-size: 14px;
+    -fx-padding: 12 25;
+    -fx-cursor: hand;
+    -fx-background-radius: 0 30 30 0;
+    -fx-margin-right: 15;
+}
+
+.nav-button:hover {
+    -fx-text-fill: white;
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+}
+
+.nav-button.active {
+    -fx-background-color: #3b82f6; /* Bright Blue */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(three-pass-box, rgba(59, 130, 246, 0.3), 10, 0, 0, 4);
+}
+
+.user-profile {
+    -fx-padding: 20 25;
+    -fx-spacing: 12;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.wallet-card {
+    -fx-background-color: #1f2937; /* Slightly lighter than sidebar */
+    -fx-background-radius: 12;
+    -fx-padding: 15;
+    -fx-margin: 10 25;
+    -fx-border-color: rgba(255,255,255,0.05);
+    -fx-border-width: 1;
+    -fx-border-radius: 12;
+}
+
+.wallet-text {
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 11px;
+}
+
+.wallet-amount {
+    -fx-text-fill: #4ade80; /* Brighter Green */
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+/* Main Content */
+.main-content {
+    -fx-padding: 40;
+    -fx-spacing: 25;
+}
+
+.page-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.section-subtitle {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 15px;
+}
+
+/* Item Cards */
+.item-card {
+    -fx-background-color: white;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.04), 15, 0, 0, 4);
+    -fx-padding: 0;
+}
+
+.card-image-container {
+    -fx-background-color: #f3f4f6;
+    -fx-background-radius: 16 16 0 0;
+    -fx-alignment: CENTER;
+    -fx-pref-height: 180;
+}
+
+.card-content {
+    -fx-padding: 20;
+    -fx-spacing: 12;
+}
+
+.item-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+}
+
+.item-price {
+    -fx-font-size: 20px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #111827;
+}
+
+.progress-bar {
+    -fx-accent: #1f2937;
+    -fx-control-inner-background: #e5e7eb;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+    -fx-pref-height: 8;
+}
+
+.progress-bar .track {
+    -fx-background-color: #e5e7eb;
+    -fx-background-radius: 4;
+}
+
+.progress-bar .bar {
+    -fx-background-radius: 4;
+    -fx-padding: 0;
+    -fx-background-insets: 0;
+}
+
+.remove-button {
+    -fx-background-color: #dc2626; /* Red */
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+    -fx-padding: 10;
+    -fx-font-size: 13px;
+}
+
+.remove-button:hover {
+    -fx-background-color: #b91c1c;
+}
+
+.contribute-button {
+    -fx-background-color: #16a34a; /* Green */
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-font-weight: bold;
+    -fx-padding: 10;
+    -fx-font-size: 13px;
+}
+
+.contribute-button:hover {
+    -fx-background-color: #15803d;
+}
+
+/* Right Sidebar (Activity) */
+.activity-sidebar {
+    -fx-background-color: white;
+    -fx-pref-width: 320;
+    -fx-padding: 30;
+    -fx-spacing: 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.02), 10, 0, -5, 0);
+}
+
+.activity-item {
+    -fx-background-color: #f9fafb;
+    -fx-background-radius: 8;
+    -fx-padding: 15;
+    -fx-border-color: transparent;
+    -fx-border-width: 0 0 0 4;
+}
+
+.activity-item.green { -fx-border-color: transparent transparent transparent #4ade80; -fx-background-color: #f0fdf4; }
+.activity-item.blue { -fx-border-color: transparent transparent transparent #60a5fa; -fx-background-color: #eff6ff;}
+.activity-item.purple { -fx-border-color: transparent transparent transparent #a78bfa; -fx-background-color: #f5f3ff;}
+.activity-item.orange { -fx-border-color: transparent transparent transparent #fb923c; -fx-background-color: #fff7ed;}
+
+.activity-text {
+    -fx-font-size: 13px;
+    -fx-text-fill: #374151;
+    -fx-wrap-text: true;
+    -fx-line-spacing: 2;
+}
+
+.activity-time {
+    -fx-font-size: 11px;
+    -fx-text-fill: #9ca3af;
+    -fx-padding: 5 0 0 0;
+}
