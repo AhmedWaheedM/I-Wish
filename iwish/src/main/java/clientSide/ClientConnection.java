@@ -4,8 +4,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import javafx.application.Platform;
-
 public class ClientConnection {
 
     private Socket socket;
@@ -22,35 +20,18 @@ public class ClientConnection {
         in = new ObjectInputStream(socket.getInputStream());
 
         running = true;
-        startListening();
     }
 
-    public synchronized void send(Object request) throws Exception {
-        if (out == null) throw new IllegalStateException("Not connected. Call connect() first.");
+    public synchronized Object sendAndWait(Object request) throws Exception {
+        if (out == null || in == null)
+            throw new IllegalStateException("Not connected. Call connect() first.");
+
         out.writeObject(request);
         out.flush();
+
+        return in.readObject();
     }
 
-    private void startListening() {
-        new Thread(() -> {
-            try {
-                while (running) {
-                    Object response = in.readObject();
-
-                    Platform.runLater(() ->
-                            ResponseHandler.handleResponse(response)
-                    );
-                }
-            } catch (Exception e) {
-                Platform.runLater(() ->
-                        ResponseHandler.handleResponse(null)
-                );
-            } finally {
-                close();
-            }
-        }).start();
-
-    }
 
     public void close() {
         running = false;
