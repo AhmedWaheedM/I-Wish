@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml"
+    fx:controller="clientSide.controllers.LoginController"
+    prefWidth="420"
+    prefHeight="280">
+
+    <VBox spacing="12"
+        alignment="CENTER"
+        AnchorPane.topAnchor="20"
+        AnchorPane.leftAnchor="20"
+        AnchorPane.rightAnchor="20"
+        AnchorPane.bottomAnchor="20">
+
+        <Label text="Login"
+            style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+
+        <TextField fx:id="usernameField"
+            promptText="Username"
+            maxWidth="260" />
+
+        <PasswordField fx:id="passwordField"
+            promptText="Password"
+            maxWidth="260" />
+
+        <Button text="Login"
+            prefWidth="140"
+            onAction="#onLoginClicked" />
+
+        <Label fx:id="statusLabel"
+            text=""
+            style="-fx-text-fill: green;" />
+
+    </VBox>
+</AnchorPane>

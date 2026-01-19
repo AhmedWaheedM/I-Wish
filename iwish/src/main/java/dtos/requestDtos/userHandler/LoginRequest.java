@@ -2,16 +2,16 @@ package dtos.requestDtos.userHandler;
 
 public class LoginRequest implements dtos.Request {
 
-    private String Email;
+    private String UserName;
     private String Password;
 
-    public LoginRequest(String Email, String Password) {
-        this.Email = Email;
+    public LoginRequest(String UserName, String Password) {
+        this.UserName = UserName;
         this.Password = Password;
     }
 
-    public String getEmail() {
-        return Email;
+    public String getUserName() {
+        return UserName;
     }
     public String getPassword() {
         return Password;
