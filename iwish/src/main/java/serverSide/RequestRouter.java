@@ -5,6 +5,8 @@ package serverSide;
 import dtos.Request;
 import dtos.requestDtos.Item.AddItemRequest;
 import dtos.requestDtos.Item.DeleteItemRequest;
+import dtos.requestDtos.Item.GetAllItemsRequest;
+import dtos.requestDtos.Item.GetItemByIdRequest;
 import dtos.requestDtos.Item.GetItemPriceRequest;
 import dtos.requestDtos.contributionHandler.AddContributionRequest;
 import dtos.requestDtos.contributionHandler.RemoveContributionRequest;
@@ -145,6 +147,15 @@ public class RequestRouter {
         if (request instanceof GetItemPriceRequest) {
             GetItemPriceRequest r = (GetItemPriceRequest) request;
             return itemHandler.getItemPrice(r.getItemId());
+        }
+
+        if(request instanceof GetItemByIdRequest){
+            GetItemByIdRequest r = ( GetItemByIdRequest) request;
+            return itemHandler.getItemById(r.getItemId());
+        }
+
+        if(request instanceof GetAllItemsRequest){
+            return itemHandler.getAllItems();
         }
 
         // ===== WishList =====

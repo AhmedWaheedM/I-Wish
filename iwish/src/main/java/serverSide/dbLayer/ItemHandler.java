@@ -2,7 +2,10 @@ package serverSide.dbLayer;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+
+import models.Item;
 
 public class ItemHandler extends DBHandler {
     public ItemHandler() {
@@ -77,5 +80,59 @@ public class ItemHandler extends DBHandler {
         }
         return totalPrice;
     }
+
+    public ArrayList<Item> getAllItems() {
+        ArrayList<Item> items = new ArrayList<>();
+        String query = "SELECT item_id, name, price, description FROM " + tableName;
+
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            resultSet = pstmt.executeQuery();
+
+            while (resultSet.next()) {
+                Item item = new Item();
+                item.setItemId(resultSet.getInt("item_id"));
+                item.setName(resultSet.getString("name"));
+                item.setPrice(resultSet.getDouble("price"));
+                item.setDescription(resultSet.getString("description"));
+
+                items.add(item);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+
+        return items;
+    }
+
+    public Item getItemById(int itemId) {
+        Item item = null;
+        String query = "SELECT item_id, name, price, description FROM " + tableName + " WHERE item_id = ?";
+
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, itemId);
+            resultSet = pstmt.executeQuery();
+
+            if (resultSet.next()) {
+                item = new Item();
+                item.setItemId(resultSet.getInt("item_id"));
+                item.setName(resultSet.getString("name"));
+                item.setPrice(resultSet.getDouble("price"));
+                item.setDescription(resultSet.getString("description"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+
+        return item;
+}
+
     
 }
