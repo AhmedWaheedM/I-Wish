@@ -115,4 +115,52 @@ public class WishListHandler extends DBHandler {
         }
         return true;
     }
+    public Integer getUserIdByWishListId(int wishListId) {
+        String query = "SELECT user_id FROM " + tableName + " WHERE wishlist_id = ?";
+
+        Integer userId = null;
+
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, wishListId);
+
+            resultSet = pstmt.executeQuery();
+
+            if (resultSet.next()) {
+                userId = resultSet.getInt("user_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+
+        return userId;
+    }
+    public Double getWishListTotalAmount(int wishListId) {
+        String query = "SELECT total_amount FROM " + tableName + " WHERE wishlist_id = ?";
+
+        Double totalAmount = null;
+
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, wishListId);
+
+            resultSet = pstmt.executeQuery();
+
+            if (resultSet.next()) {
+                totalAmount = resultSet.getDouble("total_amount");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+
+        return totalAmount;
+    }
+
+
 }

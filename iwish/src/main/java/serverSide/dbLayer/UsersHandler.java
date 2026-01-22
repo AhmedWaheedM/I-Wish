@@ -103,4 +103,26 @@ public class UsersHandler extends DBHandler {
             close();
         }
     }
+    public String getUserNameById(int userId) {
+        String query = "SELECT username FROM " + tableName + " WHERE user_id = ?";
+        String username = null;
+
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, userId);
+
+            resultSet = pstmt.executeQuery();
+            if (resultSet.next()) {
+                username = resultSet.getString("username");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+
+        return username;
+    }
+
 }
