@@ -2,6 +2,7 @@ package serverSide;
 
 
 
+import dtos.Notification;
 import dtos.Request;
 import dtos.requestDtos.Item.AddItemRequest;
 import dtos.requestDtos.Item.DeleteItemRequest;
@@ -84,6 +85,19 @@ public class RequestRouter {
         // ===== Contribution =====
         if (request instanceof AddContributionRequest) {
             AddContributionRequest r = (AddContributionRequest) request;
+            Integer userId = wishListHandler.getUserIdByWishListId(r.getWishListId());
+            double wishListTotalAmount = wishListHandler.getWishListTotalAmount(r.getWishListId());
+            String contributorName = usersHandler.getUserNameById(userId);
+
+            Notification notification = new Notification(
+                "New Contribution 🎁",
+                contributorName + " contributed " + r.getAmount() +
+                " to your wishlist.\n" +
+                "Total amount: " + wishListTotalAmount + "\n" +
+                "Remaining amount: " + (wishListTotalAmount - r.getAmount())
+            );
+            NotificationManger.sendNotificaiton(userId, notification);
+            
             return contributionHandler.addContribution(r.getUserId(), r.getWishListId(), r.getAmount());
         }
 
