@@ -18,7 +18,17 @@ public class ClientHandler extends Thread {
 
     public ClientHandler(Socket socket) {
         this.socket = socket;
+    }   
+    public synchronized void pushMessage(Object msg) {
+    try {
+        outputStream.writeObject(msg);
+        outputStream.flush();
+    } catch (Exception e) {
+        e.printStackTrace();
     }
+        }
+    
+
 
     @Override
     public void run() {
@@ -30,11 +40,15 @@ public class ClientHandler extends Thread {
             while (isRunning) {
                 Request request = (Request) inputStream.readObject();
                 Object response = RequestRouter.handleRequest(request);
-                outputStream.writeObject(response);
-                outputStream.flush();
+
+                if (request instanceof dtos.requestDtos.userHandler.LoginRequest && response instanceof models.User) {
+                    this.currentUser = (models.User) response; 
+                    SessionManager.registerUser(this.currentUser.getUserId(), this); 
+                }
+                
+                pushMessage(response);
             }
         } catch (Exception e) {
-
             e.printStackTrace();
         } finally {
             cleanup();
@@ -54,6 +68,9 @@ public class ClientHandler extends Thread {
 
         try {
             if (socket != null && !socket.isClosed()) socket.close();
+        } catch (Exception ignored) { }
+        try {
+            if (currentUser != null) SessionManager.unregisterUser(currentUser.getUserId());
         } catch (Exception ignored) { }
     }
 }

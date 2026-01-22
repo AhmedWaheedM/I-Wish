@@ -1,7 +1,13 @@
 package serverSide.dbLayer;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import dtos.NotificationDTO;
+import serverSide.SessionManager;
+import models.WishList;
 
 public class ContributionHandler extends  DBHandler {
 
@@ -33,6 +39,7 @@ public class ContributionHandler extends  DBHandler {
         }
         return amount;
     }
+    
     public boolean addContribution(int userId, int wishListId, double amount) {
 
         if(userHandler.hasEnoughBalance(userId, amount)) {
@@ -55,7 +62,67 @@ public class ContributionHandler extends  DBHandler {
             close();
         }
         wishListHandler.updateWishListCurrentAmount(wishListId, amount, '+');
+
+        int ownerId = getOwnerIdByWishListId(wishListId);
+        SessionManager.sendNotification(ownerId, 
+            new NotificationDTO("A friend contributed " + amount + " to your gift!", "NEW_CONTRIBUTION"));
+
+        checkAndNotify(wishListId); 
         return true;
+    }
+
+    private void checkAndNotify(int wishListId) {
+        WishList wl = wishListHandler.getWishListByUserId(wishListId);
+        if (wl != null && wl.getCurrentAmount() >= wl.getTotalAmount()) {
+            int ownerId = getOwnerIdByWishListId(wishListId);
+            SessionManager.sendNotification(ownerId, 
+                new NotificationDTO("Congratulations! Your gift is fully funded!", "GIFT_COMPLETE"));
+
+            List<Integer> contributors = getContributorsByWishListId(wishListId);
+            for (Integer contributorId : contributors) {
+                if (contributorId != ownerId) {
+                    SessionManager.sendNotification(contributorId, 
+                        new NotificationDTO("The gift you contributed to is now complete!", "GIFT_COMPLETE"));
+                }
+            }
+        }
+    }
+
+    private List<Integer> getContributorsByWishListId(int wishListId) {
+        List<Integer> contributorIds = new ArrayList<>();
+        String query = "SELECT DISTINCT user_id FROM " + tableName + " WHERE wishlist_id = ?";
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, wishListId);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                contributorIds.add(rs.getInt("user_id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+        return contributorIds;
+    }
+    private int getOwnerIdByWishListId(int wishListId) {
+        String query = "SELECT user_id FROM Wishlist WHERE wishlist_id = ?";
+        int ownerId = -1;
+        try {
+            connect();
+            java.sql.PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, wishListId);
+            java.sql.ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                ownerId = rs.getInt("user_id");
+            }
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+        return ownerId;
     }
     public Boolean removeContribution(int contributionId , int userId , int wishListId) {
         double amount = getContributionAmount(contributionId);
