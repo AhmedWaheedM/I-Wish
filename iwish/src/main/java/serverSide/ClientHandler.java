@@ -30,6 +30,11 @@ public class ClientHandler extends Thread {
             while (isRunning) {
                 Request request = (Request) inputStream.readObject();
                 Object response = RequestRouter.handleRequest(request);
+
+                if(response instanceof User){
+                    User user = (User) response;
+                    OnlineUserTracker.onlineUsers.put(user.getUserId(), this);
+                }
                 outputStream.writeObject(response);
                 outputStream.flush();
             }
@@ -38,6 +43,15 @@ public class ClientHandler extends Thread {
             e.printStackTrace();
         } finally {
             cleanup();
+        }
+    }
+
+    public void sendNotification(Object msg) {
+        try {
+            outputStream.writeObject(msg);
+            outputStream.flush();
+        } catch (Exception e) {
+            cleanup(); 
         }
     }
 
