@@ -1,137 +1,143 @@
 package clientSide.controllers;
 
-import java.net.URL;
-import java.util.ResourceBundle;
+import clientSide.appManger.IWishManager;
+import clientSide.controllers.WalletController;
+
 
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
-public class DashboardController implements Initializable {
+import java.io.IOException;
+import java.util.Optional;
 
-    @FXML private GridPane itemsGrid;
-    @FXML private VBox activityList;
+public class DashboardController {
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        loadMockItems();
-        loadMockActivities();
-    }
+    @FXML
+    private BorderPane mainLayout;
 
-    private void loadMockItems() {
-        // Row 1: My Wishlist Items (Remove)
-        itemsGrid.add(createItemCard("Apple Watch Series 9", "$399", 200, 399, "Remove"), 0, 0);
-        itemsGrid.add(createItemCard("PlayStation 5", "$499", 374.25, 499, "Remove"), 1, 0);
-        itemsGrid.add(createItemCard("MacBook Pro 14\"", "$1999", 600, 1999, "Remove"), 2, 0);
+    @FXML
+    private SidebarController sidebarController; // Injected by fx:include if fx:id="sidebar" is used
 
-        // Row 2: Friends Items (Contribute)
-        itemsGrid.add(createItemCard("Sony WH-1000XM5 Headphones", "$399", 279.3, 399, "Contribute"), 0, 1);
-        itemsGrid.add(createItemCard("Canon EOS R6 Camera", "$2499", 1249.5, 2499, "Contribute"), 1, 1);
-        itemsGrid.add(createItemCard("Gaming Keyboard RGB", "$159", 95.4, 159, "Contribute"), 2, 1);
-    }
-
-    private VBox createItemCard(String name, String priceString, double collected, double total, String action) {
-        VBox card = new VBox();
-        card.getStyleClass().add("item-card");
-        card.setPrefWidth(280);
-        card.setMinWidth(280);
-        
-        // Image Placeholder
-        VBox imageContainer = new VBox();
-        imageContainer.getStyleClass().add("card-image-container");
-        Label imgLabel = new Label("Image: " + name); 
-        imgLabel.setStyle("-fx-text-fill: #a0aec0; -fx-font-size: 12px;");
-        imageContainer.getChildren().add(imgLabel);
-
-        // Content
-        VBox content = new VBox();
-        content.getStyleClass().add("card-content");
-
-        Label nameLabel = new Label(name);
-        nameLabel.getStyleClass().add("item-name");
-        
-        // Price Details Row
-        HBox priceRow = new HBox();
-        priceRow.setAlignment(Pos.BOTTOM_LEFT);
-        Label priceLabel = new Label(priceString);
-        priceLabel.getStyleClass().add("item-price");
-        
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        
-        Label collectedLabel = new Label("$" + collected + " collected");
-        collectedLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #718096;");
-        
-        priceRow.getChildren().addAll(priceLabel, spacer, collectedLabel);
-
-        // Progress Bar
-        double progress = collected / total;
-        ProgressBar progressBar = new ProgressBar(progress);
-        progressBar.setMaxWidth(Double.MAX_VALUE);
-        progressBar.getStyleClass().add("progress-bar");
-
-        // Progress Text
-        HBox progressInfo = new HBox();
-        Label funded = new Label((int)(progress * 100) + "% funded");
-        funded.setStyle("-fx-font-size: 11px; -fx-text-fill: #718096; -fx-font-weight: bold;");
-        
-        Region spacer2 = new Region();
-        HBox.setHgrow(spacer2, Priority.ALWAYS);
-        
-        Label remaining = new Label("$" + String.format("%.2f", total - collected) + " remaining");
-        remaining.setStyle("-fx-font-size: 11px; -fx-text-fill: #718096;");
-        
-        progressInfo.getChildren().addAll(funded, spacer2, remaining);
-
-        // Action Button
-        Button actionBtn = new Button(action);
-        actionBtn.setMaxWidth(Double.MAX_VALUE);
-        if ("Remove".equals(action)) {
-            actionBtn.getStyleClass().add("remove-button");
+    @FXML
+    public void initialize() {
+        System.out.println("DashboardController initialized.");
+        // Link sidebar to this dashboard
+        if (sidebarController != null) {
+            System.out.println("SidebarController injected successfully.");
+            sidebarController.setDashboardController(this);
+            // Initialize sidebar with current balance
+            sidebarController.updateBalanceDisplay(currentBalance);
         } else {
-            actionBtn.getStyleClass().add("contribute-button");
+            // Check if we can find it via lookup if injection failed (unlikely if fx:id matches)
+            // System.err.println("SidebarController NOT injected.");
         }
-
-        content.getChildren().addAll(nameLabel, priceRow, progressBar, progressInfo, actionBtn);
-
-        card.getChildren().addAll(imageContainer, content);
         
-        return card;
+        // Show default view
+        showWishlist();
     }
 
-    private void loadMockActivities() {
-        activityList.getChildren().clear();
-        activityList.getChildren().add(createActivityItem("Sara contributed $50 to your PlayStation 5", "2 hours ago", "green"));
-        activityList.getChildren().add(createActivityItem("Mike contributed $25 to your Apple Watch", "4 hours ago", "green"));
-        activityList.getChildren().add(createActivityItem("Lisa sent you a friend request", "6 hours ago", "purple"));
-        activityList.getChildren().add(createActivityItem("Your MacBook Pro reached 30% funding!", "1 day ago", "blue"));
-        activityList.getChildren().add(createActivityItem("You contributed $30 to Sara's Headphones", "1 day ago", "green"));
-        activityList.getChildren().add(createActivityItem("New wishlist feature: Add multiple images to items", "2 days ago", "orange"));
-        activityList.getChildren().add(createActivityItem("Ahmed contributed $100 to your PlayStation 5", "2 days ago", "green"));
-        activityList.getChildren().add(createActivityItem("You are now friends with David", "3 days ago", "purple"));
+    public void setSidebarController(SidebarController sidebarController) {
+        this.sidebarController = sidebarController;
+        this.sidebarController.setDashboardController(this);
     }
 
-    private VBox createActivityItem(String text, String time, String color) {
-        VBox item = new VBox();
-        item.getStyleClass().addAll("activity-item", color);
-        item.setSpacing(5);
+    public void showWishlist() {
+        loadView("wishlist_view");
+    }
 
-        Label msg = new Label(text);
-        msg.getStyleClass().add("activity-text");
-        msg.setWrapText(true);
+    public void showMarketplace() {
+        loadView("item_marketplace");
+    }
 
-        Label timeLabel = new Label(time);
-        timeLabel.getStyleClass().add("activity-time");
+    public void showFriends() {
+        loadView("friends_view");
+    }
+    
+    private java.util.Map<String, Parent> viewCache = new java.util.HashMap<>();
 
-        item.getChildren().addAll(msg, timeLabel);
-        return item;
+    public void showRequests() {
+         loadView("requests_view");
+    }
+    
+    public void showNotifications() {
+         loadView("notifications_view");
+    }
+
+    private double currentBalance = 500.00; // Mock state
+
+    public void updateWalletBalance(double amountToAdd) {
+        System.out.println("DEBUG: updateWalletBalance called with " + amountToAdd);
+        currentBalance += amountToAdd;
+        if (sidebarController != null) {
+            sidebarController.updateBalanceDisplay(currentBalance);
+        }
+    }
+
+    public void showWallet() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/components/wallet_modal.fxml"));
+            Parent view = loader.load();
+            
+            WalletController walletController = loader.getController();
+            walletController.setDashboardController(this);
+            walletController.setBalance(currentBalance); // Set current balance
+            
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+            stage.setTitle("My Wallet");
+            stage.setScene(new javafx.scene.Scene(view));
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void logout() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Logout");
+        alert.setHeaderText("Are you sure you want to logout?");
+        alert.setContentText("You will be returned to the login screen.");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                // Clear cache on logout
+                viewCache.clear();
+                clientSide.ClientSession.getInstance().logout();
+                IWishManager.switchScene("login", "I-Wish - Login");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void loadView(String fxml) {
+        try {
+            if (viewCache.containsKey(fxml)) {
+                mainLayout.setCenter(viewCache.get(fxml));
+                return;
+            }
+
+            // Construct path to components
+            String path = "/views/components/" + fxml + ".fxml";
+            java.net.URL resource = getClass().getResource(path);
+            
+            if (resource == null) {
+                System.err.println("Could not find view: " + path);
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(resource);
+            Parent view = loader.load();
+            viewCache.put(fxml, view);
+            mainLayout.setCenter(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Could not load view: " + fxml);
+        }
     }
 }

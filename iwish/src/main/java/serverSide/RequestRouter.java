@@ -51,7 +51,7 @@ public class RequestRouter {
 
         contributionHandler = new ContributionHandler(wishListHandler, usersHandler);
 
-        wishListItemHandler = new WishListItemHandler(itemHandler, wishListHandler);
+        wishListItemHandler = new WishListItemHandler(itemHandler, wishListHandler, contributionHandler);
     }
 
     public static Object handleRequest(Request request) {
@@ -192,6 +192,11 @@ public class RequestRouter {
 
             wishListItemHandler.removeWishListItem(r.getWishListId(), r.getItemId());
             return true;
+        }
+
+        if (request instanceof dtos.requestDtos.wishListItemHandler.GetWishListItemsRequest) {
+             dtos.requestDtos.wishListItemHandler.GetWishListItemsRequest r = (dtos.requestDtos.wishListItemHandler.GetWishListItemsRequest) request;
+             return wishListItemHandler.getWishListItems(r.getWishListId());
         }
 
         return null; // unknown request

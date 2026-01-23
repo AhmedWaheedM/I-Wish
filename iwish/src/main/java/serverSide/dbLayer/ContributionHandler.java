@@ -85,4 +85,36 @@ public class ContributionHandler extends  DBHandler {
     }
 
 
+    public java.util.List<models.Contribution> getContributionsByWishListId(int wishListId) {
+        java.util.List<models.Contribution> contributions = new java.util.ArrayList<>();
+        String query = "SELECT * FROM " + tableName + " WHERE wishlist_id = ?";
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, wishListId);
+            resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                models.Contribution c = new models.Contribution();
+                c.setId(resultSet.getInt("id"));
+                // c.setUser(userHandler.getUserById(resultSet.getInt("user_id"))); // Optimization: minimal user info or fetch?
+                // For now, let's skip deep user fetch to avoid circular deps or complex logic unless needed by UI.
+                // UI shows "Ahmed contributed...", so we probably need User name.
+                // Let's assume we might need it.
+                // But UsersHandler doesn't have getUserById exposed yet?
+                // I'll leave user null for now or just set ID if model allows.
+                // Model has 'User contributor'.
+                
+                // Fetch basic user?
+                // DBHandler logic for user?
+                // Let's just set the amount for now to unblock calculation.
+                c.setAmount(resultSet.getDouble("amount"));
+                contributions.add(c);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+        return contributions;
+    }
 }

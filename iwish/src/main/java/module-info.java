@@ -6,5 +6,6 @@ module edu.iti.javaii.project {
     exports clientSide;
     opens clientSide;
     opens clientSide.appManger;
-    opens clientSide.controllers;
+    opens clientSide.controllers to javafx.fxml;
+
 }

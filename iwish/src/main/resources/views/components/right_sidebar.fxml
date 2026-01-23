@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import javafx.scene.layout.HBox?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      styleClass="sidebar"
+      stylesheets="@../dashboard/dashboard.css"
+      prefWidth="250" prefHeight="600"
+      spacing="16">
+
+    <padding>
+        <Insets top="24" right="16" bottom="16" left="16"/>
+    </padding>
+
+    <Label text="Recent Activity" styleClass="text-h3" style="-fx-text-fill: white;"/>
+
+    <VBox spacing="12">
+        <!-- Mock Activity Item 1 -->
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="card" style="-fx-background-color: #1e293b; -fx-padding: 12;">
+            <FontIcon iconLiteral="fas-gift" iconColor="#4ade80" iconSize="16"/>
+            <VBox>
+                <Label text="New Contribution" styleClass="text-sm" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Label text="Ahmed contributed $50" styleClass="text-muted" style="-fx-font-size: 12px;"/>
+            </VBox>
+        </HBox>
+
+        <!-- Mock Activity Item 2 -->
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="card" style="-fx-background-color: #1e293b; -fx-padding: 12;">
+            <FontIcon iconLiteral="fas-user-friends" iconColor="#60a5fa" iconSize="16"/>
+            <VBox>
+                <Label text="New Friend Request" styleClass="text-sm" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Label text="Sarah sent a request" styleClass="text-muted" style="-fx-font-size: 12px;"/>
+            </VBox>
+        </HBox>
+
+        <!-- Mock Activity Item 3 -->
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="card" style="-fx-background-color: #1e293b; -fx-padding: 12;">
+            <FontIcon iconLiteral="fas-bell" iconColor="#f472b6" iconSize="16"/>
+            <VBox>
+                <Label text="Wishlist Goal Met" styleClass="text-sm" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                <Label text="PS5 is fully funded!" styleClass="text-muted" style="-fx-font-size: 12px;"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+</VBox>
