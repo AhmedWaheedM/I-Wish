@@ -87,7 +87,11 @@ public class ContributionHandler extends  DBHandler {
 
     public java.util.List<models.Contribution> getContributionsByWishListId(int wishListId) {
         java.util.List<models.Contribution> contributions = new java.util.ArrayList<>();
-        String query = "SELECT * FROM " + tableName + " WHERE wishlist_id = ?";
+        String query = "SELECT c.amount, u.user_id, u.username, wi.rec_id " +
+                       "FROM " + tableName + " c " +
+                       "JOIN Wishlist_Item wi ON c.wishlist_item_id = wi.rec_id " +
+                       "JOIN User u ON c.contributor_id = u.user_id " +
+                       "WHERE wi.wishlist_id = ?";
         try {
             connect();
             PreparedStatement pstmt = connection.prepareStatement(query);
@@ -95,19 +99,19 @@ public class ContributionHandler extends  DBHandler {
             resultSet = pstmt.executeQuery();
             while (resultSet.next()) {
                 models.Contribution c = new models.Contribution();
-                c.setId(resultSet.getInt("id"));
-                // c.setUser(userHandler.getUserById(resultSet.getInt("user_id"))); // Optimization: minimal user info or fetch?
-                // For now, let's skip deep user fetch to avoid circular deps or complex logic unless needed by UI.
-                // UI shows "Ahmed contributed...", so we probably need User name.
-                // Let's assume we might need it.
-                // But UsersHandler doesn't have getUserById exposed yet?
-                // I'll leave user null for now or just set ID if model allows.
-                // Model has 'User contributor'.
-                
-                // Fetch basic user?
-                // DBHandler logic for user?
-                // Let's just set the amount for now to unblock calculation.
+                // c.setId(0); // No single ID
                 c.setAmount(resultSet.getDouble("amount"));
+                
+                models.User contributor = new models.User();
+                contributor.setUserId(resultSet.getInt("user_id"));
+                contributor.setUserName(resultSet.getString("username"));
+                c.setUser(contributor);
+                
+                // Optional: set item ID if needed by client filtering
+                // models.WishListItem item = new models.WishListItem();
+                // item.setRecId(resultSet.getInt("rec_id"));
+                // c.setWishListItem(item);
+
                 contributions.add(c);
             }
         } catch (SQLException e) {

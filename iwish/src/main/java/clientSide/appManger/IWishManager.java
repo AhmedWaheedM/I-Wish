@@ -84,4 +84,12 @@ public class IWishManager {
     public static void setLoggedInUser(User user) {
         loggedInUser = user;
     }
+
+    public static void login(User user) {
+        setLoggedInUser(user);
+    }
+
+    public static void logout() {
+        loggedInUser = null;
+    }
 }

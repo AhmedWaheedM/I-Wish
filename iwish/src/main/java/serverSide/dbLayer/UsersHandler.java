@@ -103,4 +103,27 @@ public class UsersHandler extends DBHandler {
             close();
         }
     }
+
+    public User getUserById(int userId) {
+        String query = "SELECT * FROM " + tableName + " WHERE user_id = ?";
+        User user = null;
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, userId);
+            resultSet = pstmt.executeQuery();
+            if (resultSet.next()) {
+                user = new User();
+                user.setUserId(resultSet.getInt("user_id"));
+                user.setUserName(resultSet.getString("username"));
+                user.setBalance(resultSet.getDouble("balance"));
+                // password usually not needed for public info
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+        return user;
+    }
 }

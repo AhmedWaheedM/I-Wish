@@ -27,7 +27,7 @@ public class RightSidebarController {
     public void loadActivity() {
         activityList.getChildren().clear();
         
-        models.User currentUser = clientSide.ClientSession.getInstance().getCurrentUser();
+        models.User currentUser = clientSide.appManger.IWishManager.getLoggedInUser();
         if (currentUser == null) return;
 
         try {

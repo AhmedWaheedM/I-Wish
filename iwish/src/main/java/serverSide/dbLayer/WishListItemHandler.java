@@ -61,7 +61,7 @@ public class WishListItemHandler extends DBHandler {
             
             while (resultSet.next()) {
                 models.WishListItem item = new models.WishListItem();
-                item.setRecId(resultSet.getInt("wishlist_item_id"));
+                item.setRecId(resultSet.getInt("rec_id"));
                 item.setWishListId(resultSet.getInt("wishlist_id"));
                 
                 int itemId = resultSet.getInt("item_id");

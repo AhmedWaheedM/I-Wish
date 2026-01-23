@@ -34,7 +34,7 @@ public class WalletController {
                  return;
             }
 
-            models.User user = clientSide.ClientSession.getInstance().getCurrentUser();
+            models.User user = clientSide.appManger.IWishManager.getLoggedInUser();
             if (user == null) {
                 System.out.println("No user logged in.");
                 return;

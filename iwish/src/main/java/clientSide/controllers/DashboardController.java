@@ -35,7 +35,7 @@ public class DashboardController {
             sidebarController.setDashboardController(this);
             
             // Initialize sidebar with user info and current balance
-            models.User currentUser = clientSide.ClientSession.getInstance().getCurrentUser();
+            models.User currentUser = clientSide.appManger.IWishManager.getLoggedInUser();
             if (currentUser != null) {
                 this.currentBalance = currentUser.getBalance();
                 sidebarController.updateUserInfo(currentUser);
@@ -118,7 +118,7 @@ public class DashboardController {
             try {
                 // Clear cache on logout
                 viewCache.clear();
-                clientSide.ClientSession.getInstance().logout();
+                clientSide.appManger.IWishManager.logout();
                 IWishManager.switchScene("login", "I-Wish - Login");
             } catch (Exception e) {
                 e.printStackTrace();

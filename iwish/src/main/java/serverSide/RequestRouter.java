@@ -129,6 +129,19 @@ public class RequestRouter {
             return true;
         }
 
+        if (request instanceof dtos.requestDtos.friendsHandler.GetNonFriendsRequest) {
+            dtos.requestDtos.friendsHandler.GetNonFriendsRequest r = (dtos.requestDtos.friendsHandler.GetNonFriendsRequest) request;
+            return friendsHandler.getNonFriends(r.getUserId());
+        }
+
+        if (request instanceof dtos.requestDtos.friendsHandler.RemoveFriendRequest) {
+            dtos.requestDtos.friendsHandler.RemoveFriendRequest r = (dtos.requestDtos.friendsHandler.RemoveFriendRequest) request;
+            User u1 = new User(); u1.setUserId(r.getUser1Id());
+            User u2 = new User(); u2.setUserId(r.getUser2Id());
+            friendsHandler.removeFriend(u1, u2);
+            return true;
+        }
+
         // ===== Item =====
         if (request instanceof AddItemRequest) {
             AddItemRequest r = (AddItemRequest) request;

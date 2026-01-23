@@ -155,6 +155,11 @@
     -fx-text-fill: -fx-text-muted;
 }
 
-.text-bold {
-    -fx-font-weight: bold;
+
+/* Right Sidebar Specific */
+.right-sidebar {
+    -fx-background-color: -fx-sidebar-bg;
+    -fx-background-radius: 20 0 0 20; /* Round top-left and bottom-left */
+    -fx-border-radius: 20 0 0 20;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, -5, 0);
 }

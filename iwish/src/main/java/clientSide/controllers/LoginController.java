@@ -31,10 +31,22 @@ public class LoginController {
         if (registerLink != null) {
             registerLink.setOnAction(event -> handleRegisterNavigation());
         }
+        
+        // Add Enter Key Handler to fields
+        if (emailField != null) {
+            emailField.setOnKeyPressed(event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.ENTER) handleLogin();
+            });
+        }
+        if (passwordField != null) {
+            passwordField.setOnKeyPressed(event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.ENTER) handleLogin();
+            });
+        }
     }
 
     private void handleLogin() {
-        String email = emailField != null ? emailField.getText() : "";
+        String email = emailField != null ? emailField.getText().trim() : "";
         String password = passwordField != null ? passwordField.getText() : "";
         
         if (email.isEmpty() || password.isEmpty()) {
@@ -63,7 +75,7 @@ public class LoginController {
                 System.out.println("Login Successful: " + user.getUserName());
                 
                 // Store in Session
-                clientSide.ClientSession.getInstance().login(user);
+                clientSide.appManger.IWishManager.login(user);
                 
                 // Navigate to Dashboard
                 IWishManager.switchScene("dashboard", "I-Wish Dashboard");

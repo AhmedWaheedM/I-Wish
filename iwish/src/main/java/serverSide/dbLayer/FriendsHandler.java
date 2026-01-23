@@ -28,19 +28,33 @@ public class FriendsHandler extends DBHandler {
         }
     }
     public List<User> getFriendsByUserId(int userId) {
-        String query = "SELECT user1_id, user2_id FROM " + tableName + " WHERE user1_id = ? OR user2_id = ? AND status = ?";
+        String query = "SELECT user1_id, user2_id FROM " + tableName + " WHERE (user1_id = ? OR user2_id = ?) AND status = ?";
         List<User> friends = new ArrayList<>();
+        // Need to fetch user details. Use UsersHandler logic directly or duplicate query? 
+        // Instantiating UsersHandler here might technically be creating a new connection each time if not managed well, 
+        // but DBHandler base class manages connection per method call mostly.
+        // Better: Join Query. But let's use the helper for safety/consistency if easy.
+        // Actually, let's just do a JOIN query here, it's efficient.
+        
+        // Revised Query with JOIN
+        // join on the "other" user
+        String joinQuery = "SELECT u.user_id, u.username, u.balance FROM " + tableName + " f " +
+                           "JOIN User u ON (u.user_id = CASE WHEN f.user1_id = ? THEN f.user2_id ELSE f.user1_id END) " +
+                           "WHERE (f.user1_id = ? OR f.user2_id = ?) AND f.status = ?";
+        
         try {
             connect();
-            PreparedStatement pstmt = connection.prepareStatement(query);
+            PreparedStatement pstmt = connection.prepareStatement(joinQuery);
             pstmt.setInt(1, userId);
             pstmt.setInt(2, userId);
-            pstmt.setString(3, "ACCEPTED");
+            pstmt.setInt(3, userId);
+            pstmt.setString(4, "ACCEPTED");
             resultSet = pstmt.executeQuery();
             while (resultSet.next()) {
-                int friendId = (resultSet.getInt("user1_id") == userId) ? resultSet.getInt("user2_id") : resultSet.getInt("user1_id");
                 User friend = new User();
-                friend.setUserId(friendId);
+                friend.setUserId(resultSet.getInt("user_id"));
+                friend.setUserName(resultSet.getString("username"));
+                friend.setBalance(resultSet.getDouble("balance"));
                 friends.add(friend);
             }
         } catch (SQLException e) {
@@ -51,19 +65,28 @@ public class FriendsHandler extends DBHandler {
         return friends;
     }
     public List<User> getPendingFriendsByUserId(int userId) {
-        String query = "SELECT user1_id, user2_id FROM " + tableName + " WHERE (user1_id = ? OR user2_id = ?) AND status = ?";
+        // Pending requests sent TO the user. 
+        // If I am user2, I want to see user1.
+        // If I sent the request (user1), I might want to see it too, but usually "Friend Requests" are incoming.
+        // Assuming "Friend Requests" tab shows INCOMING requests.
+        // Incoming: user2_id = me, status = PENDING.
+        
+        String query = "SELECT u.user_id, u.username, u.balance FROM " + tableName + " f " +
+                       "JOIN User u ON u.user_id = f.user1_id " +
+                       "WHERE f.user2_id = ? AND f.status = ?";
+        
         List<User> pendingFriends = new ArrayList<>();
         try {
             connect();
             PreparedStatement pstmt = connection.prepareStatement(query);
             pstmt.setInt(1, userId);
-            pstmt.setInt(2, userId);
-            pstmt.setString(3, "PENDING");
+            pstmt.setString(2, "PENDING");
             resultSet = pstmt.executeQuery();
             while (resultSet.next()) {
-                int pendingFriendId = (resultSet.getInt("user1_id") == userId) ? resultSet.getInt("user2_id") : resultSet.getInt("user1_id");
                 User pendingFriend = new User();
-                pendingFriend.setUserId(pendingFriendId);
+                pendingFriend.setUserId(resultSet.getInt("user_id"));
+                pendingFriend.setUserName(resultSet.getString("username"));
+                pendingFriend.setBalance(resultSet.getDouble("balance"));
                 pendingFriends.add(pendingFriend);
             }
         } catch (SQLException e) {
@@ -88,5 +111,40 @@ public class FriendsHandler extends DBHandler {
         } finally {
             close();
         }
+    }
+
+    public void removeFriend(User user1, User user2) {
+        // Same logic as reject/cancel
+        rejectFriendRequest(user1, user2);
+    }
+
+    public List<User> getNonFriends(int userId) {
+        // Select users who are NOT me AND NOT in the friends table associated with me
+        String query = "SELECT * FROM User WHERE user_id != ? AND user_id NOT IN (" +
+                       "SELECT CASE WHEN user1_id = ? THEN user2_id ELSE user1_id END " +
+                       "FROM " + tableName + " WHERE user1_id = ? OR user2_id = ?)";
+        
+        List<User> nonFriends = new ArrayList<>();
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, userId);
+            pstmt.setInt(3, userId);
+            pstmt.setInt(4, userId);
+            resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                User u = new User();
+                u.setUserId(resultSet.getInt("user_id"));
+                u.setUserName(resultSet.getString("username"));
+                u.setBalance(resultSet.getDouble("balance"));
+                nonFriends.add(u);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+        return nonFriends;
     }
 }

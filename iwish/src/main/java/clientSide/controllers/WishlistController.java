@@ -24,12 +24,12 @@ public class WishlistController {
     public void initialize() {
         wishlistItems = new ArrayList<>();
         
-        models.User user = clientSide.ClientSession.getInstance().getCurrentUser();
-        // If testing without login, user might be null. 
-        // In real app, we should redirect or show empty.
-        // For debugging, we can fallback or just return if null.
+        models.User user = clientSide.appManger.IWishManager.getLoggedInUser();
+        
         if (user == null) {
-            System.out.println("DEBUG: No user logged in (ClientSession). Cannot fetch wishlist.");
+            // Retry logic or error handling if needed
+            // For now, let's log and return
+            System.out.println("DEBUG: No user logged in (IWishManager). Cannot fetch wishlist.");
             return; 
         }
         System.out.println("DEBUG: Fetching wishlist for user: " + user.getUserName() + " (ID: " + user.getUserId() + ")");

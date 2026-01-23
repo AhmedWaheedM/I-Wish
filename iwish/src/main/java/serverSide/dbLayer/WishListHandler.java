@@ -44,12 +44,11 @@ public class WishListHandler extends DBHandler {
             PreparedStatement pstmt = connection.prepareStatement(query);
             pstmt.setInt(1, userId);
             resultSet = pstmt.executeQuery();
-            if (resultSet.next()) {
                 wishList = new WishList();
                 wishList.setWishListId(resultSet.getInt("wishlist_id"));
                 wishList.setCurrentAmount(resultSet.getDouble("current_amount"));
-                wishList.setTotalAmount(resultSet.getDouble("total_amount"));
-            }
+                wishList.setTotalAmount(resultSet.getDouble("total_items_amount"));
+                // wishList.setName(resultSet.getString("name")); // Column doesn't exist
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -87,7 +86,7 @@ public class WishListHandler extends DBHandler {
 
     }
     public void updateWishListTotalAmount(int wishListId, double amount , char operation) {
-        String query = "UPDATE " + tableName + " SET total_amount = total_amount " + operation + " ? WHERE wishlist_id = ?";
+        String query = "UPDATE " + tableName + " SET total_items_amount = total_items_amount " + operation + " ? WHERE wishlist_id = ?";
         try {
             connect();
             PreparedStatement pstmt = connection.prepareStatement(query);
