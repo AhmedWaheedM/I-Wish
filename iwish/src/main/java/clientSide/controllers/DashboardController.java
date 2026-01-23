@@ -20,20 +20,31 @@ public class DashboardController {
     private BorderPane mainLayout;
 
     @FXML
-    private SidebarController sidebarController; // Injected by fx:include if fx:id="sidebar" is used
+    private SidebarController sidebarController; 
+
+    @FXML
+    private RightSidebarController rightSidebarController; // Injected if fx:include is used
 
     @FXML
     public void initialize() {
         System.out.println("DashboardController initialized.");
+        
         // Link sidebar to this dashboard
         if (sidebarController != null) {
             System.out.println("SidebarController injected successfully.");
             sidebarController.setDashboardController(this);
-            // Initialize sidebar with current balance
-            sidebarController.updateBalanceDisplay(currentBalance);
-        } else {
-            // Check if we can find it via lookup if injection failed (unlikely if fx:id matches)
-            // System.err.println("SidebarController NOT injected.");
+            
+            // Initialize sidebar with user info and current balance
+            models.User currentUser = clientSide.ClientSession.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                this.currentBalance = currentUser.getBalance();
+                sidebarController.updateUserInfo(currentUser);
+            }
+        }
+
+        if (rightSidebarController != null) {
+             rightSidebarController.setDashboardController(this);
+             rightSidebarController.loadActivity();
         }
         
         // Show default view

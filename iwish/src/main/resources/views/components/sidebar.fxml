@@ -22,8 +22,8 @@
             <Region style="-fx-background-color: linear-gradient(to bottom right, #3b82f6, #2563eb); -fx-background-radius: 50%; -fx-min-width: 48; -fx-min-height: 48; -fx-max-width: 48; -fx-max-height: 48;"/>
             
             <VBox>
-                <Label text="Ahmed" styleClass="text-h3" style="-fx-text-fill: white; -fx-font-size: 16px;"/>
-                <Label text="\@ahmed" styleClass="text-muted" style="-fx-font-size: 14px;"/>
+                <Label fx:id="userNameLabel" text="Ahmed" styleClass="text-h3" style="-fx-text-fill: white; -fx-font-size: 16px;"/>
+                <Label fx:id="userHandleLabel" text="\@ahmed" styleClass="text-muted" style="-fx-font-size: 14px;"/>
             </VBox>
         </HBox>
 

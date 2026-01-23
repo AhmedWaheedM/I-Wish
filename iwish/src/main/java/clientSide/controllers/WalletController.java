@@ -29,13 +29,41 @@ public class WalletController {
     public void onAddFundsClicked() {
         try {
             double amount = Double.parseDouble(amountField.getText());
-            if (amount > 0 && dashboardController != null) {
-                dashboardController.updateWalletBalance(amount);
-                closeModal();
+            if (amount <= 0) {
+                 System.out.println("Invalid amount");
+                 return;
+            }
+
+            models.User user = clientSide.ClientSession.getInstance().getCurrentUser();
+            if (user == null) {
+                System.out.println("No user logged in.");
+                return;
+            }
+
+            // Send Update Request
+            dtos.requestDtos.userHandler.UpdateBalanceRequest request = 
+                new dtos.requestDtos.userHandler.UpdateBalanceRequest(user.getUserId(), amount, '+');
+            
+            clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
+            if (conn != null) {
+                Object response = conn.sendAndWait(request);
+                if (response instanceof Boolean && (Boolean) response) {
+                    // Success: Update local session and UI
+                    double newBalance = user.getBalance() + amount;
+                    user.setBalance(newBalance); // Update session
+                    
+                    if (dashboardController != null) {
+                        dashboardController.updateWalletBalance(amount); // Update UI
+                    }
+                    closeModal();
+                } else {
+                     System.out.println("Balance update failed on server.");
+                }
             }
         } catch (NumberFormatException e) {
-            // Invalid input, ignore or show error
-            System.out.println("Invalid amount");
+            System.out.println("Invalid amount format");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

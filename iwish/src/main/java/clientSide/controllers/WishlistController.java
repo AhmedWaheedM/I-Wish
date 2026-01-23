@@ -29,9 +29,10 @@ public class WishlistController {
         // In real app, we should redirect or show empty.
         // For debugging, we can fallback or just return if null.
         if (user == null) {
-            System.out.println("No user logged in. Cannot fetch wishlist.");
+            System.out.println("DEBUG: No user logged in (ClientSession). Cannot fetch wishlist.");
             return; 
         }
+        System.out.println("DEBUG: Fetching wishlist for user: " + user.getUserName() + " (ID: " + user.getUserId() + ")");
 
         try {
             clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
@@ -45,6 +46,7 @@ public class WishlistController {
             
             if (response1 instanceof models.WishList) {
                 models.WishList wishlist = (models.WishList) response1;
+                System.out.println("DEBUG: Found Wishlist ID: " + wishlist.getWishListId());
                 
                 // 2. Get Items for Wishlist
                 dtos.requestDtos.wishListItemHandler.GetWishListItemsRequest req2 =
@@ -54,12 +56,19 @@ public class WishlistController {
                 
                 if (response2 instanceof java.util.List) {
                     wishlistItems = (java.util.List<WishListItem>) response2;
+                    System.out.println("DEBUG: Fetched " + wishlistItems.size() + " items from server.");
+                } else {
+                    System.out.println("DEBUG: GetWishListItemsRequest returned unexpected type: " + (response2 != null ? response2.getClass().getName() : "null"));
                 }
+            } else {
+                System.out.println("DEBUG: GetWishListByUserIdRequest returned: " + (response1 != null ? response1.getClass().getName() : "null"));
             } 
         } catch (Exception e) {
             e.printStackTrace();
+            System.err.println("Error fetching wishlist data: " + e.getMessage());
         }
 
+        System.out.println("Populating grid with " + wishlistItems.size() + " items.");
         populateGrid();
     }
 

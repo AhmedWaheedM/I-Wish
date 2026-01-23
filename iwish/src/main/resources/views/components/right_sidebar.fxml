@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="clientSide.controllers.RightSidebarController"
       styleClass="sidebar"
       stylesheets="@../dashboard/dashboard.css"
       prefWidth="250" prefHeight="600"
@@ -18,7 +19,7 @@
 
     <Label text="Recent Activity" styleClass="text-h3" style="-fx-text-fill: white;"/>
 
-    <VBox spacing="12">
+    <VBox fx:id="activityList" spacing="12">
         <!-- Mock Activity Item 1 -->
         <HBox spacing="10" alignment="CENTER_LEFT" styleClass="card" style="-fx-background-color: #1e293b; -fx-padding: 12;">
             <FontIcon iconLiteral="fas-gift" iconColor="#4ade80" iconSize="16"/>

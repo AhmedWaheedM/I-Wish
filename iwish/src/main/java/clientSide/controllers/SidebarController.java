@@ -8,6 +8,10 @@ import javafx.scene.layout.Region;
 public class SidebarController {
 
     @FXML
+    private Label userNameLabel;
+    @FXML
+    private Label userHandleLabel;
+    @FXML
     private Label walletBalanceLabel;
 
     @FXML
@@ -72,7 +76,16 @@ public class SidebarController {
     }
 
     public void updateBalanceDisplay(double newBalance) {
-        walletBalanceLabel.setText(String.format("$%.2f", newBalance));
+        if (walletBalanceLabel != null)
+            walletBalanceLabel.setText(String.format("$%.2f", newBalance));
+    }
+
+    public void updateUserInfo(models.User user) {
+        if (user != null) {
+            if (userNameLabel != null) userNameLabel.setText(user.getUserName());
+            if (userHandleLabel != null) userHandleLabel.setText("@" + user.getUserName().toLowerCase().replace(" ", ""));
+            if (walletBalanceLabel != null) walletBalanceLabel.setText(String.format("$%.2f", user.getBalance()));
+        }
     }
 
     private void setActiveButton(Button newActiveBtn) {
