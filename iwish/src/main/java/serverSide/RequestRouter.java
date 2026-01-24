@@ -174,7 +174,9 @@ public class RequestRouter {
         // ===== WishList =====
         if (request instanceof GetWishListByUserIdRequest) {
             GetWishListByUserIdRequest r = (GetWishListByUserIdRequest) request;
+            System.out.println("GetWishListByUserIdRequest: " + r.getUserId());
             return wishListHandler.getWishListByUserId(r.getUserId());
+            
         }
 
         if (request instanceof GetFriendsWishListsRequest) {

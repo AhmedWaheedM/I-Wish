@@ -11,7 +11,7 @@ public class WishListHandler extends DBHandler {
 
     private FriendsHandler friendsHandler;
     public WishListHandler(FriendsHandler friendsHandler) {
-        super("Wishlist");
+        super("wishlist");
         this.friendsHandler = friendsHandler;
     }
 
@@ -44,18 +44,19 @@ public class WishListHandler extends DBHandler {
             PreparedStatement pstmt = connection.prepareStatement(query);
             pstmt.setInt(1, userId);
             resultSet = pstmt.executeQuery();
+            if (resultSet.next()) {
                 wishList = new WishList();
                 wishList.setWishListId(resultSet.getInt("wishlist_id"));
                 wishList.setCurrentAmount(resultSet.getDouble("current_amount"));
-                wishList.setTotalAmount(resultSet.getDouble("total_items_amount"));
-                // wishList.setName(resultSet.getString("name")); // Column doesn't exist
+                wishList.setTotalAmount(resultSet.getDouble("total_amount"));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             close();
         }
         return wishList;
-    }   
+    }  
     public List<WishList> getFriendsWishLists(int userId) {
         List<WishList> friendsWishLists = new ArrayList<>();
         List<models.User> friends = friendsHandler.getFriendsByUserId(userId);
