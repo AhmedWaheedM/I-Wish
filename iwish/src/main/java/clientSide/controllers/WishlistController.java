@@ -12,6 +12,9 @@ import javafx.scene.control.ProgressBar;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 
 public class WishlistController {
 
@@ -86,6 +89,32 @@ public class WishlistController {
                 // Get the controller and populate data
                 ItemCardController cardController = loader.getController();
                 cardController.setData(item);
+                
+                cardController.setOnRemove(() -> {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Remove Item");
+                    alert.setHeaderText("Remove " + item.getItem().getName() + "?");
+                    alert.setContentText("Are you sure you want to remove this item from your wishlist?");
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.isPresent() && result.get() == ButtonType.OK) {
+                        try {
+                            clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
+                             dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest req = 
+                                new dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest(item.getWishListId(), item.getItem().getItemId());
+                             
+                             Object response = conn.sendAndWait(req);
+                             if (response instanceof Boolean && (Boolean) response) {
+                                 wishlistItems.remove(item);
+                                 populateGrid();
+                             } else {
+                                 System.out.println("Failed to remove item CLIENT SIDE.");
+                             }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
 
                 wishlistGrid.add(card, col, row);
                 col++;

@@ -8,7 +8,7 @@ public class ContributionHandler extends  DBHandler {
     private WishListHandler wishListHandler;
     private UsersHandler userHandler;
     public ContributionHandler(WishListHandler wishListHandler, UsersHandler userHandler) {
-        super("Contribution");
+        super("contribution");
         this.wishListHandler = wishListHandler;
         this.userHandler = userHandler;
     }
@@ -41,7 +41,7 @@ public class ContributionHandler extends  DBHandler {
             System.out.println("User with ID " + userId + " does not have enough balance to contribute " + amount);
             return false;
         }
-        String query = "INSERT INTO "+ tableName +" (user_id, wishlist_id, amount) VALUES (?, ?, ?)";
+        String query = "INSERT INTO "+ tableName +" (contributor_id, wishlist_id, amount) VALUES (?, ?, ?)";
         try {
             connect();
             PreparedStatement pstmt = connection.prepareStatement(query);
@@ -62,7 +62,7 @@ public class ContributionHandler extends  DBHandler {
         if(amount == -1) {
             return false;
         }
-        String query = "DELETE FROM " + tableName + " WHERE id = ? AND user_id = ?";
+        String query = "DELETE FROM " + tableName + " WHERE id = ? AND contributor_id = ?";
         try {
             connect();
             PreparedStatement pstmt = connection.prepareStatement(query);

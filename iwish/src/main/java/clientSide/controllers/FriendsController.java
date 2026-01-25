@@ -12,6 +12,12 @@ import models.User;
 
 public class FriendsController {
 
+    private DashboardController dashboardController;
+
+    public void setDashboardController(DashboardController dashboardController) {
+        this.dashboardController = dashboardController;
+    }
+
     @FXML
     private VBox friendsListContainer;
 
@@ -20,6 +26,10 @@ public class FriendsController {
 
     @FXML
     public void initialize() {
+        refresh(); // Call refresh on init
+    }
+
+    public void refresh() {
         fetchFriends();
         fetchNonFriends();
     }
@@ -118,12 +128,21 @@ public class FriendsController {
         HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
 
         // Actions
+        Button viewWishlistBtn = new Button("View Wishlist");
+        viewWishlistBtn.getStyleClass().add("button-primary");
+        viewWishlistBtn.setStyle("-fx-background-color: #3b82f6;"); // Blue
+        viewWishlistBtn.setOnAction(e -> {
+            if (dashboardController != null) {
+                dashboardController.showFriendWishlist(friend);
+            }
+        });
+
         Button removeBtn = new Button("Remove");
         removeBtn.getStyleClass().add("button-icon");
         removeBtn.setStyle("-fx-text-fill: #ef4444; -fx-background-color: rgba(239, 68, 68, 0.1);");
         removeBtn.setOnAction(e -> handleRemoveFriend(friend));
         
-        item.getChildren().addAll(avatar, info, spacer, removeBtn);
+        item.getChildren().addAll(avatar, info, spacer, viewWishlistBtn, removeBtn);
         return item;
     }
 

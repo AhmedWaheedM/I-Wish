@@ -110,8 +110,8 @@ public class RequestsController {
             // Let's assume AddFriendRequest is reused for acceptance or creates the link.
             // Wait, logic check: if Request exists, 'AddFriend' might mean 'Confirm'.
             
-            dtos.requestDtos.friendsHandler.AddFriendRequest req = 
-                new dtos.requestDtos.friendsHandler.AddFriendRequest(user.getUserId(), requester.getUserId());
+            dtos.requestDtos.friendsHandler.AcceptFriendRequest req = 
+                new dtos.requestDtos.friendsHandler.AcceptFriendRequest(requester.getUserId(), user.getUserId());
             
             clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
             conn.sendAndWait(req);

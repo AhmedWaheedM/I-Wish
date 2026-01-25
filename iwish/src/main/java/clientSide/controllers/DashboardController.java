@@ -65,10 +65,36 @@ public class DashboardController {
     }
 
     public void showFriends() {
-        loadView("friends_view");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/components/friends_view.fxml"));
+            Parent view = loader.load();
+            
+            FriendsController controller = loader.getController();
+            controller.setDashboardController(this);
+            
+            mainLayout.setCenter(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     
-    private java.util.Map<String, Parent> viewCache = new java.util.HashMap<>();
+    public void showFriendWishlist(models.User friend) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/components/friend_wishlist_view.fxml"));
+            Parent view = loader.load();
+            
+            FriendWishlistController controller = loader.getController();
+            controller.setDashboardController(this);
+            controller.setFriend(friend);
+            
+            mainLayout.setCenter(view);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    // Cache removed to ensure fresh data on every view switch
+
 
     public void showRequests() {
          loadView("requests_view");
@@ -85,6 +111,16 @@ public class DashboardController {
         currentBalance += amountToAdd;
         if (sidebarController != null) {
             sidebarController.updateBalanceDisplay(currentBalance);
+        }
+    }
+
+    public void updateUserInfo(models.User user) {
+        if (user != null) {
+            // Sync local balance state if using it
+            this.currentBalance = user.getBalance();
+            if (sidebarController != null) {
+                sidebarController.updateUserInfo(user);
+            }
         }
     }
 
@@ -116,8 +152,7 @@ public class DashboardController {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                // Clear cache on logout
-                viewCache.clear();
+                // Cache clearing removed
                 clientSide.appManger.IWishManager.logout();
                 IWishManager.switchScene("login", "I-Wish - Login");
             } catch (Exception e) {
@@ -128,11 +163,6 @@ public class DashboardController {
 
     private void loadView(String fxml) {
         try {
-            if (viewCache.containsKey(fxml)) {
-                mainLayout.setCenter(viewCache.get(fxml));
-                return;
-            }
-
             // Construct path to components
             String path = "/views/components/" + fxml + ".fxml";
             java.net.URL resource = getClass().getResource(path);
@@ -144,7 +174,7 @@ public class DashboardController {
 
             FXMLLoader loader = new FXMLLoader(resource);
             Parent view = loader.load();
-            viewCache.put(fxml, view);
+            // detailed cache logic removed
             mainLayout.setCenter(view);
         } catch (IOException e) {
             e.printStackTrace();

@@ -19,7 +19,25 @@ public class FriendsHandler extends DBHandler {
             PreparedStatement pstmt = connection.prepareStatement(query);
             pstmt.setInt(1, user1.getUserId());
             pstmt.setInt(2, user2.getUserId());
-            pstmt.setString(3, "ACCEPTED");
+            pstmt.setString(3, "PENDING");
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+    }
+
+    public void acceptFriend(User user1, User user2) {
+        // user1 sent the request, user2 is accepting it.
+        // We need to update the row where user1_id = u1 AND user2_id = u2
+        String query = "UPDATE " + tableName + " SET status = ? WHERE user1_id = ? AND user2_id = ?";
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setString(1, "ACCEPTED");
+            pstmt.setInt(2, user1.getUserId());
+            pstmt.setInt(3, user2.getUserId());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

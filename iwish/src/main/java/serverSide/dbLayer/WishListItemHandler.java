@@ -40,6 +40,7 @@ public class WishListItemHandler extends DBHandler {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("Failed to remove item from wishlist");
         } finally {
             close();
         }

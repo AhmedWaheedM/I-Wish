@@ -51,10 +51,17 @@
         <!-- Actions -->
         <HBox spacing="8" style="-fx-padding: 8 0 0 0;">
              <!-- Condition: If Owner -->
-             <Button text="Remove" styleClass="button-danger" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+             <Button fx:id="removeBtn" text="Remove" styleClass="button-danger" maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#handleRemove">
                  <graphic>
                     <FontIcon iconLiteral="fas-trash" iconSize="14"/>
                  </graphic>
+             </Button>
+             
+             <!-- Condition: If Friend (Hidden in this template, swapped programmatically) -->
+             <Button fx:id="contributeBtn" text="Contribute" styleClass="button-primary" style="-fx-background-color: #16a34a;" maxWidth="Infinity" HBox.hgrow="ALWAYS" visible="false" managed="false" onAction="#handleContribute">
+                <graphic>
+                    <FontIcon iconLiteral="fas-dollar-sign" iconSize="14"/>
+                </graphic>
              </Button>
              
              <!-- Condition: If Friend (Hidden in this template, swapped programmatically) -->

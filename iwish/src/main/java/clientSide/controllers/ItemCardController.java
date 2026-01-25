@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
+import javafx.scene.control.Button;
 
 public class ItemCardController {
 
@@ -89,5 +90,57 @@ public class ItemCardController {
         
         // Owner logic: WishListItem doesn't have direct owner ref, assuming 'Me' for My Wishlist view
         if (ownerLabel != null) ownerLabel.setText("by Me");
+    }
+
+    private Runnable onRemove;
+    private Runnable onContribute;
+    private boolean isViewerMode = false;
+
+    public void setOnRemove(Runnable onRemove) {
+        this.onRemove = onRemove;
+    }
+    
+    public void setOnContribute(Runnable onContribute) {
+        this.onContribute = onContribute;
+    }
+    
+    public void setViewerMode(boolean isViewerMode) {
+        this.isViewerMode = isViewerMode;
+        updateButtons();
+    }
+
+    @FXML
+    private void handleRemove() {
+        if (onRemove != null) {
+            onRemove.run();
+        }
+    }
+    
+    @FXML
+    private void handleContribute() {
+        if (onContribute != null) {
+            onContribute.run();
+        }
+    }
+    
+    @FXML
+    private Button removeBtn;
+    @FXML
+    private Button contributeBtn;
+    
+    private void updateButtons() {
+        if (removeBtn == null || contributeBtn == null) return;
+        
+        if (isViewerMode) {
+            removeBtn.setVisible(false);
+            removeBtn.setManaged(false);
+            contributeBtn.setVisible(true);
+            contributeBtn.setManaged(true);
+        } else {
+            removeBtn.setVisible(true);
+            removeBtn.setManaged(true);
+            contributeBtn.setVisible(false);
+            contributeBtn.setManaged(false);
+        }
     }
 }

@@ -106,6 +106,19 @@ public class RequestRouter {
             return true;
         }
 
+        if (request instanceof dtos.requestDtos.friendsHandler.AcceptFriendRequest) {
+            dtos.requestDtos.friendsHandler.AcceptFriendRequest r = (dtos.requestDtos.friendsHandler.AcceptFriendRequest) request;
+
+            User u1 = new User();
+            u1.setUserId(r.getUser1Id());
+
+            User u2 = new User();
+            u2.setUserId(r.getUser2Id());
+
+            friendsHandler.acceptFriend(u1, u2);
+            return true;
+        }
+
         if (request instanceof GetFriendsRequest) {
             GetFriendsRequest r = (GetFriendsRequest) request;
             return friendsHandler.getFriendsByUserId(r.getUserId());
