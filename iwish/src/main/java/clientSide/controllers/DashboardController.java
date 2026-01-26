@@ -1,18 +1,15 @@
 package clientSide.controllers;
 
+import java.io.IOException;
+import java.util.Optional;
+
 import clientSide.appManger.IWishManager;
-import clientSide.controllers.WalletController;
-
-
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-
-import java.io.IOException;
-import java.util.Optional;
+import javafx.scene.layout.BorderPane;
 
 public class DashboardController {
 

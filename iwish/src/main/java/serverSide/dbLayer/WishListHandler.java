@@ -139,7 +139,7 @@ public class WishListHandler extends DBHandler {
         return userId;
     }
     public Double getWishListTotalAmount(int wishListId) {
-        String query = "SELECT total_amount FROM " + tableName + " WHERE wishlist_id = ?";
+        String query = "SELECT total_items_amount FROM " + tableName + " WHERE wishlist_id = ?";
 
         Double totalAmount = null;
 
@@ -151,7 +151,7 @@ public class WishListHandler extends DBHandler {
             resultSet = pstmt.executeQuery();
 
             if (resultSet.next()) {
-                totalAmount = resultSet.getDouble("total_amount");
+                totalAmount = resultSet.getDouble("total_items_amount");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -160,6 +160,18 @@ public class WishListHandler extends DBHandler {
         }
 
         return totalAmount;
+    }
+
+    public WishList createEmptyWishListForUser(int userId) {
+        WishList w = new WishList();
+        w.setCurrentAmount(0);
+        w.setTotalAmount(0);
+
+        models.User u = new models.User();
+        u.setUserId(userId);
+        w.setUser(u);
+
+        return addNewWishList(w);
     }
 
 

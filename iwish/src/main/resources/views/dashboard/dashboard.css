@@ -1,22 +1,38 @@
-/* dashboard.css */
+/* =======================================================================
+   dashboard.css
+   ======================================================================= */
 
-/* ROOT VARIABLES - Defined globally to prevent circular lookup loops */
-.root {
+/* =======================================================================
+   1) GLOBAL LOOKED-UP COLORS / BASE
+   IMPORTANT: use .app-root (not .root) so lookups work in subviews
+   ======================================================================= */
+.app-root {
+    /* Core colors */
     -fx-sidebar-bg: #0f172a;
     -fx-main-bg: #f8fafc;
     -fx-card-bg: #ffffff;
     -fx-gray-border: #e2e8f0;
+
+    /* Brand */
     -fx-primary: #2563eb;
     -fx-primary-hover: #1d4ed8;
+
+    /* Danger */
     -fx-danger: #ef4444;
     -fx-danger-hover: #dc2626;
+
+    /* Text */
     -fx-text-primary: #0f172a;
-    -fx-text-secondary: #cbd5e1;
+    -fx-text-secondary: #94a3b8;
     -fx-text-muted: #64748b;
-    -fx-font-family: 'Segoe UI', sans-serif;
+
+    /* Font */
+    -fx-font-family: "Segoe UI";
 }
 
-/* Sidebar Styles */
+/* =======================================================================
+   2) SIDEBAR
+   ======================================================================= */
 .sidebar {
     -fx-background-color: -fx-sidebar-bg;
     -fx-min-width: 250px;
@@ -32,13 +48,8 @@
 }
 
 .sidebar-button:hover {
-    -fx-background-color: #1e293b; /* Explicit color, no var lookup for safety */
-    -fx-text-fill: white;
-}
-
-.sidebar-button.active {
-    -fx-background-color: -fx-primary;
-    -fx-text-fill: white;
+    -fx-background-color: #1e293b;
+    -fx-text-fill: gray;
 }
 
 .sidebar-button .ikonli-font-icon {
@@ -47,17 +58,22 @@
 
 .sidebar-button:hover .ikonli-font-icon,
 .sidebar-button.active .ikonli-font-icon {
-    -fx-icon-color: white;
+    -fx-icon-color: gray;
+    opacity: 0.5;
 }
 
-/* User Profile Section */
+/* =======================================================================
+   3) USER PROFILE
+   ======================================================================= */
 .user-profile {
     -fx-padding: 24;
     -fx-border-color: #334155;
     -fx-border-width: 0 0 1 0;
 }
 
-/* Wallet Button */
+/* =======================================================================
+   4) WALLET BUTTON
+   ======================================================================= */
 .wallet-button {
     -fx-background-color: #1e293b;
     -fx-background-radius: 8;
@@ -69,50 +85,69 @@
     -fx-background-color: #334155;
 }
 
-/* Card Styles */
+/* =======================================================================
+   5) CARDS
+   ======================================================================= */
 .card {
     -fx-background-color: -fx-card-bg;
-    -fx-background-radius: 12;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 1);
-    -fx-border-width: 1;
-    -fx-border-color: -fx-gray-border;
-    -fx-border-radius: 12;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+
+    -fx-border-color: #cbd5e1;
+    -fx-border-width: 1.2;
+
+    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.18), 20, 0, 0, 8);
     -fx-padding: 0;
 }
 
 .card:hover {
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 4);
+    -fx-effect: dropshadow(three-pass-box, rgba(15, 23, 42, 0.25), 26, 0, 0, 10);
+    -fx-border-color: #94a3b8;
 }
 
 .card-content {
-    -fx-padding: 24;
+    -fx-padding: 20;
 }
 
-/* General Buttons */
+/* =======================================================================
+   6) BUTTONS
+   ======================================================================= */
 .button-primary {
-    -fx-background-color: -fx-primary;
+    -fx-background-color: linear-gradient(to bottom, #3b82f6, #2563eb);
     -fx-text-fill: white;
-    -fx-background-radius: 6;
-    -fx-padding: 8 16;
     -fx-font-weight: bold;
+
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+
+    -fx-padding: 10 16;
     -fx-cursor: hand;
+
+    -fx-effect: dropshadow(three-pass-box, rgba(37, 99, 235, 0.35), 12, 0, 0, 5);
 }
 
 .button-primary:hover {
-    -fx-background-color: -fx-primary-hover;
+    -fx-background-color: linear-gradient(to bottom, #2563eb, #1d4ed8);
+    -fx-effect: dropshadow(three-pass-box, rgba(37, 99, 235, 0.50), 14, 0, 0, 6);
 }
 
 .button-danger {
-    -fx-background-color: white;
+    -fx-background-color: #ffffff;
     -fx-text-fill: -fx-danger;
-    -fx-border-color: -fx-gray-border;
-    -fx-background-radius: 6;
-    -fx-padding: 8 12;
+
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1.2;
+
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+
+    -fx-padding: 10 14;
     -fx-cursor: hand;
 }
 
 .button-danger:hover {
     -fx-background-color: #fef2f2;
+    -fx-border-color: #fecaca;
     -fx-text-fill: -fx-danger-hover;
 }
 
@@ -120,7 +155,11 @@
     -fx-background-color: transparent;
     -fx-text-fill: -fx-primary;
     -fx-border-color: -fx-primary;
+    -fx-border-width: 1;
+
+    -fx-background-radius: 6;
     -fx-border-radius: 6;
+
     -fx-padding: 8 16;
     -fx-cursor: hand;
 }
@@ -129,18 +168,22 @@
     -fx-background-color: #eff6ff;
 }
 
-/* Progress Bar */
+/* =======================================================================
+   7) PROGRESS BAR
+   ======================================================================= */
 .progress-bar .track {
-    -fx-background-color: #f1f5f9;
-    -fx-background-radius: 4;
+    -fx-background-color: #e5e7eb;
+    -fx-background-radius: 6;
 }
 
 .progress-bar .bar {
-    -fx-background-color: -fx-primary;
-    -fx-background-radius: 4;
+    -fx-background-color: #22c55e;
+    -fx-background-radius: 6;
 }
 
-/* Text Classes */
+/* =======================================================================
+   8) TYPOGRAPHY / TEXT HELPERS
+   ======================================================================= */
 .text-h3 {
     -fx-font-size: 18px;
     -fx-font-weight: bold;
@@ -155,11 +198,145 @@
     -fx-text-fill: -fx-text-muted;
 }
 
-
-/* Right Sidebar Specific */
+/* =======================================================================
+   9) RIGHT SIDEBAR
+   ======================================================================= */
 .right-sidebar {
     -fx-background-color: -fx-sidebar-bg;
-    -fx-background-radius: 20 0 0 20; /* Round top-left and bottom-left */
+    -fx-background-radius: 20 0 0 20;
     -fx-border-radius: 20 0 0 20;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, -5, 0);
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.20), 10, 0, -5, 0);
+}
+
+/* =======================================================================
+   10) NOTIFICATIONS – DASHBOARD UI
+   ======================================================================= */
+.notif-page {
+    -fx-background-color: linear-gradient(to bottom right, #0b1220, #0f172a);
+    -fx-background-radius: 16;
+}
+
+.notif-page-icon {
+    -fx-background-color: rgba(37, 99, 235, 0.95);
+    -fx-background-radius: 999;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-pref-width: 36;
+    -fx-pref-height: 36;
+}
+
+.notif-page-title {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: 900;
+}
+
+.notif-page-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+}
+
+.notif-counter {
+    -fx-text-fill: #cbd5e1;
+    -fx-background-color: rgba(148, 163, 184, 0.12);
+    -fx-background-radius: 999;
+    -fx-padding: 6 10;
+    -fx-font-weight: 800;
+}
+
+.notif-action {
+    -fx-background-color: rgba(37, 99, 235, 0.95);
+    -fx-text-fill: white;
+    -fx-background-radius: 12;
+    -fx-font-weight: 800;
+    -fx-padding: 8 12;
+    -fx-cursor: hand;
+}
+
+.notif-action-muted {
+    -fx-background-color: rgba(148, 163, 184, 0.14);
+    -fx-text-fill: #e2e8f0;
+    -fx-background-radius: 12;
+    -fx-font-weight: 800;
+    -fx-padding: 8 12;
+    -fx-cursor: hand;
+}
+
+.notif-list {
+    -fx-background-color: transparent;
+    -fx-control-inner-background: transparent;
+}
+
+/* IMPORTANT: scoped so other lists aren't affected */
+.notif-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 8 0 8 0;
+}
+
+/* Notification card */
+.notif-card {
+    -fx-background-color: rgba(15, 23, 42, 0.92);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(148, 163, 184, 0.14);
+    -fx-border-radius: 14;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.35), 16, 0, 0, 6);
+}
+
+.notif-icon {
+    -fx-background-color: rgba(37, 99, 235, 0.95);
+    -fx-background-radius: 999;
+    -fx-min-width: 34;
+    -fx-min-height: 34;
+    -fx-pref-width: 34;
+    -fx-pref-height: 34;
+}
+
+.notif-icon-glyph {
+    -fx-icon-color: white;
+}
+
+.notif-title {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: 900;
+}
+
+.notif-body {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 12px;
+}
+
+.notif-time {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11px;
+}
+
+.notif-badge {
+    -fx-background-color: rgba(34, 197, 94, 0.22);
+    -fx-text-fill: #86efac;
+    -fx-font-weight: 900;
+    -fx-background-radius: 999;
+    -fx-padding: 3 8;
+    -fx-font-size: 10px;
+}
+
+.notif-btn {
+    -fx-background-color: rgba(148, 163, 184, 0.14);
+    -fx-text-fill: #e2e8f0;
+    -fx-background-radius: 12;
+    -fx-font-weight: 800;
+    -fx-padding: 8 12;
+    -fx-cursor: hand;
+}
+
+.notif-btn:hover {
+    -fx-background-color: rgba(148, 163, 184, 0.22);
+}
+
+.notif-empty {
+    -fx-background-color: rgba(15, 23, 42, 0.65);
+    -fx-background-radius: 16;
+    -fx-padding: 22;
+    -fx-border-color: rgba(148, 163, 184, 0.12);
+    -fx-border-radius: 16;
 }

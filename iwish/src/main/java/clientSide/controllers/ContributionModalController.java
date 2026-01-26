@@ -1,13 +1,14 @@
 package clientSide.controllers;
 
-import models.WishListItem;
-import models.User;
+import clientSide.helpers.MessageDisplayer;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Button;
 import javafx.stage.Stage;
+import models.User;
+import models.WishListItem;
 
 public class ContributionModalController {
 
@@ -95,7 +96,7 @@ public class ContributionModalController {
             
             clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
             Object response = conn.sendAndWait(req);
-            
+            MessageDisplayer.showSuccess("Contribution of $" + String.format("%.2f", amount) + " successful!", "Contribution Success");
             if (response instanceof Boolean && (Boolean) response) {
                 // Success
                 // Update local user balance mock

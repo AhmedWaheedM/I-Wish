@@ -1,11 +1,11 @@
 package clientSide.controllers;
 
-import models.WishListItem;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
-import javafx.scene.control.Button;
+import models.WishListItem;
 
 public class ItemCardController {
 
@@ -14,6 +14,9 @@ public class ItemCardController {
 
     @FXML
     private Label itemNameLabel;
+
+    @FXML
+    private Label quantityLabel;
 
     @FXML
     private Label ownerLabel;
@@ -33,77 +36,99 @@ public class ItemCardController {
     @FXML
     private Label remainingLabel;
 
+    @FXML
+    private Button removeBtn;
+
+    @FXML
+    private Button contributeBtn;
+
+    private Runnable onRemove;
+    private Runnable onContribute;
+    private boolean isViewerMode = false;
+
     public void setData(WishListItem item) {
-        // TODO: Fix missing field - methods need to be mapped to models.Item or calculated
-        /*
-        if (itemNameLabel != null) itemNameLabel.setText(item.getName());
-        if (ownerLabel != null) ownerLabel.setText("by " + item.getOwner());
-        if (priceLabel != null) priceLabel.setText(String.format("$%.2f", item.getPrice()));
-        
-        if (collectedLabel != null) {
-            collectedLabel.setText(String.format("$%.2f collected", item.getCollected()));
+
+        int qty = 1;
+        try {
+            qty = Math.max(1, item.getQuantity()); // assumes you added getQuantity()
+        } catch (Exception ignored) {
+            qty = 1;
         }
 
-        if (fundingProgress != null) {
-            double progress = item.getCollected() / item.getPrice();
-            fundingProgress.setProgress(progress);
+        if (quantityLabel != null) {
+            quantityLabel.setText("x" + qty);
         }
-        
-        if (percentLabel != null) {
-            double progress = item.getCollected() / item.getPrice();
-            percentLabel.setText(String.format("%.0f%% funded", progress * 100));
-        }
-        
-        if (remainingLabel != null) {
-             double remaining = item.getPrice() - item.getCollected();
-             remainingLabel.setText(String.format("$%.2f remaining", remaining));
-        }
-        */
-        
+
+        // Name + total price
         if (item.getItem() != null) {
-             if (itemNameLabel != null) itemNameLabel.setText(item.getItem().getName());
-             if (priceLabel != null) priceLabel.setText(String.format("$%.2f", item.getItem().getPrice()));
+            if (itemNameLabel != null) {
+                itemNameLabel.setText(item.getItem().getName());
+            }
+
+            double unitPrice = item.getItem().getPrice();
+            double totalPrice = unitPrice * qty;
+
+            // Display TOTAL price because quantity matters now
+            if (priceLabel != null) {
+                priceLabel.setText(String.format("$%.2f", totalPrice));
+            }
         }
 
+        // Collected sum from contributions
         double collected = 0.0;
         if (item.getContributions() != null) {
             for (models.Contribution c : item.getContributions()) {
                 collected += c.getAmount();
             }
         }
-        
+
         if (collectedLabel != null) {
             collectedLabel.setText(String.format("$%.2f collected", collected));
         }
 
-        if (item.getItem() != null && item.getItem().getPrice() > 0) {
-            double price = item.getItem().getPrice();
-            double progress = collected / price;
-            
-            if (fundingProgress != null) fundingProgress.setProgress(progress);
-            if (percentLabel != null) percentLabel.setText(String.format("%.0f%% funded", progress * 100));
-            if (remainingLabel != null) {
-                double remaining = price - collected;
-                remainingLabel.setText(String.format("$%.2f remaining", remaining > 0 ? remaining : 0));
+        // Progress based on TOTAL price (price * quantity)
+        if (item.getItem() != null) {
+            double unitPrice = item.getItem().getPrice();
+            double totalPrice = unitPrice * qty;
+
+            if (totalPrice > 0) {
+                double progress = collected / totalPrice;
+
+                // clamp 0..1
+                if (progress < 0) progress = 0;
+                if (progress > 1) progress = 1;
+
+                if (fundingProgress != null) {
+                    fundingProgress.setProgress(progress);
+                }
+
+                if (percentLabel != null) {
+                    percentLabel.setText(String.format("%.0f%% funded", progress * 100));
+                }
+
+                if (remainingLabel != null) {
+                    double remaining = totalPrice - collected;
+                    remainingLabel.setText(String.format("$%.2f remaining", Math.max(0, remaining)));
+                }
             }
         }
-        
-        // Owner logic: WishListItem doesn't have direct owner ref, assuming 'Me' for My Wishlist view
-        if (ownerLabel != null) ownerLabel.setText("by Me");
-    }
 
-    private Runnable onRemove;
-    private Runnable onContribute;
-    private boolean isViewerMode = false;
+        // Owner label (adjust if you later support showing real owner)
+        if (ownerLabel != null) {
+            ownerLabel.setText("by Me");
+        }
+
+        updateButtons();
+    }
 
     public void setOnRemove(Runnable onRemove) {
         this.onRemove = onRemove;
     }
-    
+
     public void setOnContribute(Runnable onContribute) {
         this.onContribute = onContribute;
     }
-    
+
     public void setViewerMode(boolean isViewerMode) {
         this.isViewerMode = isViewerMode;
         updateButtons();
@@ -115,30 +140,27 @@ public class ItemCardController {
             onRemove.run();
         }
     }
-    
+
     @FXML
     private void handleContribute() {
         if (onContribute != null) {
             onContribute.run();
         }
     }
-    
-    @FXML
-    private Button removeBtn;
-    @FXML
-    private Button contributeBtn;
-    
+
     private void updateButtons() {
         if (removeBtn == null || contributeBtn == null) return;
-        
+
         if (isViewerMode) {
             removeBtn.setVisible(false);
             removeBtn.setManaged(false);
+
             contributeBtn.setVisible(true);
             contributeBtn.setManaged(true);
         } else {
             removeBtn.setVisible(true);
             removeBtn.setManaged(true);
+
             contributeBtn.setVisible(false);
             contributeBtn.setManaged(false);
         }

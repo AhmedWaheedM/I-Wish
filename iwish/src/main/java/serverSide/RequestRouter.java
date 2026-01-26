@@ -1,8 +1,5 @@
 package serverSide;
 
-
-
-import dtos.Notification;
 import dtos.Request;
 import dtos.requestDtos.Item.AddItemRequest;
 import dtos.requestDtos.Item.DeleteItemRequest;
@@ -11,10 +8,13 @@ import dtos.requestDtos.Item.GetItemByIdRequest;
 import dtos.requestDtos.Item.GetItemPriceRequest;
 import dtos.requestDtos.contributionHandler.AddContributionRequest;
 import dtos.requestDtos.contributionHandler.RemoveContributionRequest;
+import dtos.requestDtos.friendsHandler.AcceptFriendRequest;
 import dtos.requestDtos.friendsHandler.AddFriendRequest;
 import dtos.requestDtos.friendsHandler.GetFriendsRequest;
+import dtos.requestDtos.friendsHandler.GetNonFriendsRequest;
 import dtos.requestDtos.friendsHandler.GetPendingFriendsRequest;
 import dtos.requestDtos.friendsHandler.RejectFriendRequest;
+import dtos.requestDtos.friendsHandler.RemoveFriendRequest;
 import dtos.requestDtos.notificationHandler.AddNotificationRequest;
 import dtos.requestDtos.notificationHandler.GetNotificationsRequest;
 import dtos.requestDtos.notificationHandler.GetUnreadNotificationsRequest;
@@ -22,14 +22,23 @@ import dtos.requestDtos.notificationHandler.MarkAllNotificationsAsReadRequest;
 import dtos.requestDtos.notificationHandler.MarkNotificationAsReadRequest;
 import dtos.requestDtos.userHandler.HasEnoughBalanceRequest;
 import dtos.requestDtos.userHandler.LoginRequest;
+import dtos.requestDtos.userHandler.RegisterationRequest;
 import dtos.requestDtos.userHandler.UpdateBalanceRequest;
 import dtos.requestDtos.wishListHandler.DeleteWishListRequest;
 import dtos.requestDtos.wishListHandler.GetFriendsWishListsRequest;
 import dtos.requestDtos.wishListHandler.GetWishListByUserIdRequest;
 import dtos.requestDtos.wishListHandler.UpdateWishListCurrentAmountRequest;
 import dtos.requestDtos.wishListItemHandler.AddWishListItemRequest;
+import dtos.requestDtos.wishListItemHandler.GetWishListItemsRequest;
 import dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest;
 import models.User;
+import serverSide.apis.ContributionApis;
+import serverSide.apis.FriendsApis;
+import serverSide.apis.ItemApis;
+import serverSide.apis.NotificationApis;
+import serverSide.apis.UserApis;
+import serverSide.apis.WishListApis;
+import serverSide.apis.WishListItemApis;
 import serverSide.dbLayer.ContributionHandler;
 import serverSide.dbLayer.FriendsHandler;
 import serverSide.dbLayer.ItemHandler;
@@ -48,237 +57,81 @@ public class RequestRouter {
     private static WishListItemHandler wishListItemHandler;
     private static NotificationHandler notificationHandler;
 
+    // APIs
+    private static UserApis userApis;
+    private static FriendsApis friendsApis;
+    private static ItemApis itemApis;
+    private static WishListApis wishListApis;
+    private static WishListItemApis wishListItemApis;
+    private static NotificationApis notificationApis;
+    private static ContributionApis contributionApis;
 
     static {
-        usersHandler = new UsersHandler();
-
         itemHandler = new ItemHandler();
-
         friendsHandler = new FriendsHandler();
-
         wishListHandler = new WishListHandler(friendsHandler);
-
+        usersHandler = new UsersHandler(wishListHandler);
         contributionHandler = new ContributionHandler(wishListHandler, usersHandler);
-
         notificationHandler = new NotificationHandler();
-
         wishListItemHandler = new WishListItemHandler(itemHandler, wishListHandler, contributionHandler);
+
+        // APIs wiring
+        wishListApis = new WishListApis(wishListHandler);
+        userApis = new UserApis(usersHandler);
+        friendsApis = new FriendsApis(friendsHandler, notificationHandler, userApis);
+        itemApis = new ItemApis(itemHandler);
+        wishListItemApis = new WishListItemApis(wishListItemHandler);
+        notificationApis = new NotificationApis(notificationHandler);
+        contributionApis = new ContributionApis(contributionHandler, wishListApis, userApis, notificationHandler);
     }
 
     public static Object handleRequest(Request request) {
 
-        
-
         // ===== Users =====
-        if (request instanceof LoginRequest) {
-            LoginRequest r = (LoginRequest) request;
-            return usersHandler.Login(r.getUserName(), r.getPassword());
-        }
-
-        if (request instanceof User) {
-            User user = (User) request;
-            return usersHandler.register(user);
-        }
-
-        if (request instanceof HasEnoughBalanceRequest) {
-            HasEnoughBalanceRequest r = (HasEnoughBalanceRequest) request;
-            return usersHandler.hasEnoughBalance(r.getUserId(), r.getAmount());
-        }
-
-        if (request instanceof UpdateBalanceRequest) {
-            UpdateBalanceRequest r = (UpdateBalanceRequest) request;
-
-            usersHandler.updateBalance(r.getUserId(), r.getAmount(), r.getOperation());
-            return true;
-        }
+        if (request instanceof LoginRequest) return userApis.login((LoginRequest) request);
+        if (request instanceof RegisterationRequest) return userApis.register((RegisterationRequest) request);
+        if (request instanceof User) return userApis.register((User) request);
+        if (request instanceof HasEnoughBalanceRequest) return userApis.hasEnoughBalance((HasEnoughBalanceRequest) request);
+        if (request instanceof UpdateBalanceRequest) return userApis.updateBalance((UpdateBalanceRequest) request);
 
         // ===== Contribution =====
-        if (request instanceof AddContributionRequest) {
-            AddContributionRequest r = (AddContributionRequest) request;
-            Integer userId = wishListHandler.getUserIdByWishListId(r.getWishListId());
-            double wishListTotalAmount = wishListHandler.getWishListTotalAmount(r.getWishListId());
-            String contributorName = usersHandler.getUserNameById(userId);
-
-            Notification notification = new Notification(
-                "New Contribution 🎁",
-                contributorName + " contributed " + r.getAmount() +
-                " to your wishlist.\n" +
-                "Total amount: " + wishListTotalAmount + "\n" +
-                "Remaining amount: " + (wishListTotalAmount - r.getAmount())
-            );
-            NotificationManger.sendNotificaiton(userId, notification);
-            
-            return contributionHandler.addContribution(r.getUserId(), r.getWishListId(), r.getWishListItemId(), r.getAmount());
-        }
-
-        if (request instanceof RemoveContributionRequest) {
-            RemoveContributionRequest r = (RemoveContributionRequest) request;
-            return contributionHandler.removeContribution(r.getContributionId(), r.getUserId(), r.getWishListId());
-        }
+        if (request instanceof AddContributionRequest) return contributionApis.addContribution((AddContributionRequest) request);
+        if (request instanceof RemoveContributionRequest) return contributionApis.removeContribution((RemoveContributionRequest) request);
 
         // ===== Friends =====
-        if (request instanceof AddFriendRequest) {
-            AddFriendRequest r = (AddFriendRequest) request;
-
-            User u1 = new User();
-            u1.setUserId(r.getUser1Id());
-
-            User u2 = new User();
-            u2.setUserId(r.getUser2Id());
-
-            friendsHandler.addFriend(u1, u2);
-            return true;
-        }
-
-        if (request instanceof dtos.requestDtos.friendsHandler.AcceptFriendRequest) {
-            dtos.requestDtos.friendsHandler.AcceptFriendRequest r = (dtos.requestDtos.friendsHandler.AcceptFriendRequest) request;
-
-            User u1 = new User();
-            u1.setUserId(r.getUser1Id());
-
-            User u2 = new User();
-            u2.setUserId(r.getUser2Id());
-
-            friendsHandler.acceptFriend(u1, u2);
-            return true;
-        }
-
-        if (request instanceof GetFriendsRequest) {
-            GetFriendsRequest r = (GetFriendsRequest) request;
-            return friendsHandler.getFriendsByUserId(r.getUserId());
-        }
-
-        if (request instanceof GetPendingFriendsRequest) {
-            GetPendingFriendsRequest r = (GetPendingFriendsRequest) request;
-            return friendsHandler.getPendingFriendsByUserId(r.getUserId());
-        }
-
-        if (request instanceof RejectFriendRequest) {
-            RejectFriendRequest r = (RejectFriendRequest) request;
-
-            User u1 = new User();
-            u1.setUserId(r.getUser1Id());
-
-            User u2 = new User();
-            u2.setUserId(r.getUser2Id());
-
-            friendsHandler.rejectFriendRequest(u1, u2);
-            return true;
-        }
-
-        if (request instanceof dtos.requestDtos.friendsHandler.GetNonFriendsRequest) {
-            dtos.requestDtos.friendsHandler.GetNonFriendsRequest r = (dtos.requestDtos.friendsHandler.GetNonFriendsRequest) request;
-            return friendsHandler.getNonFriends(r.getUserId());
-        }
-
-        if (request instanceof dtos.requestDtos.friendsHandler.RemoveFriendRequest) {
-            dtos.requestDtos.friendsHandler.RemoveFriendRequest r = (dtos.requestDtos.friendsHandler.RemoveFriendRequest) request;
-            User u1 = new User(); u1.setUserId(r.getUser1Id());
-            User u2 = new User(); u2.setUserId(r.getUser2Id());
-            friendsHandler.removeFriend(u1, u2);
-            return true;
-        }
+        if (request instanceof AddFriendRequest) return friendsApis.addFriend((AddFriendRequest) request);
+        if (request instanceof AcceptFriendRequest) return friendsApis.acceptFriend((AcceptFriendRequest) request);
+        if (request instanceof GetFriendsRequest) return friendsApis.getFriends((GetFriendsRequest) request);
+        if (request instanceof GetPendingFriendsRequest) return friendsApis.getPending((GetPendingFriendsRequest) request);
+        if (request instanceof RejectFriendRequest) return friendsApis.reject((RejectFriendRequest) request);
+        if (request instanceof GetNonFriendsRequest) return friendsApis.getNonFriends((GetNonFriendsRequest) request);
+        if (request instanceof RemoveFriendRequest) return friendsApis.removeFriend((RemoveFriendRequest) request);
 
         // ===== Item =====
-        if (request instanceof AddItemRequest) {
-            AddItemRequest r = (AddItemRequest) request;
-
-            itemHandler.addItem(r.getName(), r.getPrice());
-            return true;
-        }
-
-        if (request instanceof DeleteItemRequest) {
-            DeleteItemRequest r = (DeleteItemRequest) request;
-
-            itemHandler.deleteItem(r.getItemId());
-            return true;
-        }
-
-        if (request instanceof GetItemPriceRequest) {
-            GetItemPriceRequest r = (GetItemPriceRequest) request;
-            return itemHandler.getItemPrice(r.getItemId());
-        }
-
-        if(request instanceof GetItemByIdRequest){
-            GetItemByIdRequest r = ( GetItemByIdRequest) request;
-            return itemHandler.getItemById(r.getItemId());
-        }
-
-        if(request instanceof GetAllItemsRequest){
-            return itemHandler.getAllItems();
-        }
+        if (request instanceof AddItemRequest) return itemApis.addItem((AddItemRequest) request);
+        if (request instanceof DeleteItemRequest) return itemApis.deleteItem((DeleteItemRequest) request);
+        if (request instanceof GetItemPriceRequest) return itemApis.getItemPrice((GetItemPriceRequest) request);
+        if (request instanceof GetItemByIdRequest) return itemApis.getItemById((GetItemByIdRequest) request);
+        if (request instanceof GetAllItemsRequest) return itemApis.getAllItems((GetAllItemsRequest) request);
 
         // ===== WishList =====
-        if (request instanceof GetWishListByUserIdRequest) {
-            GetWishListByUserIdRequest r = (GetWishListByUserIdRequest) request;
-            System.out.println("GetWishListByUserIdRequest: " + r.getUserId());
-            return wishListHandler.getWishListByUserId(r.getUserId());
-            
-        }
-
-        if (request instanceof GetFriendsWishListsRequest) {
-            GetFriendsWishListsRequest r = (GetFriendsWishListsRequest) request;
-            return wishListHandler.getFriendsWishLists(r.getUserId());
-        }
-
-        if (request instanceof UpdateWishListCurrentAmountRequest) {
-            UpdateWishListCurrentAmountRequest r = (UpdateWishListCurrentAmountRequest) request;
-            return wishListHandler.updateWishListCurrentAmount(r.getWishListId(), r.getAmount(), r.getOperation());
-        }
-
-        if (request instanceof DeleteWishListRequest) {
-            DeleteWishListRequest r = (DeleteWishListRequest) request;
-            return wishListHandler.deleteWishList(r.getWishListId());
-        }
+        if (request instanceof GetWishListByUserIdRequest) return wishListApis.getWishListByUserId((GetWishListByUserIdRequest) request);
+        if (request instanceof GetFriendsWishListsRequest) return wishListApis.getFriendsWishLists((GetFriendsWishListsRequest) request);
+        if (request instanceof UpdateWishListCurrentAmountRequest) return wishListApis.updateCurrentAmount((UpdateWishListCurrentAmountRequest) request);
+        if (request instanceof DeleteWishListRequest) return wishListApis.deleteWishList((DeleteWishListRequest) request);
 
         // ===== WishListItem =====
-        if (request instanceof AddWishListItemRequest) {
-            AddWishListItemRequest r = (AddWishListItemRequest) request;
+        if (request instanceof AddWishListItemRequest) return wishListItemApis.addWishListItem((AddWishListItemRequest) request);
+        if (request instanceof RemoveWishListItemRequest) return wishListItemApis.removeWishListItem((RemoveWishListItemRequest) request);
+        if (request instanceof GetWishListItemsRequest) return wishListItemApis.getWishListItems((GetWishListItemsRequest) request);
 
-            wishListItemHandler.addWishListItem(r.getWishListId(), r.getItemId());
-            return true;
-        }
+        // ===== Notifications =====
+        if (request instanceof AddNotificationRequest) return notificationApis.addNotification((AddNotificationRequest) request);
+        if (request instanceof GetNotificationsRequest) return notificationApis.getNotifications((GetNotificationsRequest) request);
+        if (request instanceof GetUnreadNotificationsRequest) return notificationApis.getUnread((GetUnreadNotificationsRequest) request);
+        if (request instanceof MarkNotificationAsReadRequest) return notificationApis.markOneRead((MarkNotificationAsReadRequest) request);
+        if (request instanceof MarkAllNotificationsAsReadRequest) return notificationApis.markAllRead((MarkAllNotificationsAsReadRequest) request);
 
-        if (request instanceof RemoveWishListItemRequest) {
-            RemoveWishListItemRequest r = (RemoveWishListItemRequest) request;
-
-            wishListItemHandler.removeWishListItem(r.getWishListId(), r.getItemId());
-            return true;
-        }
-
-
-                // ===== Notifications =====
-        if (request instanceof AddNotificationRequest) {
-            AddNotificationRequest r = (AddNotificationRequest) request;
-
-            notificationHandler.addNotification(r.getUserId(), r.getTitle(), r.getBody());
-            Notification n = new Notification(r.getTitle(), r.getBody());
-            NotificationManger.sendNotificaiton(r.getUserId(), n);
-
-            return true;
-        }
-
-        if (request instanceof GetNotificationsRequest) {
-            GetNotificationsRequest r = (GetNotificationsRequest) request;
-            return notificationHandler.getNotificationsByUserId(r.getUserId());
-        }
-
-        if (request instanceof GetUnreadNotificationsRequest) {
-            GetUnreadNotificationsRequest r = (GetUnreadNotificationsRequest) request;
-            return notificationHandler.getUnreadNotificationsByUserId(r.getUserId());
-        }
-
-        if (request instanceof MarkNotificationAsReadRequest) {
-            MarkNotificationAsReadRequest r = (MarkNotificationAsReadRequest) request;
-            return notificationHandler.markAsRead(r.getNotificationId());
-        }
-
-        if (request instanceof MarkAllNotificationsAsReadRequest) {
-            MarkAllNotificationsAsReadRequest r = (MarkAllNotificationsAsReadRequest) request;
-            return notificationHandler.markAllAsRead(r.getUserId());
-        }
-
-
-        return null; // unknown request
+        return null;
     }
 }

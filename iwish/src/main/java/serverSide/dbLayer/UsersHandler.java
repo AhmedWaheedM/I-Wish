@@ -2,12 +2,15 @@ package serverSide.dbLayer;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import models.User;
 
 public class UsersHandler extends DBHandler {
-    public UsersHandler() {
+    private final WishListHandler wishListHandler;
+    public UsersHandler(WishListHandler wishListHandler) {
         super("User");
+        this.wishListHandler = wishListHandler;
     }
     private boolean userExists(String username) {
         String query = "SELECT COUNT(*) AS count FROM " + tableName + " WHERE username = ?";
@@ -27,25 +30,44 @@ public class UsersHandler extends DBHandler {
         }
         return exists;
     }
-    public boolean  register(User user) {
+    public boolean register(User user) {
 
-        if(userExists(user.getUserName())){
-            return false;
-        }
+        if (userExists(user.getUserName())) return false;
+
         String query = "INSERT INTO " + tableName + " (username, password, balance) VALUES (?, ?, ?)";
+
         try {
             connect();
-            PreparedStatement pstmt = connection.prepareStatement(query);
+
+            PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, user.getUserName());
             pstmt.setString(2, user.getPassword());
             pstmt.setDouble(3, user.getBalance());
             pstmt.executeUpdate();
+
+            // get generated user_id
+            resultSet = pstmt.getGeneratedKeys();
+            if (!resultSet.next()) {
+                connection.rollback();
+                return false;
+            }
+
+            int newUserId = resultSet.getInt(1);
+            user.setUserId(newUserId);
+
+            // create empty wishlist
+            wishListHandler.createEmptyWishListForUser(newUserId);
+
+            return true;
+
         } catch (SQLException e) {
+            try { if (connection != null) connection.rollback(); } catch (SQLException ignored) {}
             e.printStackTrace();
+            return false;
         } finally {
+            try { if (connection != null) connection.setAutoCommit(true); } catch (SQLException ignored) {}
             close();
         }
-        return true;
     }
     public User Login(String username, String password) {
         String query = "SELECT * FROM " + tableName + " WHERE username = ? AND password = ?";

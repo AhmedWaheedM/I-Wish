@@ -1,11 +1,12 @@
 package models;
 
-import java.util.List;
 import java.io.Serializable;
+import java.util.List;
 public class WishListItem implements Serializable {
 
     private int recId;
     private int wishListId;
+    private int quantity;
 
     private Item item;
     private List<Contribution> contributions;
@@ -49,5 +50,12 @@ public class WishListItem implements Serializable {
 
     public void setContributions(List<Contribution> contributions) {
         this.contributions = contributions;
+    }
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 }

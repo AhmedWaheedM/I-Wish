@@ -59,6 +59,20 @@ CREATE TABLE Wishlist_Item (
         FOREIGN KEY (item_id) REFERENCES Item(item_id)
         ON DELETE CASCADE
 );
+SET SQL_SAFE_UPDATES = 0;
+
+DELETE FROM contribution;
+DELETE FROM Wishlist_Item;
+
+SET SQL_SAFE_UPDATES = 1;
+
+ALTER TABLE Wishlist_Item
+ADD COLUMN quantity INT NOT NULL DEFAULT 1;
+
+SET SQL_SAFE_UPDATES = 0;
+UPDATE iwish.wishlist c
+SET c.current_amount = 0 , c.total_items_amount = 0;
+SET SQL_SAFE_UPDATES = 1;
 
 -- =========================
 -- Friends Table

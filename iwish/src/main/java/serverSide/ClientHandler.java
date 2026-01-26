@@ -29,8 +29,10 @@ public class ClientHandler extends Thread {
 
             while (isRunning) {
                 Request request = (Request) inputStream.readObject();
+                System.err.println("DEBUG: ClientHandler received request: " + request);
                 Object response = RequestRouter.handleRequest(request);
 
+                System.err.println("DEBUG: ClientHandler received response: " + response);
                 if(response instanceof User){
                     User user = (User) response;
                     OnlineUserTracker.onlineUsers.put(user.getUserId(), this);

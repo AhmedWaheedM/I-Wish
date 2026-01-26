@@ -2,18 +2,24 @@
 
 <?import javafx.scene.layout.BorderPane?>
 
-<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-            fx:id="mainLayout"
-            fx:controller="clientSide.controllers.DashboardController"
-            prefHeight="768.0" prefWidth="1024.0"
-            stylesheets="@dashboard.css">
+<BorderPane xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml"
+    fx:id="mainLayout"
+    fx:controller="clientSide.controllers.DashboardController"
+    prefHeight="768.0" prefWidth="1024.0"
+    stylesheets="@dashboard.css"
+    styleClass="app-root">
+
     <left>
-        <fx:include source="../components/sidebar.fxml" fx:id="sidebar"/>
+        <fx:include source="../components/sidebar.fxml" fx:id="sidebar" />
     </left>
+
     <center>
         <!-- Center content will be swapped dynamically -->
     </center>
+
     <right>
-        <fx:include source="../components/right_sidebar.fxml" fx:id="rightSidebar"/>
+        <fx:include source="../components/right_sidebar.fxml" fx:id="rightSidebar" />
     </right>
+
 </BorderPane>

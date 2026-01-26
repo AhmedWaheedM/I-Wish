@@ -1,9 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" 
-      alignment="CENTER" spacing="20" style="-fx-padding: 20;">
-    <Label text="Notifications" styleClass="text-h3"/>
-    <Label text="Coming Soon" styleClass="text-muted"/>
-</VBox>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+  xmlns:fx="http://javafx.com/fxml"
+  fx:controller="clientSide.controllers.NotificationsController"
+  styleClass="app-root notif-page">
+
+  <padding>
+    <Insets top="18" right="18" bottom="18" left="18" />
+  </padding>
+
+  <top>
+    <HBox alignment="CENTER_LEFT" spacing="12">
+
+      <StackPane styleClass="notif-page-icon">
+        <FontIcon iconLiteral="fas-bell" iconSize="16" style="-fx-icon-color: white;" />
+      </StackPane>
+
+      <VBox spacing="2">
+        <Label text="Notifications" styleClass="notif-page-title" />
+        <Label text="Stay updated with what’s happening" styleClass="notif-page-subtitle" />
+      </VBox>
+
+      <Region HBox.hgrow="ALWAYS" />
+
+      <Label fx:id="countLabel" text="Unread: 0/0" styleClass="notif-action" />
+
+      <Button text="Refresh" onAction="#onRefresh" styleClass="notif-action" />
+      <Button text="Mark all read" onAction="#onMarkAllRead" styleClass="notif-action" />
+    </HBox>
+  </top>
+
+  <center>
+    <StackPane>
+      <ListView fx:id="notificationsList" styleClass="notif-list" />
+
+      <Label fx:id="emptyLabel"
+        text="No notifications yet"
+        visible="false"
+        managed="false"
+        style="-fx-text-fill: #94a3b8; -fx-font-weight: 800;" />
+    </StackPane>
+  </center>
+
+</BorderPane>

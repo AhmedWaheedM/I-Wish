@@ -1,11 +1,11 @@
 package clientSide.controllers;
 
-import models.Item;
+import clientSide.helpers.MessageDisplayer;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
+import models.Item;
 
 public class MarketItemCardController {
 
@@ -55,6 +55,7 @@ public class MarketItemCardController {
                     if(addToWishlistBtn != null) {
                         addToWishlistBtn.setText("Added");
                         addToWishlistBtn.setDisable(true);
+                        MessageDisplayer.showSuccess("Item added to wishlist successfully!", "Success");
                     }
                 } else {
                     System.out.println("Failed to add item to wishlist.");

@@ -17,7 +17,7 @@ public class Server {
                 new ClientHandler(s).start();
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            System.err.println("Client disconnected");
         }
     }
 }

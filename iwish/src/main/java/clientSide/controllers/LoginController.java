@@ -1,9 +1,9 @@
 package clientSide.controllers;
 
 import clientSide.appManger.IWishManager;
+import clientSide.helpers.MessageDisplayer;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
@@ -50,7 +50,7 @@ public class LoginController {
         String password = passwordField != null ? passwordField.getText() : "";
         
         if (email.isEmpty() || password.isEmpty()) {
-             showError("Please enter email and password.");
+             MessageDisplayer.showError("Please enter email and password." , "Login error");
              return;
         }
 
@@ -63,7 +63,7 @@ public class LoginController {
             // Send Request
             clientSide.ClientConnection param = clientSide.ClientApp.getClientConnection();
             if(param == null){
-                showError("Server Connection Failed");
+                MessageDisplayer.showError("Server Connection Failed" , "Login error");
                 return;
             }
             
@@ -81,12 +81,12 @@ public class LoginController {
                 IWishManager.switchScene("dashboard", "I-Wish Dashboard");
             } else {
                 // Login Failed
-                showError("Invalid Credentials");
+                MessageDisplayer.showError("Invalid Credentials" , "Login Error");
             }
             
         } catch (Exception e) {
             e.printStackTrace();
-            showError("Login Error: " + e.getMessage());
+            MessageDisplayer.showError("Login Error: " + e.getMessage() , "Login Error");
         }
     }
 
@@ -98,11 +98,11 @@ public class LoginController {
         }
     }
     
-    private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Login Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.show();
+
+    
+
+    @FXML
+    private void onRegisterClicked(ActionEvent event) {
+        IWishManager.switchScene("register", "iWish - Register");
     }
 }

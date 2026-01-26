@@ -6,7 +6,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-import clientSide.views.NotificationPanel;
 import dtos.Notification;
 import javafx.application.Platform;
 
@@ -19,14 +18,9 @@ public class ClientConnection {
     private volatile boolean running;
     private Thread listenerThread;
 
-    private NotificationPanel notificationPanel;
 
     private final Object lock = new Object();
     private Object lastResponse = null;
-
-    public void setNotificationPanel(NotificationPanel panel) {
-        this.notificationPanel = panel;
-    }
 
     public void connect(String host, int port) throws Exception {
         socket = new Socket(host, port);
@@ -51,12 +45,14 @@ public class ClientConnection {
             out.flush();
 
             while (running && lastResponse == null) {
+                System.out.println("in lock" );
                 lock.wait();
             }
 
             if (!running) {
                 throw new IllegalStateException("Disconnected from server.");
             }
+            System.out.println("unlocking lock" );
 
             return lastResponse;
         }
@@ -72,12 +68,8 @@ public class ClientConnection {
                     Object msg = in.readObject();
 
                     if (msg instanceof Notification) {
-                        Notification n = (Notification) msg;
-
                         Platform.runLater(() -> {
-                            if (notificationPanel != null) {
-                                notificationPanel.show(n);
-                            }
+                            clientSide.appManger.ToastManager.show((Notification) msg);
                         });
                         continue;
                     }

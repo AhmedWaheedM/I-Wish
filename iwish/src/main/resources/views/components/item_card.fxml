@@ -12,67 +12,74 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="clientSide.controllers.ItemCardController"
-      styleClass="card"
-      stylesheets="@../dashboard/dashboard.css"
-      prefWidth="300">
+    fx:controller="clientSide.controllers.ItemCardController"
+    styleClass="card"
+    stylesheets="@../dashboard/dashboard.css"
+    prefWidth="300">
 
     <!-- Image Placeholder -->
-    <StackPane style="-fx-background-color: #f1f5f9; -fx-background-radius: 12 12 0 0;" minHeight="200" prefHeight="200">
-        <!-- Replaces ImageWithFallback -->
-        <ImageView fx:id="itemImage" fitWidth="300" fitHeight="200" preserveRatio="true"/>
-        <FontIcon iconLiteral="fas-image" iconSize="48" iconColor="#cbd5e1"/> 
+    <StackPane style="-fx-background-color: #f1f5f9; -fx-background-radius: 12 12 0 0;"
+        minHeight="200" prefHeight="200">
+        <ImageView fx:id="itemImage" fitWidth="300" fitHeight="200" preserveRatio="true" />
+        <FontIcon iconLiteral="fas-image" iconSize="48" iconColor="#cbd5e1" />
     </StackPane>
 
     <VBox styleClass="card-content" spacing="12">
+
         <!-- Header -->
         <VBox>
-            <Label fx:id="itemNameLabel" text="Apple Watch Series 9" styleClass="text-h3" wrapText="true"/>
-            <Label fx:id="ownerLabel" text="by Ahmed" styleClass="text-muted"/>
+            <HBox spacing="6" alignment="BASELINE_LEFT">
+                <Label fx:id="itemNameLabel" text="Apple Watch Series 9" styleClass="text-h3"
+                    wrapText="true" />
+                <Label fx:id="quantityLabel" text="x1" styleClass="text-muted"
+                    style="-fx-font-size: 14px;" />
+            </HBox>
+            <Label fx:id="ownerLabel" text="by Ahmed" styleClass="text-muted" />
         </VBox>
 
         <!-- Pricing -->
         <HBox alignment="BASELINE_LEFT" spacing="8">
-             <Label fx:id="priceLabel" text="\$399" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
-             <Region HBox.hgrow="ALWAYS"/>
-             <Label fx:id="collectedLabel" text="\$199.50 collected" styleClass="text-muted"/>
+            <Label fx:id="priceLabel" text="\$399"
+                style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="collectedLabel" text="\$199.50 collected" styleClass="text-muted" />
         </HBox>
 
         <!-- Progress -->
         <VBox spacing="4">
-            <ProgressBar fx:id="fundingProgress" progress="0.5" maxWidth="Infinity" styleClass="progress-bar" style="-fx-accent: #2563eb;"/>
+            <!-- Removed -fx-accent so CSS green bar applies -->
+            <ProgressBar fx:id="fundingProgress" progress="0.5" maxWidth="Infinity"
+                styleClass="progress-bar" />
             <HBox>
-                <Label fx:id="percentLabel" text="50% funded" style="-fx-font-size: 12px; -fx-text-fill: #64748b;"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Label fx:id="remainingLabel" text="\$199.50 remaining" style="-fx-font-size: 12px; -fx-text-fill: #64748b;"/>
+                <Label fx:id="percentLabel" text="50% funded"
+                    style="-fx-font-size: 12px; -fx-text-fill: #64748b;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="remainingLabel" text="\$199.50 remaining"
+                    style="-fx-font-size: 12px; -fx-text-fill: #64748b;" />
             </HBox>
         </VBox>
 
         <!-- Actions -->
         <HBox spacing="8" style="-fx-padding: 8 0 0 0;">
-             <!-- Condition: If Owner -->
-             <Button fx:id="removeBtn" text="Remove" styleClass="button-danger" maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#handleRemove">
-                 <graphic>
-                    <FontIcon iconLiteral="fas-trash" iconSize="14"/>
-                 </graphic>
-             </Button>
-             
-             <!-- Condition: If Friend (Hidden in this template, swapped programmatically) -->
-             <Button fx:id="contributeBtn" text="Contribute" styleClass="button-primary" style="-fx-background-color: #16a34a;" maxWidth="Infinity" HBox.hgrow="ALWAYS" visible="false" managed="false" onAction="#handleContribute">
+            <!-- Owner -->
+            <Button fx:id="removeBtn" text="Remove" styleClass="button-danger"
+                maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#handleRemove">
                 <graphic>
-                    <FontIcon iconLiteral="fas-dollar-sign" iconSize="14"/>
+                    <FontIcon iconLiteral="fas-trash" iconSize="14" />
                 </graphic>
-             </Button>
-             
-             <!-- Condition: If Friend (Hidden in this template, swapped programmatically) -->
-             <!-- 
-             <Button text="Contribute" styleClass="button-primary" style="-fx-background-color: #16a34a;" maxWidth="Infinity" HBox.hgrow="ALWAYS">
+            </Button>
+
+            <!-- Viewer -->
+            <Button fx:id="contributeBtn" text="Contribute" styleClass="button-primary"
+                style="-fx-background-color: #16a34a;"
+                maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                visible="false" managed="false" onAction="#handleContribute">
                 <graphic>
-                    <FontIcon iconLiteral="fas-dollar-sign" iconSize="14"/>
+                    <FontIcon iconLiteral="fas-dollar-sign" iconSize="14" />
                 </graphic>
-             </Button> 
-             -->
+            </Button>
         </HBox>
+
     </VBox>
 
 </VBox>

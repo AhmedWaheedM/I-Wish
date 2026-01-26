@@ -12,14 +12,14 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <StackPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-    fx:controller="clientSide.controllers.LoginController"
+    fx:controller="clientSide.controllers.RegisterController"
     style="-fx-background-color: #0f172a;"
-    stylesheets="@../dashboard/dashboard.css"
+    stylesheets="@../css/dashboard.css"
     prefWidth="1024" prefHeight="768">
 
     <VBox
         style="-fx-background-color: white; -fx-background-radius: 16; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 20, 0, 0, 10);"
-        maxWidth="450" maxHeight="600" spacing="20">
+        maxWidth="450" maxHeight="650" spacing="20">
 
         <padding>
             <Insets top="32" right="32" bottom="32" left="32" />
@@ -33,42 +33,44 @@
                 <FontIcon iconLiteral="fas-heart" iconColor="white" iconSize="32" />
             </VBox>
             <VBox alignment="CENTER" spacing="4">
-                <Label text="I-Wish"
+                <Label text="Join I-Wish"
                     style="-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" />
-                <Label text="Share your wishes, fulfill dreams together" styleClass="text-muted" />
+                <Label text="Start your journey of sharing and giving" styleClass="text-muted" />
             </VBox>
         </VBox>
 
         <!-- Form -->
         <VBox spacing="16">
             <VBox spacing="8">
-                <Label text="Email" styleClass="text-bold" />
-                <TextField fx:id="emailField" promptText="your.email@example.com"
+                <Label text="Username" styleClass="text-bold" />
+                <TextField fx:id="usernameField" promptText="Choose a username"
                     style="-fx-pref-height: 44; -fx-background-radius: 6;" />
             </VBox>
 
             <VBox spacing="8">
                 <Label text="Password" styleClass="text-bold" />
-                <PasswordField fx:id="passwordField" promptText="Enter your password"
+                <PasswordField fx:id="passwordField" promptText="Create a password"
                     style="-fx-pref-height: 44; -fx-background-radius: 6;" />
             </VBox>
 
-            <HBox alignment="CENTER_RIGHT">
-                <Hyperlink text="Forgot password?" style="-fx-text-fill: #2563eb;" />
-            </HBox>
+            <VBox spacing="8">
+                <Label text="Confirm Password" styleClass="text-bold" />
+                <PasswordField fx:id="confirmPasswordField" promptText="Confirm your password"
+                    style="-fx-pref-height: 44; -fx-background-radius: 6;" />
+            </VBox>
 
-            <Label fx:id="errorLabel" text="" visible="false" wrapText="true"
-                style="-fx-text-fill: #ef4444; -fx-font-size: 14px;" maxWidth="Infinity"
-                alignment="CENTER" />
+            <Button fx:id="createAccountButton"
+                text="Create Account"
+                onAction="#handleRegister"
+                styleClass="button-primary"
+                style="-fx-pref-height: 48; -fx-font-size: 16px;"
+                maxWidth="Infinity" />
 
-            <Button fx:id="signInButton" text="Sign In" styleClass="button-primary"
-                style="-fx-pref-height: 48; -fx-font-size: 16px;" maxWidth="Infinity" />
         </VBox>
 
-        <!-- Register Link -->
-        <Hyperlink fx:id="registerLink"
-            text="Register a new account"
-            onAction="#onRegisterClicked"
+        <Hyperlink fx:id="loginLink"
+            text="Sign back in"
+            onAction="#onLoginClicked"
             style="-fx-text-fill: #2563eb; -fx-font-weight: bold;" />
 
 

@@ -3,8 +3,12 @@ package clientSide.appManger;
 import clientSide.ClientConnection;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.User;
 
@@ -13,13 +17,16 @@ public class IWishManager {
     private static Stage stage;
     private static ClientConnection client;
     private static User loggedInUser;
-    // 🔹 Initialize once from Main
+    private static javafx.scene.layout.StackPane rootStack;
+    private static javafx.scene.layout.VBox toastHost;
+
     public IWishManager(Stage primaryStage) {
         stage = primaryStage;
 
         try {
             client = new ClientConnection();
             client.connect("127.0.0.1", 5005);
+
             System.out.println("Connected to server");
 
             switchScene("login", "iWish - Login");
@@ -34,27 +41,32 @@ public class IWishManager {
         try {
             String fxmlPath = "/views/" + sceneName + "/" + sceneName + ".fxml";
             var url = IWishManager.class.getResource(fxmlPath);
-
-            if (url == null) {
-                throw new RuntimeException("FXML not found: " + fxmlPath);
-            }
+            if (url == null) throw new RuntimeException("FXML not found: " + fxmlPath);
 
             FXMLLoader loader = new FXMLLoader(url);
-            Parent root = loader.load();
+            Parent pageRoot = loader.load();
 
-            if (stage.getScene() == null) {
-                Scene scene = new Scene(root);
+            if (rootStack == null) {
+                rootStack = new StackPane();
+                toastHost = new VBox(10);
+                toastHost.setPickOnBounds(false); 
+                toastHost.setMouseTransparent(false);
+
+                StackPane.setAlignment(toastHost, Pos.TOP_RIGHT);
+                StackPane.setMargin(toastHost, new Insets(20));
+
+                rootStack.getChildren().addAll(pageRoot, toastHost);
+
+                Scene scene = new Scene(rootStack);
                 stage.setScene(scene);
                 stage.setMaximized(true);
-            } else {
-                stage.getScene().setRoot(root);
-            }
 
-            stage.getScene().getStylesheets().clear();
-            String cssPath = "/views/" + sceneName + "/" + sceneName + ".css";
-            var cssUrl = IWishManager.class.getResource(cssPath);
-            if (cssUrl != null) {
-                stage.getScene().getStylesheets().add(cssUrl.toExternalForm());
+                // IMPORTANT: let ToastManager access the host
+                clientSide.appManger.ToastManager.init(toastHost);
+
+            } else {
+                // Replace page root but keep toastHost
+                rootStack.getChildren().set(0, pageRoot);
             }
 
             stage.setTitle(title);
