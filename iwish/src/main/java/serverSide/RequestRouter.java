@@ -15,6 +15,11 @@ import dtos.requestDtos.friendsHandler.AddFriendRequest;
 import dtos.requestDtos.friendsHandler.GetFriendsRequest;
 import dtos.requestDtos.friendsHandler.GetPendingFriendsRequest;
 import dtos.requestDtos.friendsHandler.RejectFriendRequest;
+import dtos.requestDtos.notificationHandler.AddNotificationRequest;
+import dtos.requestDtos.notificationHandler.GetNotificationsRequest;
+import dtos.requestDtos.notificationHandler.GetUnreadNotificationsRequest;
+import dtos.requestDtos.notificationHandler.MarkAllNotificationsAsReadRequest;
+import dtos.requestDtos.notificationHandler.MarkNotificationAsReadRequest;
 import dtos.requestDtos.userHandler.HasEnoughBalanceRequest;
 import dtos.requestDtos.userHandler.LoginRequest;
 import dtos.requestDtos.userHandler.UpdateBalanceRequest;
@@ -28,6 +33,7 @@ import models.User;
 import serverSide.dbLayer.ContributionHandler;
 import serverSide.dbLayer.FriendsHandler;
 import serverSide.dbLayer.ItemHandler;
+import serverSide.dbLayer.NotificationHandler;
 import serverSide.dbLayer.UsersHandler;
 import serverSide.dbLayer.WishListHandler;
 import serverSide.dbLayer.WishListItemHandler;
@@ -40,6 +46,8 @@ public class RequestRouter {
     private static ItemHandler itemHandler;
     private static WishListHandler wishListHandler;
     private static WishListItemHandler wishListItemHandler;
+    private static NotificationHandler notificationHandler;
+
 
     static {
         usersHandler = new UsersHandler();
@@ -53,6 +61,9 @@ public class RequestRouter {
         contributionHandler = new ContributionHandler(wishListHandler, usersHandler);
 
         wishListItemHandler = new WishListItemHandler(itemHandler, wishListHandler);
+
+        notificationHandler = new NotificationHandler();
+
     }
 
     public static Object handleRequest(Request request) {
@@ -207,6 +218,40 @@ public class RequestRouter {
             wishListItemHandler.removeWishListItem(r.getWishListId(), r.getItemId());
             return true;
         }
+
+
+                // ===== Notifications =====
+        if (request instanceof AddNotificationRequest) {
+            AddNotificationRequest r = (AddNotificationRequest) request;
+
+            notificationHandler.addNotification(r.getUserId(), r.getTitle(), r.getBody());
+            Notification n = new Notification(r.getTitle(), r.getBody());
+            NotificationManger.sendNotificaiton(r.getUserId(), n);
+
+            return true;
+        }
+
+        if (request instanceof GetNotificationsRequest) {
+            GetNotificationsRequest r = (GetNotificationsRequest) request;
+            return notificationHandler.getNotificationsByUserId(r.getUserId());
+        }
+
+        if (request instanceof GetUnreadNotificationsRequest) {
+            GetUnreadNotificationsRequest r = (GetUnreadNotificationsRequest) request;
+            return notificationHandler.getUnreadNotificationsByUserId(r.getUserId());
+        }
+
+        if (request instanceof MarkNotificationAsReadRequest) {
+            MarkNotificationAsReadRequest r = (MarkNotificationAsReadRequest) request;
+            return notificationHandler.markAsRead(r.getNotificationId());
+        }
+
+        if (request instanceof MarkAllNotificationsAsReadRequest) {
+            MarkAllNotificationsAsReadRequest r = (MarkAllNotificationsAsReadRequest) request;
+            return notificationHandler.markAllAsRead(r.getUserId());
+        }
+
+
 
         return null; // unknown request
     }
