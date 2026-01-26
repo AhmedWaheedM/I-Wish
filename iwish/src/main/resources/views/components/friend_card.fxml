@@ -33,7 +33,7 @@
 
     <!-- Actions -->
     <HBox spacing="8">
-        <Button text="View Wishlist" styleClass="button-primary" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>
+        <Button text="View Wishlist" styleClass="button-primary" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>  
         
         <Button styleClass="button-outline" style="-fx-text-fill: #ef4444; -fx-border-color: transparent;">
              <graphic>

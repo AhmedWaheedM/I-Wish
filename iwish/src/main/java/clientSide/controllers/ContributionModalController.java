@@ -91,7 +91,7 @@ public class ContributionModalController {
             if (amount <= 0) return;
             
             dtos.requestDtos.contributionHandler.AddContributionRequest req = 
-                new dtos.requestDtos.contributionHandler.AddContributionRequest(currentUser.getUserId(), item.getWishListId(), amount);
+                new dtos.requestDtos.contributionHandler.AddContributionRequest(currentUser.getUserId(), item.getWishListId(), item.getRecId(), amount);
             
             clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
             Object response = conn.sendAndWait(req);

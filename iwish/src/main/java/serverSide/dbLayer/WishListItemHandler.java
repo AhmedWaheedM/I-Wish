@@ -70,7 +70,13 @@ public class WishListItemHandler extends DBHandler {
                 item.setItem(itemObj);
                 
                 // Assign contributions
-                item.setContributions(contributions);
+                java.util.List<models.Contribution> itemContributions = new java.util.ArrayList<>();
+                for (models.Contribution c : contributions) {
+                    if (c.getWishListItem() != null && c.getWishListItem().getRecId() == item.getRecId()) {
+                        itemContributions.add(c);
+                    }
+                }
+                item.setContributions(itemContributions);
 
                 items.add(item);
             }

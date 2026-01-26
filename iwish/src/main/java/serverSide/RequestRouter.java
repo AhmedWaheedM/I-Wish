@@ -84,7 +84,7 @@ public class RequestRouter {
         // ===== Contribution =====
         if (request instanceof AddContributionRequest) {
             AddContributionRequest r = (AddContributionRequest) request;
-            return contributionHandler.addContribution(r.getUserId(), r.getWishListId(), r.getAmount());
+            return contributionHandler.addContribution(r.getUserId(), r.getWishListId(), r.getWishListItemId(), r.getAmount());
         }
 
         if (request instanceof RemoveContributionRequest) {

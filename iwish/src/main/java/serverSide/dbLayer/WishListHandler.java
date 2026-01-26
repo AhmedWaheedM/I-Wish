@@ -16,7 +16,7 @@ public class WishListHandler extends DBHandler {
     }
 
     public WishList addNewWishList(WishList wishList) {
-        String query = "INSERT INTO " + tableName + " (current_amount, total_amount, user_id) VALUES (?, ?, ?)";
+        String query = "INSERT INTO " + tableName + " (current_amount, total_items_amount, user_id) VALUES (?, ?, ?)";
         try {
             connect();
             PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -48,7 +48,7 @@ public class WishListHandler extends DBHandler {
                 wishList = new WishList();
                 wishList.setWishListId(resultSet.getInt("wishlist_id"));
                 wishList.setCurrentAmount(resultSet.getDouble("current_amount"));
-                wishList.setTotalAmount(resultSet.getDouble("total_amount"));
+                wishList.setTotalAmount(resultSet.getDouble("total_items_amount"));
             }
         } catch (SQLException e) {
             e.printStackTrace();

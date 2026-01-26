@@ -33,7 +33,7 @@ public class ContributionHandler extends  DBHandler {
         }
         return amount;
     }
-    public boolean addContribution(int userId, int wishListId, double amount) {
+    public boolean addContribution(int userId, int wishListId, int wishListItemId, double amount) {
 
         if(userHandler.hasEnoughBalance(userId, amount)) {
             userHandler.updateBalance(userId, amount, '-');
@@ -41,15 +41,20 @@ public class ContributionHandler extends  DBHandler {
             System.out.println("User with ID " + userId + " does not have enough balance to contribute " + amount);
             return false;
         }
-        String query = "INSERT INTO "+ tableName +" (contributor_id, wishlist_id, amount) VALUES (?, ?, ?)";
+        String query = "INSERT INTO "+ tableName +" (contributor_id, wishlist_item_id, amount) VALUES (?, ?, ?) " +
+                       "ON DUPLICATE KEY UPDATE amount = amount + ?";
         try {
             connect();
+            System.out.println("Contribution in progress");
             PreparedStatement pstmt = connection.prepareStatement(query);
             pstmt.setInt(1, userId);
-            pstmt.setInt(2, wishListId);
+            pstmt.setInt(2, wishListItemId); // Use item ID here
             pstmt.setDouble(3, amount);
+            pstmt.setDouble(4, amount); // For update
             pstmt.executeUpdate();
+            System.out.println("Contribution added successfully");
         } catch (SQLException e) {
+            System.out.println("Contribution failed");
             e.printStackTrace();
         } finally {
             close();
@@ -107,10 +112,9 @@ public class ContributionHandler extends  DBHandler {
                 contributor.setUserName(resultSet.getString("username"));
                 c.setUser(contributor);
                 
-                // Optional: set item ID if needed by client filtering
-                // models.WishListItem item = new models.WishListItem();
-                // item.setRecId(resultSet.getInt("rec_id"));
-                // c.setWishListItem(item);
+                models.WishListItem item = new models.WishListItem();
+                item.setRecId(resultSet.getInt("rec_id"));
+                c.setWishListItem(item);
 
                 contributions.add(c);
             }
