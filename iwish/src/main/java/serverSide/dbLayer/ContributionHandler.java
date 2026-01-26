@@ -8,7 +8,7 @@ public class ContributionHandler extends  DBHandler {
     private WishListHandler wishListHandler;
     private UsersHandler userHandler;
     public ContributionHandler(WishListHandler wishListHandler, UsersHandler userHandler) {
-        super("Contribution");
+        super("contribution");
         this.wishListHandler = wishListHandler;
         this.userHandler = userHandler;
     }
@@ -33,7 +33,7 @@ public class ContributionHandler extends  DBHandler {
         }
         return amount;
     }
-    public boolean addContribution(int userId, int wishListId, double amount) {
+    public boolean addContribution(int userId, int wishListId, int wishListItemId, double amount) {
 
         if(userHandler.hasEnoughBalance(userId, amount)) {
             userHandler.updateBalance(userId, amount, '-');
@@ -41,15 +41,20 @@ public class ContributionHandler extends  DBHandler {
             System.out.println("User with ID " + userId + " does not have enough balance to contribute " + amount);
             return false;
         }
-        String query = "INSERT INTO "+ tableName +" (user_id, wishlist_id, amount) VALUES (?, ?, ?)";
+        String query = "INSERT INTO "+ tableName +" (contributor_id, wishlist_item_id, amount) VALUES (?, ?, ?) " +
+                       "ON DUPLICATE KEY UPDATE amount = amount + ?";
         try {
             connect();
+            System.out.println("Contribution in progress");
             PreparedStatement pstmt = connection.prepareStatement(query);
             pstmt.setInt(1, userId);
-            pstmt.setInt(2, wishListId);
+            pstmt.setInt(2, wishListItemId); // Use item ID here
             pstmt.setDouble(3, amount);
+            pstmt.setDouble(4, amount); // For update
             pstmt.executeUpdate();
+            System.out.println("Contribution added successfully");
         } catch (SQLException e) {
+            System.out.println("Contribution failed");
             e.printStackTrace();
         } finally {
             close();
@@ -62,7 +67,7 @@ public class ContributionHandler extends  DBHandler {
         if(amount == -1) {
             return false;
         }
-        String query = "DELETE FROM " + tableName + " WHERE id = ? AND user_id = ?";
+        String query = "DELETE FROM " + tableName + " WHERE id = ? AND contributor_id = ?";
         try {
             connect();
             PreparedStatement pstmt = connection.prepareStatement(query);
@@ -85,4 +90,39 @@ public class ContributionHandler extends  DBHandler {
     }
 
 
+    public java.util.List<models.Contribution> getContributionsByWishListId(int wishListId) {
+        java.util.List<models.Contribution> contributions = new java.util.ArrayList<>();
+        String query = "SELECT c.amount, u.user_id, u.username, wi.rec_id " +
+                       "FROM " + tableName + " c " +
+                       "JOIN Wishlist_Item wi ON c.wishlist_item_id = wi.rec_id " +
+                       "JOIN User u ON c.contributor_id = u.user_id " +
+                       "WHERE wi.wishlist_id = ?";
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, wishListId);
+            resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                models.Contribution c = new models.Contribution();
+                // c.setId(0); // No single ID
+                c.setAmount(resultSet.getDouble("amount"));
+                
+                models.User contributor = new models.User();
+                contributor.setUserId(resultSet.getInt("user_id"));
+                contributor.setUserName(resultSet.getString("username"));
+                c.setUser(contributor);
+                
+                models.WishListItem item = new models.WishListItem();
+                item.setRecId(resultSet.getInt("rec_id"));
+                c.setWishListItem(item);
+
+                contributions.add(c);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+        return contributions;
+    }
 }

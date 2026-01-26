@@ -2,6 +2,7 @@ package models;
 import java.io.Serializable;
 public class Contribution implements Serializable {
 
+    private int id;
     private User user;
     private WishListItem wishListItem;
     private double amount;
@@ -13,6 +14,14 @@ public class Contribution implements Serializable {
         this.user = user;
         this.wishListItem = wishListItem;
         this.amount = amount;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public User getUser() {

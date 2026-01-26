@@ -11,12 +11,12 @@ public class WishListHandler extends DBHandler {
 
     private FriendsHandler friendsHandler;
     public WishListHandler(FriendsHandler friendsHandler) {
-        super("Wishlist");
+        super("wishlist");
         this.friendsHandler = friendsHandler;
     }
 
     public WishList addNewWishList(WishList wishList) {
-        String query = "INSERT INTO " + tableName + " (current_amount, total_amount, user_id) VALUES (?, ?, ?)";
+        String query = "INSERT INTO " + tableName + " (current_amount, total_items_amount, user_id) VALUES (?, ?, ?)";
         try {
             connect();
             PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -48,7 +48,7 @@ public class WishListHandler extends DBHandler {
                 wishList = new WishList();
                 wishList.setWishListId(resultSet.getInt("wishlist_id"));
                 wishList.setCurrentAmount(resultSet.getDouble("current_amount"));
-                wishList.setTotalAmount(resultSet.getDouble("total_amount"));
+                wishList.setTotalAmount(resultSet.getDouble("total_items_amount"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -56,7 +56,7 @@ public class WishListHandler extends DBHandler {
             close();
         }
         return wishList;
-    }   
+    }  
     public List<WishList> getFriendsWishLists(int userId) {
         List<WishList> friendsWishLists = new ArrayList<>();
         List<models.User> friends = friendsHandler.getFriendsByUserId(userId);
@@ -87,7 +87,7 @@ public class WishListHandler extends DBHandler {
 
     }
     public void updateWishListTotalAmount(int wishListId, double amount , char operation) {
-        String query = "UPDATE " + tableName + " SET total_amount = total_amount " + operation + " ? WHERE wishlist_id = ?";
+        String query = "UPDATE " + tableName + " SET total_items_amount = total_items_amount " + operation + " ? WHERE wishlist_id = ?";
         try {
             connect();
             PreparedStatement pstmt = connection.prepareStatement(query);

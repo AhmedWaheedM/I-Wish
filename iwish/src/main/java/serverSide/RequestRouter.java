@@ -60,10 +60,9 @@ public class RequestRouter {
 
         contributionHandler = new ContributionHandler(wishListHandler, usersHandler);
 
-        wishListItemHandler = new WishListItemHandler(itemHandler, wishListHandler);
-
         notificationHandler = new NotificationHandler();
 
+        wishListItemHandler = new WishListItemHandler(itemHandler, wishListHandler, contributionHandler);
     }
 
     public static Object handleRequest(Request request) {
@@ -109,7 +108,7 @@ public class RequestRouter {
             );
             NotificationManger.sendNotificaiton(userId, notification);
             
-            return contributionHandler.addContribution(r.getUserId(), r.getWishListId(), r.getAmount());
+            return contributionHandler.addContribution(r.getUserId(), r.getWishListId(), r.getWishListItemId(), r.getAmount());
         }
 
         if (request instanceof RemoveContributionRequest) {
@@ -128,6 +127,19 @@ public class RequestRouter {
             u2.setUserId(r.getUser2Id());
 
             friendsHandler.addFriend(u1, u2);
+            return true;
+        }
+
+        if (request instanceof dtos.requestDtos.friendsHandler.AcceptFriendRequest) {
+            dtos.requestDtos.friendsHandler.AcceptFriendRequest r = (dtos.requestDtos.friendsHandler.AcceptFriendRequest) request;
+
+            User u1 = new User();
+            u1.setUserId(r.getUser1Id());
+
+            User u2 = new User();
+            u2.setUserId(r.getUser2Id());
+
+            friendsHandler.acceptFriend(u1, u2);
             return true;
         }
 
@@ -151,6 +163,19 @@ public class RequestRouter {
             u2.setUserId(r.getUser2Id());
 
             friendsHandler.rejectFriendRequest(u1, u2);
+            return true;
+        }
+
+        if (request instanceof dtos.requestDtos.friendsHandler.GetNonFriendsRequest) {
+            dtos.requestDtos.friendsHandler.GetNonFriendsRequest r = (dtos.requestDtos.friendsHandler.GetNonFriendsRequest) request;
+            return friendsHandler.getNonFriends(r.getUserId());
+        }
+
+        if (request instanceof dtos.requestDtos.friendsHandler.RemoveFriendRequest) {
+            dtos.requestDtos.friendsHandler.RemoveFriendRequest r = (dtos.requestDtos.friendsHandler.RemoveFriendRequest) request;
+            User u1 = new User(); u1.setUserId(r.getUser1Id());
+            User u2 = new User(); u2.setUserId(r.getUser2Id());
+            friendsHandler.removeFriend(u1, u2);
             return true;
         }
 
@@ -186,7 +211,9 @@ public class RequestRouter {
         // ===== WishList =====
         if (request instanceof GetWishListByUserIdRequest) {
             GetWishListByUserIdRequest r = (GetWishListByUserIdRequest) request;
+            System.out.println("GetWishListByUserIdRequest: " + r.getUserId());
             return wishListHandler.getWishListByUserId(r.getUserId());
+            
         }
 
         if (request instanceof GetFriendsWishListsRequest) {
@@ -250,7 +277,6 @@ public class RequestRouter {
             MarkAllNotificationsAsReadRequest r = (MarkAllNotificationsAsReadRequest) request;
             return notificationHandler.markAllAsRead(r.getUserId());
         }
-
 
 
         return null; // unknown request

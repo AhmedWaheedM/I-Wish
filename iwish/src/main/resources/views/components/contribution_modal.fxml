@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" 
+      fx:controller="clientSide.controllers.ContributionModalController"
+      spacing="24"
+      style="-fx-background-color: white; -fx-padding: 32; -fx-background-radius: 12;"
+      prefWidth="500">
+
+    <VBox spacing="8">
+        <Label fx:id="itemNameLabel" text="Contribute to Item" styleClass="text-h3" style="-fx-font-size: 18px;"/>
+        <Label fx:id="walletBalanceLabel" text="My Wallet Balance: $500.00" style="-fx-text-fill: #16a34a; -fx-font-weight: bold;"/>
+        <Label fx:id="remainingCostLabel" text="Remaining Cost: $100.00" styleClass="text-muted"/>
+    </VBox>
+
+    <VBox spacing="12">
+        <Label text="Amount ($)" styleClass="text-body"/>
+        <TextField fx:id="amountField" text="0" styleClass="input-field"/>
+        
+        <HBox alignment="CENTER_LEFT" spacing="12">
+             <Label text="\$0" styleClass="text-muted" style="-fx-font-size: 10px;"/>
+             <Slider fx:id="amountSlider" HBox.hgrow="ALWAYS" style="-fx-cursor: hand;"/> 
+             <Label text="Max" styleClass="text-muted" style="-fx-font-size: 10px;"/>
+        </HBox>
+    </VBox>
+
+    <HBox alignment="CENTER_RIGHT">
+         <Button fx:id="confirmBtn" text="Confirm Contribution" styleClass="button-primary" style="-fx-background-color: #0f172a;" onAction="#handleConfirm"/>
+    </HBox>
+
+</VBox>

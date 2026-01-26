@@ -2,9 +2,9 @@ package dtos.requestDtos.userHandler;
 
 public class UpdateBalanceRequest implements dtos.Request {
     private int userId;
-    private int amount;
+    private double amount;
     private char operation;
-    public UpdateBalanceRequest(int userId, int amount, char operation) {
+    public UpdateBalanceRequest(int userId, double amount, char operation) {
         this.userId = userId;
         this.amount = amount;
         this.operation = operation;
@@ -12,7 +12,7 @@ public class UpdateBalanceRequest implements dtos.Request {
     public int getUserId() {
         return userId;
     }
-    public int getAmount() {
+    public double getAmount() {
         return amount;
     }
     public char getOperation() {

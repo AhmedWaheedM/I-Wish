@@ -1,58 +1,108 @@
 package clientSide.controllers;
 
 import clientSide.appManger.IWishManager;
-import dtos.requestDtos.userHandler.LoginRequest;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import models.User;
 
 public class LoginController {
 
     @FXML
-    private TextField usernameField;
+    private TextField emailField;
 
     @FXML
     private PasswordField passwordField;
 
     @FXML
-    private Label statusLabel;
+    private Button signInButton;
 
     @FXML
-    private void onLoginClicked() {
-        statusLabel.setText("Logging in...");
-        statusLabel.setStyle("-fx-text-fill: orange;");
+    private Hyperlink registerLink;
 
-        new Thread(() -> {
-            try {
-                String userName = usernameField.getText().trim();
-                String password = passwordField.getText().trim();
-
-                LoginRequest loginRequest = new LoginRequest(userName, password);
-                Object response = IWishManager.getClient().sendAndWait(loginRequest);
-
-                javafx.application.Platform.runLater(() -> {
-                    if (!(response instanceof User) || response == null) {
-                        statusLabel.setText("Invalid username or password ✘");
-                        statusLabel.setStyle("-fx-text-fill: red;");
-                        return;
-                    }
-
-                    User user = (User) response;
-                    IWishManager.setLoggedInUser(user);
-                    IWishManager.switchScene("dashboard", "iWish - Dashboard");
-                });
-
-            } catch (Exception e) {
-                javafx.application.Platform.runLater(() -> {
-                    statusLabel.setText("Server error. Please try later.");
-                    statusLabel.setStyle("-fx-text-fill: red;");
-                });
-                e.printStackTrace();
-            }
-        }).start();
+    @FXML
+    public void initialize() {
+        if (signInButton != null) {
+            signInButton.setOnAction(event -> handleLogin());
+        }
+        if (registerLink != null) {
+            registerLink.setOnAction(event -> handleRegisterNavigation());
+        }
+        
+        // Add Enter Key Handler to fields
+        if (emailField != null) {
+            emailField.setOnKeyPressed(event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.ENTER) handleLogin();
+            });
+        }
+        if (passwordField != null) {
+            passwordField.setOnKeyPressed(event -> {
+                if (event.getCode() == javafx.scene.input.KeyCode.ENTER) handleLogin();
+            });
+        }
     }
 
+    private void handleLogin() {
+        String email = emailField != null ? emailField.getText().trim() : "";
+        String password = passwordField != null ? passwordField.getText() : "";
+        
+        if (email.isEmpty() || password.isEmpty()) {
+             showError("Please enter email and password.");
+             return;
+        }
 
+        try {
+            System.out.println("Login attempt with: " + email);
+            
+            // Create Login Request
+            dtos.requestDtos.userHandler.LoginRequest request = new dtos.requestDtos.userHandler.LoginRequest(email, password);
+            
+            // Send Request
+            clientSide.ClientConnection param = clientSide.ClientApp.getClientConnection();
+            if(param == null){
+                showError("Server Connection Failed");
+                return;
+            }
+            
+            Object response = param.sendAndWait(request);
+
+            if (response instanceof models.User) {
+                // Successful Login
+                models.User user = (models.User) response;
+                System.out.println("Login Successful: " + user.getUserName());
+                
+                // Store in Session
+                clientSide.appManger.IWishManager.login(user);
+                
+                // Navigate to Dashboard
+                IWishManager.switchScene("dashboard", "I-Wish Dashboard");
+            } else {
+                // Login Failed
+                showError("Invalid Credentials");
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Login Error: " + e.getMessage());
+        }
+    }
+
+    private void handleRegisterNavigation() {
+        try {
+            IWishManager.switchScene("register", "I-Wish Register");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Login Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.show();
+    }
 }

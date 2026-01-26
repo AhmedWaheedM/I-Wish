@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.geometry.Insets?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="clientSide.controllers.FriendCardController"
+      styleClass="card"
+      stylesheets="@../dashboard/dashboard.css"
+      prefWidth="280">
+    
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <!-- Avatar -->
+    <HBox alignment="CENTER" style="-fx-padding: 0 0 16 0;">
+        <Region fx:id="avatarRegion" style="-fx-background-color: linear-gradient(to bottom right, #ec4899, #e11d48); -fx-background-radius: 50%; -fx-min-width: 80; -fx-min-height: 80; -fx-max-width: 80; -fx-max-height: 80;"/>
+    </HBox>
+
+    <!-- Info -->
+    <VBox alignment="CENTER" spacing="4" style="-fx-padding: 0 0 16 0;">
+        <Label fx:id="nameLabel" text="Sara Johnson" styleClass="text-h3" style="-fx-font-size: 18px;"/>
+        <Label fx:id="usernameLabel" text="\@sarajohnson" styleClass="text-muted" style="-fx-font-size: 14px;"/>
+        <Label fx:id="bioLabel" text="Tech enthusiast and coffee lover ☕ Always dreaming of the latest gadgets!" 
+               wrapText="true" textAlignment="CENTER" style="-fx-text-fill: #475569; -fx-padding: 8 0 0 0;"/>
+    </VBox>
+
+    <!-- Actions -->
+    <HBox spacing="8">
+        <Button text="View Wishlist" styleClass="button-primary" maxWidth="Infinity" HBox.hgrow="ALWAYS"/>  
+        
+        <Button styleClass="button-outline" style="-fx-text-fill: #ef4444; -fx-border-color: transparent;">
+             <graphic>
+                <FontIcon iconLiteral="fas-trash" iconColor="#ef4444" iconSize="16"/>
+             </graphic>
+        </Button>
+    </HBox>
+
+</VBox>
