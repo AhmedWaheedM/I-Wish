@@ -46,6 +46,7 @@ import serverSide.dbLayer.NotificationHandler;
 import serverSide.dbLayer.UsersHandler;
 import serverSide.dbLayer.WishListHandler;
 import serverSide.dbLayer.WishListItemHandler;
+import serverSide.services.NotificationService;
 
 public class RequestRouter {
 
@@ -65,6 +66,7 @@ public class RequestRouter {
     private static WishListItemApis wishListItemApis;
     private static NotificationApis notificationApis;
     private static ContributionApis contributionApis;
+    private static NotificationService notificationService;
 
     static {
         itemHandler = new ItemHandler();
@@ -74,15 +76,16 @@ public class RequestRouter {
         contributionHandler = new ContributionHandler(wishListHandler, usersHandler);
         notificationHandler = new NotificationHandler();
         wishListItemHandler = new WishListItemHandler(itemHandler, wishListHandler, contributionHandler);
+        notificationService = new NotificationService(notificationHandler);
 
         // APIs wiring
         wishListApis = new WishListApis(wishListHandler);
         userApis = new UserApis(usersHandler);
-        friendsApis = new FriendsApis(friendsHandler, notificationHandler, userApis);
+        friendsApis = new FriendsApis(friendsHandler, notificationService, userApis);
         itemApis = new ItemApis(itemHandler);
-        wishListItemApis = new WishListItemApis(wishListItemHandler);
+        contributionApis = new ContributionApis(contributionHandler, wishListApis, userApis, notificationService);
+        wishListItemApis = new WishListItemApis(wishListItemHandler, contributionApis , notificationService , wishListApis,userApis);
         notificationApis = new NotificationApis(notificationHandler);
-        contributionApis = new ContributionApis(contributionHandler, wishListApis, userApis, notificationHandler);
     }
 
     public static Object handleRequest(Request request) {

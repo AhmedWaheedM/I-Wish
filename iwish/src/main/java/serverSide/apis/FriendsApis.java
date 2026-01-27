@@ -1,26 +1,24 @@
 package serverSide.apis;
 
-import dtos.Notification; // realtime DTO
 import dtos.requestDtos.friendsHandler.AddFriendRequest;
 import dtos.requestDtos.friendsHandler.GetFriendsRequest;
 import dtos.requestDtos.friendsHandler.GetPendingFriendsRequest;
 import dtos.requestDtos.friendsHandler.RejectFriendRequest;
 import models.User;
-import serverSide.NotificationManger;
 import serverSide.dbLayer.FriendsHandler;
-import serverSide.dbLayer.NotificationHandler;
+import serverSide.services.NotificationService;
 
 public class FriendsApis {
 
     private final FriendsHandler friendsHandler;
-    private final NotificationHandler notificationHandler;
+    private final NotificationService notificationService;
     private final UserApis userApis;
 
     public FriendsApis(FriendsHandler friendsHandler,
-                       NotificationHandler notificationHandler,
+                       NotificationService notificationService,
                        UserApis userApis) {
         this.friendsHandler = friendsHandler;
-        this.notificationHandler = notificationHandler;
+        this.notificationService = notificationService;
         this.userApis = userApis;
     }
 
@@ -42,15 +40,7 @@ public class FriendsApis {
         String title = "New Friend Request 👤";
         String body = senderName + " sent you a friend request.";
 
-        models.Notification saved =
-            notificationHandler.addNotification(r.getUser2Id(), title, body);
-
-        try {
-            Notification realtime = new Notification(saved.getTitle(), saved.getBody());
-            NotificationManger.sendNotificaiton(r.getUser2Id(), realtime);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        notificationService.notifyUser(r.getUser2Id(), title, body);
 
         return true;
     }
@@ -67,13 +57,7 @@ public class FriendsApis {
         String title = "Friend Request Accepted ✅";
         String body = accepterName + " accepted your friend request.";
 
-        models.Notification saved =
-            notificationHandler.addNotification(r.getUser1Id(), title, body);
-
-        try {
-            Notification realtime = new Notification(saved.getTitle(), saved.getBody());
-            NotificationManger.sendNotificaiton(r.getUser1Id(), realtime);
-        } catch (Exception ignored) {}
+        notificationService.notifyUser(r.getUser1Id(), title, body);
 
         return true;
     }
@@ -98,13 +82,7 @@ public class FriendsApis {
         String title = "Friend Request Rejected ❌";
         String body = receiverName + " rejected your friend request.";
 
-        models.Notification saved =
-            notificationHandler.addNotification(r.getUser2Id(), title, body);
-
-        try {
-            Notification realtime = new Notification(saved.getTitle(), saved.getBody());
-            NotificationManger.sendNotificaiton(r.getUser2Id(), realtime);
-        } catch (Exception ignored) {}
+        notificationService.notifyUser(r.getUser1Id(), title, body);
 
         return true;
     }
@@ -125,13 +103,7 @@ public class FriendsApis {
         String title = "Friend Removed";
         String body = removerName + " removed you from their friends list.";
 
-        models.Notification saved =
-            notificationHandler.addNotification(r.getUser2Id(), title, body);
-
-        try {
-            Notification realtime = new Notification(saved.getTitle(), saved.getBody());
-            NotificationManger.sendNotificaiton(r.getUser2Id(), realtime);
-        } catch (Exception ignored) {}
+        notificationService.notifyUser(r.getUser2Id(), title, body);
 
         return true;
     }

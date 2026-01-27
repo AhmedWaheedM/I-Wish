@@ -7,7 +7,7 @@ public class ContributionHandler extends  DBHandler {
 
     private WishListHandler wishListHandler;
     private UsersHandler userHandler;
-    public ContributionHandler(WishListHandler wishListHandler, UsersHandler userHandler) {
+    public ContributionHandler(WishListHandler wishListHandler, UsersHandler userHandler ) {
         super("contribution");
         this.wishListHandler = wishListHandler;
         this.userHandler = userHandler;
@@ -124,5 +124,111 @@ public class ContributionHandler extends  DBHandler {
             close();
         }
         return contributions;
+    }
+    public boolean isItemFullyFunded(int wishListItemRecId) {
+        String query =
+            "SELECT wi.quantity AS qty, i.price AS price, " +
+            "       COALESCE(SUM(c.amount), 0) AS contributed " +
+            "FROM wishlist_item wi " +
+            "JOIN item i ON i.item_id = wi.item_id " +
+            "LEFT JOIN contribution c ON c.wishlist_item_id = wi.rec_id " +
+            "WHERE wi.rec_id = ? " +
+            "GROUP BY wi.rec_id, wi.quantity, i.price";
+
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, wishListItemRecId);
+
+            resultSet = pstmt.executeQuery();
+            if (!resultSet.next()) return false;
+
+            int qty = resultSet.getInt("qty");
+            double price = resultSet.getDouble("price");
+            double contributed = resultSet.getDouble("contributed");
+
+            double required = price * qty;
+
+            System.err.println("Required: " + required + ", Contributed: " + contributed);
+            return contributed + 0.0001 >= required;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            close();
+        }
+    }
+
+    public java.util.List<Integer> getContributorUserIdsForItem(int wishListItemRecId) {
+        java.util.List<Integer> userIds = new java.util.ArrayList<>();
+
+        String query =
+            "SELECT contributor_id " +
+            "FROM " + tableName + " " +
+            "WHERE wishlist_item_id = ?";
+
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, wishListItemRecId);
+
+            resultSet = pstmt.executeQuery();
+            while (resultSet.next()) {
+                userIds.add(resultSet.getInt("contributor_id"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+
+        return userIds;
+    }
+
+    public double getUserContributionToItem(int userId, int wishListItemRecId) {
+        double amount = 0;
+
+        String query =
+            "SELECT amount " +
+            "FROM " + tableName + " " +
+            "WHERE contributor_id = ? AND wishlist_item_id = ?";
+
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, wishListItemRecId);
+
+            resultSet = pstmt.executeQuery();
+            if (resultSet.next()) {
+                amount = resultSet.getDouble("amount");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+
+        return amount;
+    }
+
+    public void removeUserContributionsForItem(int userId, int wishListItemRecId) {
+        String query =
+            "DELETE FROM " + tableName + " " +
+            "WHERE contributor_id = ? AND wishlist_item_id = ?";
+
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, userId);
+            pstmt.setInt(2, wishListItemRecId);
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
     }
 }

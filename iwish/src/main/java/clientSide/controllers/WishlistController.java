@@ -26,18 +26,19 @@ public class WishlistController {
     public void initialize() {
         wishlistItems = new ArrayList<>();
 
+        loadWishlist();
+    }
+    private void loadWishlist() {
         showLoading("Loading wishlist...");
 
         new Thread(() -> {
-                System.out.println("before fetch ");
             List<WishListItem> fetched = fetchWishlistItemsFromServer();
 
             Platform.runLater(() -> {
                 wishlistItems = fetched != null ? fetched : new ArrayList<>();
                 populateGrid();
             });
-
-        }, "Wishlist-LoadThread").start();
+        }, "Wishlist-ReloadThread").start();
     }
 
     private List<WishListItem> fetchWishlistItemsFromServer() {
@@ -146,18 +147,10 @@ public class WishlistController {
 
                                 Platform.runLater(() -> {
                                     if (response instanceof Boolean && (Boolean) response) {
-
-                                        if (item.getQuantity() > 1) {
-                                            item.setQuantity(item.getQuantity() - 1);
-                                        } else {
-                                            wishlistItems.remove(item);
-                                        }
-                                        populateGrid();
-
-                                    } else {
-                                        System.out.println("Failed to remove item CLIENT SIDE.");
+                                        loadWishlist(); 
                                     }
                                 });
+
 
 
                             } catch (Exception e) {

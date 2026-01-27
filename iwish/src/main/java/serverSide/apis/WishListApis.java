@@ -38,4 +38,11 @@ public class WishListApis {
         Double total = wishListHandler.getWishListTotalAmount(wishListId);
         return total == null ? 0.0 : total;
     }
+
+    public double getWishListCurrentAmount(int wishListId) {
+        Double current = wishListHandler.getWishListCurrentAmount(wishListId);
+        return current == null ? 0.0 : current;
+    }
+
+    
 }

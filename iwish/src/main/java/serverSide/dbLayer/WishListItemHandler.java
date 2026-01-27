@@ -132,6 +132,24 @@ public class WishListItemHandler extends DBHandler {
         return items;
     }
 
+
+    public Integer getRecIdByWishListAndItem(int wishListId, int itemId) {
+        String q = "SELECT rec_id FROM " + tableName + " WHERE wishlist_id = ? AND item_id = ?";
+        try {
+            connect();
+            PreparedStatement ps = connection.prepareStatement(q);
+            ps.setInt(1, wishListId);
+            ps.setInt(2, itemId);
+            resultSet = ps.executeQuery();
+            if (resultSet.next()) return resultSet.getInt("rec_id");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+        return null;
+    }
+
     private Integer getItemQuantityInWishList(int wishListId, int itemId) {
         String query = "SELECT COUNT(*) AS count FROM " + tableName + " WHERE wishlist_id = ? AND item_id = ?";
         Integer quantity = 0;

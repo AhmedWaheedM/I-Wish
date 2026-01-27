@@ -162,6 +162,28 @@ public class WishListHandler extends DBHandler {
         return totalAmount;
     }
 
+    public Double getWishListCurrentAmount(int wishListId) {
+        String query = "SELECT current_amount FROM " + tableName + " WHERE wishlist_id = ?";
+
+        Double currentAmount = null;
+
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, wishListId);
+
+            resultSet = pstmt.executeQuery();
+
+            if (resultSet.next()) {
+                currentAmount = resultSet.getDouble("current_amount");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            close();
+        }
+        return currentAmount;
+    }
     public WishList createEmptyWishListForUser(int userId) {
         WishList w = new WishList();
         w.setCurrentAmount(0);
