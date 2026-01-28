@@ -3,7 +3,7 @@ USE iwish;
 -- =========================
 -- Drop tables if exist
 -- =========================
-DROP TABLE IF EXISTS contribution;
+DROP TABLE IF EXISTS Contribution;
 DROP TABLE IF EXISTS friends;
 DROP TABLE IF EXISTS Wishlist_Item;
 DROP TABLE IF EXISTS WishListItem;

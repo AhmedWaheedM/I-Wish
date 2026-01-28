@@ -17,11 +17,25 @@
     stylesheets="@../dashboard/dashboard.css"
     prefWidth="300">
 
-    <!-- Image Placeholder -->
-    <StackPane style="-fx-background-color: #f1f5f9; -fx-background-radius: 12 12 0 0;"
-        minHeight="200" prefHeight="200">
-        <ImageView fx:id="itemImage" fitWidth="300" fitHeight="200" preserveRatio="true" />
-        <FontIcon iconLiteral="fas-image" iconSize="48" iconColor="#cbd5e1" />
+    <!-- Image Placeholder with Completed Overlay -->
+    <StackPane fx:id="imageContainer" 
+        style="-fx-background-color: linear-gradient(to bottom right, #f8fafc, #e2e8f0); -fx-background-radius: 12 12 0 0;"
+        minHeight="180" prefHeight="180" alignment="CENTER">
+        <ImageView fx:id="itemImage" fitWidth="280" fitHeight="160" preserveRatio="true" />
+        <VBox alignment="CENTER" spacing="8">
+            <FontIcon iconLiteral="fas-gift" iconSize="48" iconColor="#94a3b8" />
+            <Label text="Product" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" />
+        </VBox>
+        
+        <!-- Completed Overlay (hidden by default) -->
+        <StackPane fx:id="completedOverlay" visible="false" managed="true"
+            style="-fx-background-color: rgba(0,0,0,0.65); -fx-background-radius: 12 12 0 0;"
+            alignment="CENTER">
+            <Label text="COMPLETED" 
+                style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; 
+                       -fx-border-color: white; -fx-border-width: 2; -fx-border-radius: 4;
+                       -fx-padding: 8 16; -fx-background-radius: 4;" />
+        </StackPane>
     </StackPane>
 
     <VBox styleClass="card-content" spacing="12">
@@ -65,7 +79,7 @@
             <Button fx:id="removeBtn" text="Remove" styleClass="button-danger"
                 maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#handleRemove">
                 <graphic>
-                    <FontIcon iconLiteral="fas-trash" iconSize="14" />
+                    <FontIcon iconLiteral="fas-trash" iconSize="14" iconColor="white"/>
                 </graphic>
             </Button>
 
@@ -75,7 +89,7 @@
                 maxWidth="Infinity" HBox.hgrow="ALWAYS"
                 visible="false" managed="false" onAction="#handleContribute">
                 <graphic>
-                    <FontIcon iconLiteral="fas-dollar-sign" iconSize="14" />
+                    <FontIcon iconLiteral="fas-gift" iconSize="14" iconColor="white" />
                 </graphic>
             </Button>
         </HBox>

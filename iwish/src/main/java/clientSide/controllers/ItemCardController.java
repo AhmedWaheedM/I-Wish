@@ -5,7 +5,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import models.WishListItem;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 public class ItemCardController {
 
@@ -41,16 +43,23 @@ public class ItemCardController {
 
     @FXML
     private Button contributeBtn;
+    
+    @FXML
+    private StackPane completedOverlay;
+    
+    @FXML
+    private StackPane imageContainer;
 
     private Runnable onRemove;
     private Runnable onContribute;
     private boolean isViewerMode = false;
+    private boolean isFullyFunded = false;
 
     public void setData(WishListItem item) {
 
         int qty = 1;
         try {
-            qty = Math.max(1, item.getQuantity()); // assumes you added getQuantity()
+            qty = Math.max(1, item.getQuantity());
         } catch (Exception ignored) {
             qty = 1;
         }
@@ -60,15 +69,15 @@ public class ItemCardController {
         }
 
         // Name + total price
+        double totalPrice = 0;
         if (item.getItem() != null) {
             if (itemNameLabel != null) {
                 itemNameLabel.setText(item.getItem().getName());
             }
 
             double unitPrice = item.getItem().getPrice();
-            double totalPrice = unitPrice * qty;
+            totalPrice = unitPrice * qty;
 
-            // Display TOTAL price because quantity matters now
             if (priceLabel != null) {
                 priceLabel.setText(String.format("$%.2f", totalPrice));
             }
@@ -87,30 +96,34 @@ public class ItemCardController {
         }
 
         // Progress based on TOTAL price (price * quantity)
-        if (item.getItem() != null) {
-            double unitPrice = item.getItem().getPrice();
-            double totalPrice = unitPrice * qty;
+        double progress = 0;
+        if (totalPrice > 0) {
+            progress = collected / totalPrice;
 
-            if (totalPrice > 0) {
-                double progress = collected / totalPrice;
+            // clamp 0..1
+            if (progress < 0) progress = 0;
+            if (progress > 1) progress = 1;
 
-                // clamp 0..1
-                if (progress < 0) progress = 0;
-                if (progress > 1) progress = 1;
-
-                if (fundingProgress != null) {
-                    fundingProgress.setProgress(progress);
-                }
-
-                if (percentLabel != null) {
-                    percentLabel.setText(String.format("%.0f%% funded", progress * 100));
-                }
-
-                if (remainingLabel != null) {
-                    double remaining = totalPrice - collected;
-                    remainingLabel.setText(String.format("$%.2f remaining", Math.max(0, remaining)));
-                }
+            if (fundingProgress != null) {
+                fundingProgress.setProgress(progress);
             }
+
+            if (percentLabel != null) {
+                percentLabel.setText(String.format("%.0f%% funded", progress * 100));
+            }
+
+            if (remainingLabel != null) {
+                double remaining = totalPrice - collected;
+                remainingLabel.setText(String.format("$%.2f remaining", Math.max(0, remaining)));
+            }
+        }
+
+        // Check if fully funded (100%)
+        isFullyFunded = progress >= 1.0;
+        
+        // Show completed overlay if fully funded
+        if (completedOverlay != null) {
+            completedOverlay.setVisible(isFullyFunded);
         }
 
         // Owner label (adjust if you later support showing real owner)
@@ -143,7 +156,7 @@ public class ItemCardController {
 
     @FXML
     private void handleContribute() {
-        if (onContribute != null) {
+        if (onContribute != null && !isFullyFunded) {
             onContribute.run();
         }
     }
@@ -157,6 +170,19 @@ public class ItemCardController {
 
             contributeBtn.setVisible(true);
             contributeBtn.setManaged(true);
+            
+            // If fully funded, change button to "Fully Funded" and disable
+            if (isFullyFunded) {
+                contributeBtn.setText("Fully Funded");
+                contributeBtn.setStyle("-fx-background-color: #6b7280; -fx-cursor: default;");
+                contributeBtn.setDisable(true);
+                
+                // Change icon
+                FontIcon checkIcon = new FontIcon("fas-check-circle");
+                checkIcon.setIconSize(14);
+                checkIcon.setIconColor(javafx.scene.paint.Color.WHITE);
+                contributeBtn.setGraphic(checkIcon);
+            }
         } else {
             removeBtn.setVisible(true);
             removeBtn.setManaged(true);
