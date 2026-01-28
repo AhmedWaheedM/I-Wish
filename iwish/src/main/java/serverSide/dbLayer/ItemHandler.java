@@ -54,6 +54,7 @@ public class ItemHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         } finally {
             close();
         }
@@ -75,6 +76,7 @@ public class ItemHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         } finally {
             close();
         }
@@ -101,6 +103,7 @@ public class ItemHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -127,6 +130,7 @@ public class ItemHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }

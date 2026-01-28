@@ -28,6 +28,7 @@ public class ContributionHandler extends  DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         } finally {
             close();
         }
@@ -56,6 +57,7 @@ public class ContributionHandler extends  DBHandler {
         } catch (SQLException e) {
             System.out.println("Contribution failed");
             e.printStackTrace();
+            return false;
         } finally {
             close();
         }
@@ -88,8 +90,6 @@ public class ContributionHandler extends  DBHandler {
         wishListHandler.updateWishListCurrentAmount(wishListId, amount, '-');
         return true;
     }
-
-
     public java.util.List<models.Contribution> getContributionsByWishListId(int wishListId) {
         java.util.List<models.Contribution> contributions = new java.util.ArrayList<>();
         String query = "SELECT c.amount, u.user_id, u.username, wi.rec_id " +
@@ -120,6 +120,7 @@ public class ContributionHandler extends  DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -179,6 +180,7 @@ public class ContributionHandler extends  DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -206,6 +208,7 @@ public class ContributionHandler extends  DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         } finally {
             close();
         }

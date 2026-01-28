@@ -31,6 +31,7 @@ public class WishListHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -52,6 +53,7 @@ public class WishListHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -132,6 +134,7 @@ public class WishListHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -155,6 +158,7 @@ public class WishListHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -179,6 +183,7 @@ public class WishListHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }

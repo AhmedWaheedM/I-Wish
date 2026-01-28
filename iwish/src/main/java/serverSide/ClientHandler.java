@@ -37,6 +37,9 @@ public class ClientHandler extends Thread {
                     User user = (User) response;
                     OnlineUserTracker.onlineUsers.put(user.getUserId(), this);
                 }
+                if(response ==null){
+                    response = "ERROR";
+                }
                 outputStream.writeObject(response);
                 outputStream.flush();
             }

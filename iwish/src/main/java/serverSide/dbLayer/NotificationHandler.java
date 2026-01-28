@@ -33,6 +33,7 @@ public class NotificationHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -55,6 +56,7 @@ public class NotificationHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -77,6 +79,7 @@ public class NotificationHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -99,6 +102,7 @@ public class NotificationHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -121,6 +125,7 @@ public class NotificationHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         } finally {
             close();
         }
@@ -171,7 +176,7 @@ public class NotificationHandler extends DBHandler {
 
         try {
             n.setCreatedAt(resultSet.getTimestamp("created_at"));
-        } catch (SQLException ignored) {}
+        } catch (SQLException ignored) {return null;}
 
         return n;
     }

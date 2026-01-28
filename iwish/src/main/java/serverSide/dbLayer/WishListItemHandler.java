@@ -125,6 +125,7 @@ public class WishListItemHandler extends DBHandler {
         } catch (SQLException e) {
             System.err.println("Error fetching wishlist items: " + e.getMessage());
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -144,6 +145,7 @@ public class WishListItemHandler extends DBHandler {
             if (resultSet.next()) return resultSet.getInt("rec_id");
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         } finally {
             close();
         }
@@ -164,6 +166,7 @@ public class WishListItemHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         } finally {
             close();
         }

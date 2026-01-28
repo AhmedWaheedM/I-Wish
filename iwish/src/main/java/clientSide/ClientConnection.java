@@ -45,7 +45,6 @@ public class ClientConnection {
             out.flush();
 
             while (running && lastResponse == null) {
-                System.out.println("in lock" );
                 lock.wait();
             }
 
@@ -54,6 +53,9 @@ public class ClientConnection {
             }
             System.out.println("unlocking lock" );
 
+            if(lastResponse.equals("ERROR")){
+                return null;
+            }
             return lastResponse;
         }
     }

@@ -25,6 +25,7 @@ public class UsersHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         } finally {
             close();
         }
@@ -87,6 +88,7 @@ public class UsersHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
@@ -106,6 +108,7 @@ public class UsersHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         } finally {
             close();
         }
@@ -140,14 +143,13 @@ public class UsersHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return "";
         } finally {
             close();
         }
 
         return username;
-    }
-
-    
+    }  
     public User getUserById(int userId) {
         String query = "SELECT * FROM " + tableName + " WHERE user_id = ?";
         User user = null;
@@ -164,6 +166,7 @@ public class UsersHandler extends DBHandler {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return null;
         } finally {
             close();
         }
