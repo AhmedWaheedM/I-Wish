@@ -77,12 +77,12 @@ public class FriendsApis {
 
         friendsHandler.rejectFriendRequest(sender, receiver);
 
-        String receiverName = userApis.getUserNameById(r.getUser2Id());
+        String rejectorName = userApis.getUserNameById(r.getUser1Id());
 
         String title = "Friend Request Rejected ❌";
-        String body = receiverName + " rejected your friend request.";
+        String body = rejectorName + " rejected your friend request.";
 
-        notificationService.notifyUser(r.getUser1Id(), title, body);
+        notificationService.notifyUser(r.getUser2Id(), title, body);
 
         return true;
     }
