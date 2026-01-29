@@ -9,6 +9,7 @@ public class Notification implements Serializable {
     private String title;
     private String body;
     private boolean isRead;
+    private boolean cleared;
     private Timestamp createdAt;
 
     public Notification() {}
@@ -18,6 +19,7 @@ public class Notification implements Serializable {
         this.title = title;
         this.body = body;
         this.isRead = false;
+        this.cleared = false;
     }
 
     public int getNotificationId() { return notificationId; }
@@ -34,6 +36,9 @@ public class Notification implements Serializable {
 
     public boolean isRead() { return isRead; }
     public void setRead(boolean read) { isRead = read; }
+
+    public boolean isCleared() { return cleared; }
+    public void setCleared(boolean cleared) { this.cleared = cleared; }
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }

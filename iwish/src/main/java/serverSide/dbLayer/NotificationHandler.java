@@ -65,7 +65,7 @@ public class NotificationHandler extends DBHandler {
     }
 
     public List<Notification> getNotificationsByUserId(int userId) {
-        String query = "SELECT * FROM " + tableName + " WHERE user_id = ? ORDER BY created_at DESC";
+        String query = "SELECT * FROM " + tableName + " WHERE user_id = ? AND cleared = FALSE ORDER BY created_at DESC";
         List<Notification> notifications = new ArrayList<>();
 
         try {
@@ -88,7 +88,7 @@ public class NotificationHandler extends DBHandler {
     }
 
     public List<Notification> getUnreadNotificationsByUserId(int userId) {
-        String query = "SELECT * FROM " + tableName + " WHERE user_id = ? AND is_read = FALSE ORDER BY created_at DESC";
+        String query = "SELECT * FROM " + tableName + " WHERE user_id = ? AND is_read = FALSE AND cleared = FALSE ORDER BY created_at DESC";
         List<Notification> notifications = new ArrayList<>();
 
         try {
@@ -111,7 +111,7 @@ public class NotificationHandler extends DBHandler {
     }
 
     public int countUnreadByUserId(int userId) {
-        String query = "SELECT COUNT(*) AS cnt FROM " + tableName + " WHERE user_id = ? AND is_read = FALSE";
+        String query = "SELECT COUNT(*) AS cnt FROM " + tableName + " WHERE user_id = ? AND is_read = FALSE AND cleared = FALSE";
         int count = 0;
 
         try {
@@ -165,6 +165,38 @@ public class NotificationHandler extends DBHandler {
         return true;
     }
 
+    public boolean clearNotification(int notificationId) {
+        String query = "UPDATE " + tableName + " SET cleared = TRUE WHERE notification_id = ?";
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, notificationId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            close();
+        }
+        return true;
+    }
+
+    public boolean clearAllNotifications(int userId) {
+        String query = "UPDATE " + tableName + " SET cleared = TRUE WHERE user_id = ? AND cleared = FALSE";
+        try {
+            connect();
+            PreparedStatement pstmt = connection.prepareStatement(query);
+            pstmt.setInt(1, userId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            close();
+        }
+        return true;
+    }
+
 
     private Notification mapRowToNotification() throws SQLException {
         Notification n = new Notification();
@@ -173,6 +205,7 @@ public class NotificationHandler extends DBHandler {
         n.setTitle(resultSet.getString("title"));
         n.setBody(resultSet.getString("body"));
         n.setRead(resultSet.getBoolean("is_read"));
+        n.setCleared(resultSet.getBoolean("cleared"));
 
         try {
             n.setCreatedAt(resultSet.getTimestamp("created_at"));

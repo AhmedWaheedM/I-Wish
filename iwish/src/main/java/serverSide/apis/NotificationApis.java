@@ -2,6 +2,8 @@ package serverSide.apis;
 
 import dtos.Notification; // (your DTO used for real-time push)
 import dtos.requestDtos.notificationHandler.AddNotificationRequest;
+import dtos.requestDtos.notificationHandler.ClearAllNotificationsRequest;
+import dtos.requestDtos.notificationHandler.ClearNotificationRequest;
 import dtos.requestDtos.notificationHandler.GetNotificationsRequest;
 import dtos.requestDtos.notificationHandler.GetUnreadNotificationsRequest;
 import dtos.requestDtos.notificationHandler.MarkAllNotificationsAsReadRequest;
@@ -40,5 +42,13 @@ public class NotificationApis {
 
     public Object markAllRead(MarkAllNotificationsAsReadRequest r) {
         return notificationHandler.markAllAsRead(r.getUserId());
+    }
+
+    public Object clearNotification(ClearNotificationRequest r) {
+        return notificationHandler.clearNotification(r.getNotificationId());
+    }
+
+    public Object clearAllNotifications(ClearAllNotificationsRequest r) {
+        return notificationHandler.clearAllNotifications(r.getUserId());
     }
 }
