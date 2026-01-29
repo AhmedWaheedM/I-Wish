@@ -42,7 +42,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>clientSide.ClientApp</mainClass>
+                    <mainClass>iwish.client/clientSide.ClientApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>
