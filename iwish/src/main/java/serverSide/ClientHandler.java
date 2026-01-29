@@ -62,6 +62,9 @@ public class ClientHandler extends Thread {
 
     private void cleanup() {
         isRunning = false;
+        
+        // Remove from Server's client list
+        Server.removeClient(this);
 
         try {
             if (inputStream != null) inputStream.close();

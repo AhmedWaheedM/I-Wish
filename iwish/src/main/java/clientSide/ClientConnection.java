@@ -74,6 +74,14 @@ public class ClientConnection {
                             clientSide.appManger.ToastManager.show((Notification) msg);
                         });
                         continue;
+                    } else if (msg instanceof dtos.ServerShutdownNotification) {
+                        Platform.runLater(() -> {
+                            clientSide.helpers.MessageDisplayer.showError("The server has been stopped. You are now disconnected.", "Server Shutdown");
+                            clientSide.appManger.IWishManager.logout();
+                            clientSide.appManger.IWishManager.switchScene("login", "I-Wish - Login");
+                        });
+                        close(); // Close connection
+                        break;   // Exit loop
                     }
 
                     synchronized (lock) {

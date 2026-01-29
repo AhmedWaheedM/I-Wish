@@ -50,7 +50,7 @@ public class ToastManager {
 
         // Friend accepted notifications
         if (title.contains("accepted") || body.contains("accepted")) {
-            return NotificationService.NotificationType.FRIENDSHIP;
+            return NotificationService.NotificationType.FRIEND_ACCEPTED;
         }
 
         // Funding/milestone notifications
