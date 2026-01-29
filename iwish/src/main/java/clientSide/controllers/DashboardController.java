@@ -211,11 +211,52 @@ public class DashboardController {
         
         container.getChildren().addAll(iconContainer, title, message, buttons);
         
+        // Set initial state for animation
+        container.setScaleX(0.8);
+        container.setScaleY(0.8);
+        container.setOpacity(0);
+        
         // Scene with transparent background for rounded corners
         javafx.scene.Scene scene = new javafx.scene.Scene(container);
         scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
         dialogStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
         dialogStage.setScene(scene);
+        
+        // Get owner window for centering
+        javafx.stage.Stage ownerStage = (javafx.stage.Stage) mainLayout.getScene().getWindow();
+        if (ownerStage != null) {
+            dialogStage.initOwner(ownerStage);
+            dialogStage.setOnShown(event -> {
+                double ownerX = ownerStage.getX();
+                double ownerY = ownerStage.getY();
+                double ownerW = ownerStage.getWidth();
+                double ownerH = ownerStage.getHeight();
+                
+                double dialogW = dialogStage.getWidth();
+                double dialogH = dialogStage.getHeight();
+                
+                dialogStage.setX(ownerX + (ownerW / 2) - (dialogW / 2));
+                dialogStage.setY(ownerY + (ownerH / 2) - (dialogH / 2));
+                
+                // Play entrance animation
+                javafx.animation.ScaleTransition scaleIn = new javafx.animation.ScaleTransition(
+                    javafx.util.Duration.millis(200), container);
+                scaleIn.setFromX(0.8);
+                scaleIn.setFromY(0.8);
+                scaleIn.setToX(1.0);
+                scaleIn.setToY(1.0);
+                
+                javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
+                    javafx.util.Duration.millis(200), container);
+                fadeIn.setFromValue(0);
+                fadeIn.setToValue(1);
+                
+                javafx.animation.ParallelTransition entrance = new javafx.animation.ParallelTransition(scaleIn, fadeIn);
+                entrance.play();
+            });
+        } else {
+            dialogStage.centerOnScreen();
+        }
         dialogStage.showAndWait();
     }
 

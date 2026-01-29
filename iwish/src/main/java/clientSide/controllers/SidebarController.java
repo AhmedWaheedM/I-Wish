@@ -89,16 +89,41 @@ public class SidebarController {
     }
 
     private void setActiveButton(Button newActiveBtn) {
-        // Remove active class from all buttons
-        wishlistBtn.getStyleClass().remove("active");
-        marketplaceBtn.getStyleClass().remove("active");
-        friendsBtn.getStyleClass().remove("active");
-        requestsBtn.getStyleClass().remove("active");
-        notificationsBtn.getStyleClass().remove("active");
+        // Find the currently active button and animate it out
+        Button[] allButtons = {wishlistBtn, marketplaceBtn, friendsBtn, requestsBtn, notificationsBtn};
+        
+        for (Button btn : allButtons) {
+            if (btn.getStyleClass().contains("active") && btn != newActiveBtn) {
+                // Animate out the old button
+                javafx.animation.ScaleTransition scaleOut = new javafx.animation.ScaleTransition(
+                    javafx.util.Duration.millis(250), btn);
+                scaleOut.setToX(1.0);
+                scaleOut.setToY(1.0);
+                scaleOut.play();
+            }
+            btn.getStyleClass().remove("active");
+        }
 
-        // Add active class to clicked button
+        // Add active class and animate the new button
         if (!newActiveBtn.getStyleClass().contains("active")) {
-             newActiveBtn.getStyleClass().add("active");
+            newActiveBtn.getStyleClass().add("active");
+            
+            // Scale animation - subtle pop effect
+            javafx.animation.ScaleTransition scaleIn = new javafx.animation.ScaleTransition(
+                javafx.util.Duration.millis(150), newActiveBtn);
+            scaleIn.setFromX(0.90);
+            scaleIn.setFromY(0.90);
+            scaleIn.setToX(1.0);
+            scaleIn.setToY(1.0);
+            
+            // Fade animation
+            javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
+                javafx.util.Duration.millis(150), newActiveBtn);
+            fadeIn.setFromValue(0.7);
+            fadeIn.setToValue(1.0);
+            
+            javafx.animation.ParallelTransition entrance = new javafx.animation.ParallelTransition(scaleIn, fadeIn);
+            entrance.play();
         }
     }
 }
