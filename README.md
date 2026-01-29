@@ -23,7 +23,7 @@ Built as a **desktop client-server application**, it uses **JavaFX** for a moder
 - **Database** — MySQL (JDBC for data access), with comprehensive initialization script
 - **Architecture** — Client-server model with DTO-based request/response protocol, multi-threaded server, soft-delete notifications
 
-### Why I Built This
+### Why we Built This
 This project was created as part of my learning journey in full-stack Java development, focusing on:
 - Client-server communication without frameworks (raw sockets → understanding low-level networking)
 - Database design & operations (transactions, constraints, sample data)
