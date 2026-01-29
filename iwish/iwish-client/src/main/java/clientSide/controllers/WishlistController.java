@@ -3,13 +3,9 @@ package clientSide.controllers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -123,41 +119,36 @@ public class WishlistController {
                 cardController.setData(item);
 
                 cardController.setOnRemove(() -> {
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Remove Item");
-                    alert.setHeaderText("Remove " + item.getItem().getName() + "?");
-                    alert.setContentText("Are you sure you want to remove this item from your wishlist?");
+                    clientSide.helpers.MessageDisplayer.showConfirmation(
+                        "Remove " + item.getItem().getName() + "?",
+                        "Are you sure you want to remove this item from your wishlist?",
+                        () -> {
+                            // Do remove request in background thread (NO freeze)
+                            new Thread(() -> {
+                                try {
+                                    clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
+                                    if (conn == null) return;
 
-                    Optional<ButtonType> result = alert.showAndWait();
-                    if (result.isPresent() && result.get() == ButtonType.OK) {
+                                    dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest req =
+                                            new dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest(
+                                                    item.getWishListId(),
+                                                    item.getItem().getItemId()
+                                            );
 
-                        // Do remove request in background thread (NO freeze)
-                        new Thread(() -> {
-                            try {
-                                clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
-                                if (conn == null) return;
+                                    Object response = conn.sendAndWait(req);
 
-                                dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest req =
-                                        new dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest(
-                                                item.getWishListId(),
-                                                item.getItem().getItemId()
-                                        );
+                                    Platform.runLater(() -> {
+                                        if (response instanceof Boolean && (Boolean) response) {
+                                            loadWishlist(); 
+                                        }
+                                    });
 
-                                Object response = conn.sendAndWait(req);
-
-                                Platform.runLater(() -> {
-                                    if (response instanceof Boolean && (Boolean) response) {
-                                        loadWishlist(); 
-                                    }
-                                });
-
-
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }, "Wishlist-RemoveThread").start();
-                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }, "Wishlist-RemoveThread").start();
+                        }
+                    );
                 });
 
                 wishlistGrid.add(card, col, row);
