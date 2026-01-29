@@ -134,6 +134,8 @@ public class RequestRouter {
         if (request instanceof GetUnreadNotificationsRequest) return notificationApis.getUnread((GetUnreadNotificationsRequest) request);
         if (request instanceof MarkNotificationAsReadRequest) return notificationApis.markOneRead((MarkNotificationAsReadRequest) request);
         if (request instanceof MarkAllNotificationsAsReadRequest) return notificationApis.markAllRead((MarkAllNotificationsAsReadRequest) request);
+        if (request instanceof dtos.requestDtos.notificationHandler.ClearNotificationRequest) return notificationApis.clearNotification((dtos.requestDtos.notificationHandler.ClearNotificationRequest) request);
+        if (request instanceof dtos.requestDtos.notificationHandler.ClearAllNotificationsRequest) return notificationApis.clearAllNotifications((dtos.requestDtos.notificationHandler.ClearAllNotificationsRequest) request);
 
         return null;
     }
