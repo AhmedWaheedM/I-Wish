@@ -42,6 +42,13 @@
                 <FontIcon iconLiteral="fas-check-double" iconSize="12" iconColor="white" />
             </graphic>
         </Button>
+        
+        <Button text="Clear All" onAction="#onClearAll" styleClass="button-danger"
+            style="-fx-font-size: 12px;">
+            <graphic>
+                <FontIcon iconLiteral="fas-trash-alt" iconSize="12" iconColor="white" />
+            </graphic>
+        </Button>
     </HBox>
 
     <!-- Notifications Grid -->
