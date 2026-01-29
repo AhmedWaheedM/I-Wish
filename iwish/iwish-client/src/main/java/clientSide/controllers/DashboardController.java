@@ -8,6 +8,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
 
+import javafx.animation.FadeTransition;
+import javafx.util.Duration;
+
 public class DashboardController {
 
     @FXML
@@ -273,6 +276,12 @@ public class DashboardController {
 
             FXMLLoader loader = new FXMLLoader(resource);
             Parent view = loader.load();
+            
+            FadeTransition ft = new FadeTransition(Duration.millis(300), view);
+            ft.setFromValue(0.0);
+            ft.setToValue(1.0);
+            ft.play();
+
             // detailed cache logic removed
             mainLayout.setCenter(view);
         } catch (IOException e) {
