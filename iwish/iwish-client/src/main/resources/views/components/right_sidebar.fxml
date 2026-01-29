@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+    fx:controller="clientSide.controllers.RightSidebarController"
+    stylesheets="@../dashboard/dashboard.css"
+    prefWidth="280" 
+    style="-fx-background-color: #f8fafc; -fx-background-radius: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 20, 0, -4, 0);"
+    spacing="0">
+
+    <padding>
+        <Insets top="24" right="20" bottom="20" left="20" />
+    </padding>
+
+    <!-- Header with Clear All button -->
+    <HBox alignment="CENTER_LEFT" spacing="0" style="-fx-padding: 0 0 16 0;">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Recent Activity" style="-fx-text-fill: #1f2937; -fx-font-weight: bold; -fx-font-size: 16px;" />
+            <Label text="Latest updates from your network" style="-fx-text-fill: #9ca3af; -fx-font-size: 11px;" />
+        </VBox>
+        <Button fx:id="clearAllBtn" text="Clear All" 
+            style="-fx-background-color: transparent; -fx-text-fill: #3b82f6; -fx-font-size: 11px; -fx-cursor: hand; -fx-padding: 4 8;"
+            visible="false" managed="false" />
+    </HBox>
+
+    <!-- Scrollable Activity List -->
+    <ScrollPane fx:id="activityScrollPane" 
+        fitToWidth="true" 
+        VBox.vgrow="ALWAYS"
+        style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+        
+        <VBox fx:id="activityList" spacing="10" style="-fx-background-color: transparent;">
+            <!-- Notifications will be dynamically added here by NotificationService -->
+        </VBox>
+    </ScrollPane>
+
+</VBox>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<HBox xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml"
+    fx:controller="clientSide.controllers.ToastController"
+    spacing="10"
+    alignment="CENTER_LEFT"
+    style="-fx-background-color: rgba(15,23,42,0.96); -fx-background-radius: 14; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.35), 16, 0, 0, 6);">
+
+    <padding>
+        <Insets top="12" right="14" bottom="12" left="14" />
+    </padding>
+
+    <VBox alignment="CENTER"
+        style="-fx-background-color: #2563eb; -fx-background-radius: 999;"
+        prefWidth="34" prefHeight="34" minWidth="34" minHeight="34">
+        <FontIcon iconLiteral="fas-bell" iconColor="white" iconSize="16" />
+    </VBox>
+
+    <VBox spacing="2" prefWidth="320">
+        <Label fx:id="titleLabel"
+            text="Title"
+            style="-fx-text-fill: white; -fx-font-weight: 800; -fx-font-size: 13px;" />
+        <Label fx:id="bodyLabel"
+            text="Body"
+            wrapText="true"
+            style="-fx-text-fill: #cbd5e1; -fx-font-size: 12px;" />
+    </VBox>
+
+</HBox>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.geometry.Insets?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+    fx:controller="clientSide.controllers.ItemCardController"
+    styleClass="card"
+    stylesheets="@../dashboard/dashboard.css"
+    prefWidth="300">
+
+    <!-- Image Placeholder with Completed Overlay -->
+    <StackPane fx:id="imageContainer" 
+        style="-fx-background-color: linear-gradient(to bottom right, #f8fafc, #e2e8f0); -fx-background-radius: 12 12 0 0;"
+        minHeight="180" prefHeight="180" alignment="CENTER">
+        <ImageView fx:id="itemImage" fitWidth="280" fitHeight="160" preserveRatio="true" />
+        <VBox alignment="CENTER" spacing="8">
+            <FontIcon iconLiteral="fas-gift" iconSize="48" iconColor="#94a3b8" />
+            <Label text="Product" style="-fx-text-fill: #94a3b8; -fx-font-size: 12px;" />
+        </VBox>
+        
+        <!-- Completed Overlay (hidden by default) -->
+        <StackPane fx:id="completedOverlay" visible="false" managed="true"
+            style="-fx-background-color: rgba(0,0,0,0.65); -fx-background-radius: 12 12 0 0;"
+            alignment="CENTER">
+            <Label text="COMPLETED" 
+                style="-fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; 
+                       -fx-border-color: white; -fx-border-width: 2; -fx-border-radius: 4;
+                       -fx-padding: 8 16; -fx-background-radius: 4;" />
+        </StackPane>
+    </StackPane>
+
+    <VBox styleClass="card-content" spacing="12">
+
+        <!-- Header -->
+        <VBox>
+            <HBox spacing="6" alignment="BASELINE_LEFT">
+                <Label fx:id="itemNameLabel" text="Apple Watch Series 9" styleClass="text-h3"
+                    wrapText="true" />
+                <Label fx:id="quantityLabel" text="x1" styleClass="text-muted"
+                    style="-fx-font-size: 14px;" />
+            </HBox>
+            <Label fx:id="ownerLabel" text="by Ahmed" styleClass="text-muted" />
+        </VBox>
+
+        <!-- Pricing -->
+        <HBox alignment="BASELINE_LEFT" spacing="8">
+            <Label fx:id="priceLabel" text="\$399"
+                style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="collectedLabel" text="\$199.50 collected" styleClass="text-muted" />
+        </HBox>
+
+        <!-- Progress -->
+        <VBox spacing="4">
+            <!-- Removed -fx-accent so CSS green bar applies -->
+            <ProgressBar fx:id="fundingProgress" progress="0.5" maxWidth="Infinity"
+                styleClass="progress-bar" />
+            <HBox>
+                <Label fx:id="percentLabel" text="50% funded"
+                    style="-fx-font-size: 12px; -fx-text-fill: #64748b;" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="remainingLabel" text="\$199.50 remaining"
+                    style="-fx-font-size: 12px; -fx-text-fill: #64748b;" />
+            </HBox>
+        </VBox>
+
+        <!-- Actions -->
+        <HBox spacing="8" style="-fx-padding: 8 0 0 0;">
+            <!-- Owner -->
+            <Button fx:id="removeBtn" text="Remove" styleClass="button-danger"
+                maxWidth="Infinity" HBox.hgrow="ALWAYS" onAction="#handleRemove">
+                <graphic>
+                    <FontIcon iconLiteral="fas-trash" iconSize="14" iconColor="white"/>
+                </graphic>
+            </Button>
+
+            <!-- Viewer -->
+            <Button fx:id="contributeBtn" text="Contribute" styleClass="button-primary"
+                style="-fx-background-color: #16a34a;"
+                maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                visible="false" managed="false" onAction="#handleContribute">
+                <graphic>
+                    <FontIcon iconLiteral="fas-gift" iconSize="14" iconColor="white" />
+                </graphic>
+            </Button>
+        </HBox>
+
+    </VBox>
+
+</VBox>

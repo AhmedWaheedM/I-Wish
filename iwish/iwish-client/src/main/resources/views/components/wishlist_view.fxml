@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="clientSide.controllers.WishlistController"
+      spacing="24"
+      prefWidth="800" prefHeight="600"
+      style="-fx-background-color: -fx-main-bg;"
+      stylesheets="@../dashboard/dashboard.css">
+      
+    <padding>
+        <Insets top="32" right="32" bottom="32" left="32"/>
+    </padding>
+
+    <!-- Header -->
+    <VBox spacing="8">
+         <Label text="My Wishlist" styleClass="text-h3" style="-fx-font-size: 24px;"/>
+         <Label text="Manage your items and track contributions from friends" styleClass="text-muted"/>
+    </VBox>
+
+    <!-- Content Grid -->
+    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
+        <GridPane fx:id="wishlistGrid" hgap="24" vgap="24">
+             <!-- Items populated by controller -->
+        </GridPane>
+    </ScrollPane>
+
+</VBox>

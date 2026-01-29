@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml"
+    fx:controller="clientSide.controllers.NotificationsController"
+    spacing="24"
+    style="-fx-background-color: #f8fafc;"
+    stylesheets="@../dashboard/dashboard.css">
+
+    <padding>
+        <Insets top="32" right="32" bottom="32" left="32" />
+    </padding>
+
+    <!-- Header Section -->
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Notifications" 
+                style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" />
+            <Label text="Stay updated with the latest activity" 
+                style="-fx-text-fill: #64748b; -fx-font-size: 14px;" />
+        </VBox>
+
+        <Label fx:id="countLabel" text="Unread: 0/0" 
+            style="-fx-text-fill: #64748b; -fx-font-size: 13px; -fx-padding: 8 12; 
+                   -fx-background-color: #f1f5f9; -fx-background-radius: 6;" />
+
+        <Button text="Refresh" onAction="#onRefresh" styleClass="button-outline"
+            style="-fx-font-size: 12px;">
+            <graphic>
+                <FontIcon iconLiteral="fas-sync-alt" iconSize="12" iconColor="white"/>
+            </graphic>
+        </Button>
+        
+        <Button text="Mark all read" onAction="#onMarkAllRead" styleClass="button-primary"
+            style="-fx-font-size: 12px;">
+            <graphic>
+                <FontIcon iconLiteral="fas-check-double" iconSize="12" iconColor="white" />
+            </graphic>
+        </Button>
+        
+        <Button text="Clear All" onAction="#onClearAll" styleClass="button-danger"
+            style="-fx-font-size: 12px;">
+            <graphic>
+                <FontIcon iconLiteral="fas-trash-alt" iconSize="12" iconColor="white" />
+            </graphic>
+        </Button>
+    </HBox>
+
+    <!-- Notifications Grid -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+        style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+        
+        <StackPane>
+            <FlowPane fx:id="notificationsGrid" hgap="20" vgap="20" 
+                style="-fx-padding: 4;">
+                <!-- Notification cards will be added dynamically -->
+            </FlowPane>
+            
+            <Label fx:id="emptyLabel"
+                text="No notifications yet"
+                visible="false"
+                managed="false"
+                style="-fx-text-fill: #94a3b8; -fx-font-size: 16px; -fx-font-weight: 600;" />
+        </StackPane>
+    </ScrollPane>
+
+</VBox>

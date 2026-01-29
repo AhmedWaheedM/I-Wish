@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.geometry.Insets?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+    fx:controller="clientSide.controllers.FriendsController"
+    spacing="28"
+    prefWidth="800" prefHeight="600"
+    style="-fx-background-color: #f8fafc;"
+    stylesheets="@../dashboard/dashboard.css">
+
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40" />
+    </padding>
+
+    <!-- Find Friends Section -->
+    <VBox spacing="20" styleClass="card" style="-fx-background-radius: 16; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0, 0, 2);">
+        <padding>
+            <Insets top="16" right="16" bottom="16" left="16" />
+        </padding>
+        
+        <!-- Header with Search -->
+        <HBox spacing="16" alignment="CENTER_LEFT" style="-fx-padding: 16 16 0 16;">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="Find New Friends" 
+                    style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" />
+                <Label text="Discover people and send friend requests" 
+                    style="-fx-text-fill: #64748b; -fx-font-size: 14px;" />
+            </VBox>
+            
+            <!-- Search Field -->
+            <HBox styleClass="search-box" alignment="CENTER_LEFT" spacing="8"
+                style="-fx-background-color: #f1f5f9; -fx-background-radius: 10; -fx-padding: 10 14;">
+                <FontIcon iconLiteral="fas-search" iconSize="14" iconColor="#94a3b8" />
+                <TextField fx:id="searchField" promptText="Search by username..." 
+                    style="-fx-background-color: transparent; -fx-border-width: 0; -fx-font-size: 13px;"
+                    prefWidth="200" onKeyReleased="#onSearchKeyReleased" />
+            </HBox>
+        </HBox>
+
+        <!-- FlowPane for suggestions (React-like grid) -->
+        <ScrollPane fitToWidth="true" fitToHeight="true" vbarPolicy="NEVER" hbarPolicy="AS_NEEDED"
+            style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;"
+            minHeight="160">
+            <FlowPane fx:id="findFriendsContainer" hgap="20" vgap="20" 
+                style="-fx-padding: 16 16;">
+                <!-- Populated by Controller -->
+            </FlowPane>
+        </ScrollPane>
+    </VBox>
+
+    <!-- My Friends Section -->
+    <VBox spacing="20" VBox.vgrow="ALWAYS">
+        <!-- Header -->
+        <HBox spacing="16" alignment="CENTER_LEFT">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="Your Friends" 
+                    style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #0f172a;" />
+                <Label fx:id="friendsCountLabel" text="0 connections" 
+                    style="-fx-text-fill: #64748b; -fx-font-size: 14px;" />
+            </VBox>
+        </HBox>
+
+        <!-- Friends Grid using FlowPane -->
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+            style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
+            <FlowPane fx:id="friendsFlowPane" hgap="24" vgap="24" 
+                style="-fx-padding: 12 4;">
+                <!-- Populated by Controller -->
+            </FlowPane>
+        </ScrollPane>
+    </VBox>
+
+</VBox>
