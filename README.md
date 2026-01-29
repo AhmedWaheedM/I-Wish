@@ -24,7 +24,7 @@ Built as a **desktop client-server application**, it uses **JavaFX** for a moder
 - **Architecture** — Client-server model with DTO-based request/response protocol, multi-threaded server, soft-delete notifications
 
 ### Why we Built This
-This project was created as part of my learning journey in full-stack Java development, focusing on:
+This project was created as part of our learning journey in full-stack Java development, focusing on:
 - Client-server communication without frameworks (raw sockets → understanding low-level networking)
 - Database design & operations (transactions, constraints, sample data)
 - Real-time features (threaded listeners, async notifications on JavaFX thread)
