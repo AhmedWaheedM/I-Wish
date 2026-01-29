@@ -1,181 +1,185 @@
-# I-Wish Application Documentation
+# I-Wish Application: Technical Documentation
 
-## Overview
+## 1. Overview
 
 I-Wish is a Java-based wishlist management application with a client-server architecture. It allows users to create and manage wishlists, add items, manage friendships, and track contributions from friends towards wishlist items.
 
-## Architecture
+---
 
-### Client-Server Model
+## 2. System Architecture
 
-The application uses a socket-based client-server architecture:
+### 2.1 High-Level Overview
 
-- **Client**: JavaFX-based GUI application that connects to the server
-- **Server**: Multi-threaded server that handles multiple client connections simultaneously
-- **Communication**: Serialized Request/Response objects over TCP sockets (port 5005)
+The application follows a **Client-Server model** communicating over raw TCP sockets.
 
-### Client Side
+```mermaid
+graph LR
+    subgraph Client ["JavaFX Client (MVC)"]
+        A[Controllers] --> B[ClientConnection]
+    end
+    subgraph Server ["Java Server (N-Tier)"]
+        C[Request Layer] --> D[API Layer]
+        D --> E[DB Layer]
+    end
+    B -- "Request DTOs (TCP)" --> C
+    C -- "Response Objects" --> B
+    E --> F[(MySQL Database)]
+```
 
-**Main Entry Points:**
-- [ClientApp.java](iwish/src/main/java/clientSide/ClientApp.java): JavaFX Application entry point
-- [ClientConnection.java](iwish/src/main/java/clientSide/ClientConnection.java): Manages socket connection to server
-- [IWishManager.java](iwish/src/main/java/clientSide/appManger/IWishManager.java): Application manager for scene switching and state management
+---
 
-**Controllers:**
-- [LoginController.java](iwish/src/main/java/clientSide/controllers/LoginController.java): Handles user login logic
-- [DashboardController.java](iwish/src/main/java/clientSide/controllers/DashboardController.java): Manages main dashboard UI
-- [IFiledsChecker.java](iwish/src/main/java/clientSide/controllers/IFiledsChecker.java): Interface for input validation
+### 2.2 Back-End: N-Tier (3-Tier) Architecture
 
-### Server Side
+The server-side is designed around a classic 3-tier architecture, promoting separation of concerns and testability.
 
-**Main Entry Points:**
-- [ServerApp.java](iwish/src/main/java/serverSide/ServerApp.java): Server application entry point
-- [Server.java](iwish/src/main/java/serverSide/Server.java): Listens for client connections on port 5005
-- [ClientHandler.java](iwish/src/main/java/serverSide/ClientHandler.java): Handles individual client connections
+| Tier | Responsibility | Key Classes |
+|---|---|---|
+| **1. Request Layer** | Handles incoming TCP connections, reads/writes serialized objects. Analogous to a web server like Nginx. | `Server.java`, `ClientHandler.java` |
+| **2. API Layer** | Contains all business logic. Routes `Request` DTOs to the correct handler and orchestrates calls to the DB layer. | `RequestRouter.java`, `UserApis.java`, `FriendsApis.java`, `ContributionApis.java`, etc. |
+| **3. DB Layer** | Data Access Objects (DAOs). Responsible for all direct interactions with the MySQL database via JDBC. | `DBHandler.java`, `UsersHandler.java`, `WishListHandler.java`, `FriendsHandler.java`, etc. |
 
-**Database Layer:**
-- [DBHandler.java](iwish/src/main/java/serverSide/dbLayer/DBHandler.java): Core database connection management
-- [UsersHandler.java](iwish/src/main/java/serverSide/dbLayer/UsersHandler.java): User-related database operations
-- [WishListHandler.java](iwish/src/main/java/serverSide/dbLayer/WishListHandler.java): Wishlist operations
-- [WishListItemHandler.java](iwish/src/main/java/serverSide/dbLayer/WishListItemHandler.java): Wishlist item operations
-- [FriendsHandler.java](iwish/src/main/java/serverSide/dbLayer/FriendsHandler.java): Friend relationship management
-- [ContributionHandler.java](iwish/src/main/java/serverSide/dbLayer/ContributionHandler.java): Contribution tracking
-- [ItemHandler.java](iwish/src/main/java/serverSide/dbLayer/ItemHandler.java): Item catalog management
+---
 
-## Data Models
+### 2.3 Front-End: JavaFX Client
 
-The application uses the following domain models (in [models/](iwish/src/main/java/models/)):
+The client is a standalone JavaFX application that follows the **MVC (Model-View-Controller)** pattern.
 
-- **User**: Represents a user account with balance
-- **WishList**: Represents a user's wishlist
-- **WishListItem**: Represents an item in a wishlist
-- **Item**: Represents an item in the catalog
-- **Friend**: Represents a friendship relationship between users
-- **Contribution**: Represents a contribution towards a wishlist item
+| Component | Responsibility | Location |
+|---|---|---|
+| **Model** | Data structures shared between client and server. | `iwish-common` module (`models/`, `dtos/`) |
+| **View** | FXML layout files and CSS stylesheets. | `iwish-client/.../resources/views/` |
+| **Controller** | Handles UI events, updates views, and communicates with the server. | `iwish-client/.../controllers/` |
 
-## Request-Response System
+---
 
-The application uses a request-response pattern for client-server communication.
+## 3. Design Patterns
 
-**Request DTOs** (in [dtos/requestDtos/](iwish/src/main/java/dtos/requestDtos/)):
+### 3.1 Back-End Patterns
 
-- **User Handler**: LoginRequest, HasEnoughBalanceRequest, UpdateBalanceRequest
-- **Friends Handler**: AddFriendRequest, GetFriendsRequest, GetPendingFriendsRequest, RejectFriendRequest
-- **Item Handler**: AddItemRequest, DeleteItemRequest, GetItemPriceRequest
-- **Contribution Handler**: AddContributionRequest, RemoveContributionRequest
-- **WishList Handler**: DeleteWishListRequest, GetFriendsWishListsRequest, GetWishListByUserIdRequest
-- **WishList Item Handler**: Various item management requests
+#### Observer Pattern
+The server can push notifications to clients asynchronously. The client's `ClientConnection` class implements a listener thread that waits for incoming objects.
+- **Subject**: The Server, which can write `NotificationDto` objects to any client's output stream.
+- **Observer**: The `ClientConnection.startListening()` thread, which reacts to incoming notifications by updating the UI via `Platform.runLater()`.
 
-**RequestRouter** handles incoming requests on the server side and routes them to appropriate handlers.
+```java
+// In ClientConnection.java (Observer)
+private void startListening() {
+    listenerThread = new Thread(() -> {
+        while (running) {
+            Object msg = in.readObject();
+            if (msg instanceof NotificationDto) {
+                Platform.runLater(() -> ToastManager.show((NotificationDto) msg));
+            }
+            // ...
+        }
+    });
+}
+```
 
-## Database Schema
+#### Singleton Pattern
+Core server components are initialized once and shared.
+- `DBHandler`: Manages the single database connection pool.
+- All `*Handler` DAOs in `RequestRouter`: Instantiated once in a `static` block and reused for all requests.
 
-The database `iwish` consists of the following tables:
+```java
+// In RequestRouter.java (Singleton-like static initialization)
+static {
+    usersHandler = new UsersHandler();
+    friendsHandler = new FriendsHandler();
+    // ... other handlers
+}
+```
 
-### 1. User
-Stores user account information.
-- `user_id`: Primary Key
-- `username`: Unique username
-- `password`: User password (hashed recommended)
-- `balance`: User's current balance
+---
 
-### 2. WishList
-Stores the wishlist for each user.
-- `wishlist_id`: Primary Key
-- `user_id`: Foreign Key referencing User
+### 3.2 Front-End Patterns
 
-### 3. Item
-Catalog of available items.
-- `item_id`: Primary Key
-- `name`: Item name
-- `price`: Item price
-- `description`: Item description
+#### MVC (Model-View-Controller)
+JavaFX is inherently an MVC framework.
+- **Model**: `User.java`, `WishList.java`, `Item.java` (in `iwish-common`).
+- **View**: `dashboard.fxml`, `login.fxml`.
+- **Controller**: `DashboardController.java`, `LoginController.java`.
 
-### 4. WishList_Item (Junction Table)
-Links items to specific wishlists.
-- `rec_id`: Primary Key
-- `wishlist_id`: Foreign Key referencing WishList
-- `item_id`: Foreign Key referencing Item
+#### Facade Pattern
+Complex subsystems are hidden behind simple interfaces.
 
-### 5. Friends
-Manages friendships between users.
-- `user1_id`: Foreign Key referencing User
-- `user2_id`: Foreign Key referencing User
-- `status`: Friendship status ('accepted', 'pending', 'rejected')
-- Primary Key: (user1_id, user2_id)
+| Facade | Hides | Public Interface |
+|---|---|---|
+| `IWishManager` | Scene loading, primary stage access, session state (logged-in user). | `switchScene(name, title)`, `getLoggedUser()`, `logout()` |
+| `ClientConnection` | Socket management, threading, request/response correlation. | `connect(host, port)`, `sendAndWait(request)`, `close()` |
 
-### 6. Contribution
-Tracks contributions towards a wishlist item.
-- `contribution_id`: Primary Key
-- `wishlist_item_id`: Foreign Key referencing WishList_Item
-- `contributor_id`: Foreign Key referencing User
-- `amount`: Contribution amount
+---
 
-## User Interface
+## 4. Database Schema
 
-**FXML Views** (in [resources/views/](iwish/src/main/resources/views/)):
+The `iwish` database consists of the following tables:
 
-- **Login View** ([login.fxml](iwish/src/main/resources/views/login/login.fxml)): User authentication screen
-- **Dashboard View** ([dashboard.fxml](iwish/src/main/resources/views/dashboard/dashboard.fxml)): Main application interface
+| Table | Description | Key Columns |
+|---|---|---|
+| `User` | User accounts. | `user_id`, `username`, `password`, `balance` |
+| `Wishlist` | A user's wishlist. One-to-one with User. | `wishlist_id`, `user_id` |
+| `Item` | Catalog of available items. | `item_id`, `name`, `price`, `description` |
+| `Wishlist_Item` | Junction table linking wishlists to items. | `rec_id`, `wishlist_id`, `item_id`, `quantity` |
+| `Friends` | Manages friend relationships. | `user1_id`, `user2_id`, `status` (pending/accepted) |
+| `Contribution` | Tracks contributions to a wishlist item. | `wishlist_item_id`, `contributor_id`, `amount` |
+| `Notification` | Stores user notifications. | `notification_id`, `user_id`, `title`, `body`, `is_read`, `cleared` |
 
-**Styling:**
-- [login.css](iwish/src/main/resources/views/login/login.css): Login page styling
-- [dashboard.css](iwish/src/main/resources/views/dashboard/dashboard.css): Dashboard styling
+---
 
-## Running the Application
+## 5. Request-Response Protocol
+
+Communication uses serialized Java objects (`ObjectOutputStream` / `ObjectInputStream`).
+
+**Flow:**
+1.  Client creates a `Request` DTO (e.g., `LoginRequest`).
+2.  Client calls `clientConnection.sendAndWait(request)`.
+3.  Server's `ClientHandler` receives the object.
+4.  `RequestRouter.handleRequest()` dispatches to the correct `*Apis` method.
+5.  The API method executes business logic, calling `*Handler` DAOs as needed.
+6.  A response object is returned to the client.
+
+---
+
+## 6. Feature Spotlight: Notification System v2.0
+
+### Soft Delete Mechanism
+- **Database**: The `Notification` table has a `cleared` boolean column.
+- **Logic**: "Deleting" a notification sets `cleared = TRUE`. Queries filter by `cleared = FALSE`.
+
+### Right Sidebar Synchronization
+- **Real-time Updates**: Actions on the main tab automatically refresh the sidebar.
+- **Smart Dismissal**: Clicking 'X' marks as read, soft-deletes, and triggers a fade-out animation.
+
+---
+
+## 7. Running the Application
 
 ### Prerequisites
-- Java Development Kit (JDK) 11 or higher
-- Maven 3.8.0 or higher
-- MySQL Server
+- JDK 11+, Maven 3.8+, MySQL Server.
 
-### Build
+### Setup
+1.  Run `DataBaseInitializationScript` in MySQL.
+2.  Create `db.properties` in `iwish-server/src/main/resources/`.
+
+### Commands
 ```bash
 cd iwish
 mvn clean install
+
+# Terminal 1: Server
+cd iwish-server && mvn javafx:run
+
+# Terminal 2: Client
+cd iwish-client && mvn javafx:run
 ```
 
-### Run Client
-```bash
-mvn javafx:run -pl . -Djavafx.mainClass=clientSide.ClientApp
-```
+---
 
-### Run Server
-```bash
-mvn exec:java -Dexec.mainClass="serverSide.ServerApp"
-```
+## 8. Troubleshooting
 
-## Feature Spotlight: Notification System
-
-### Soft Delete Mechanism
-To preserve notification history while keeping the user's view clean, the system uses a **Soft Delete** strategy:
-- **Database**: The `Notification` table has a `cleared` boolean column.
-- **Logic**: 
-    - "Deleting" a notification updates `cleared = TRUE`.
-    - Fetch queries filter by `cleared = FALSE`.
-    - This allows for future "History" features or audit trails.
-
-### Right Sidebar Synchronization
-The Right Sidebar ("Recent Activity") is now fully synchronized with the main notifications tab:
-- **Real-time Updates**: Actions on the main tab (Mark Read, Clear) automatically refresh the sidebar.
-- **Smart Dismissal**: Clicking the 'X' on a sidebar notification:
-    1. Sends a `MarkNotificationAsReadRequest` (updates `is_read` status).
-    2. Sends a `ClearNotificationRequest` (soft deletes).
-    3. Performs a smooth fade-out animation locally.
-- **Consistent Styling**: Notification types (Friend Request, Contribution, etc.) share the same color coding and icons across the entire application.
-
-## Troubleshooting
-
-### "Duplicate foreign key constraint name"
-If you encounter this error when running the database script:
-**Solution:** The script includes `DROP TABLE IF EXISTS` statements. Ensure the script is run completely.
-
-### "Failed to open referenced table"
-This occurs if tables are not dropped properly or there's a case sensitivity mismatch.
-**Solution:** Check that table names use consistent casing (WishList_Item, User, Item, etc.).
-
-### Connection refused on client startup
-**Solution:** Ensure the server is running on port 5005 before starting the client application.
-
-## important
-don't forget to create db.properties in resources
+| Problem | Solution |
+|---|---|
+| "Duplicate foreign key constraint name" | Ensure the DB script runs completely with `DROP TABLE` statements. |
+| "Failed to open referenced table" | Check table name casing consistency. |
+| "Connection refused" on client | Ensure the server is running on port 5005 first. |
+| No `db.properties` file | Create it in `iwish-server/src/main/resources/` with your DB credentials. |
