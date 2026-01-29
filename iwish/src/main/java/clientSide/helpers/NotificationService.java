@@ -16,6 +16,7 @@ import javafx.geometry.Insets;
 import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -39,7 +40,8 @@ public class NotificationService {
         FRIEND_REQUEST("#3b82f6", "#dbeafe", "fas-user-plus"),
         FUNDING_MILESTONE("#22c55e", "#dcfce7", "fas-chart-line"),
         WISHLIST_UPDATE("#f97316", "#ffedd5", "fas-plus-circle"),
-        FRIENDSHIP("#a855f7", "#f3e8ff", "fas-user-friends"),
+        FRIEND_ACCEPTED("#a855f7", "#f3e8ff", "fas-user-check"),
+        FRIEND_REMOVED("#ef4444", "#fee2e2", "fas-user-minus"),
         INFO("#6b7280", "#f3f4f6", "fas-info-circle");
 
         private final String color;
@@ -59,6 +61,7 @@ public class NotificationService {
 
     public static class NotificationItem {
         public String id;
+        public int dbId; // Database ID for deletion
         public String title;
         public String description;
         public NotificationType type;
@@ -66,10 +69,20 @@ public class NotificationService {
 
         public NotificationItem(String title, String description, NotificationType type) {
             this.id = UUID.randomUUID().toString();
+            this.dbId = -1;
             this.title = title;
             this.description = description;
             this.type = type;
             this.timestamp = LocalDateTime.now();
+        }
+        
+        public NotificationItem(int dbId, String title, String description, NotificationType type, Timestamp createdAt) {
+            this.id = UUID.randomUUID().toString();
+            this.dbId = dbId;
+            this.title = title;
+            this.description = description;
+            this.type = type;
+            this.timestamp = createdAt != null ? createdAt.toLocalDateTime() : LocalDateTime.now();
         }
     }
 
@@ -93,6 +106,69 @@ public class NotificationService {
             button.setOnAction(e -> clearAllNotifications());
             updateClearAllVisibility();
         }
+    }
+
+    /**
+     * Load recent UNREAD notifications from the database with proper timestamps.
+     * This should be called when the right sidebar initializes.
+     */
+    public void loadDatabaseNotifications() {
+        new Thread(() -> {
+            try {
+                models.User user = clientSide.appManger.IWishManager.getLoggedInUser();
+                if (user == null) return;
+                
+                // Only fetch unread notifications for the right sidebar
+                Object response = clientSide.appManger.IWishManager.getClient().sendAndWait(
+                    new dtos.requestDtos.notificationHandler.GetUnreadNotificationsRequest(user.getUserId()));
+                
+                if (response instanceof List) {
+                    @SuppressWarnings("unchecked")
+                    List<models.Notification> dbNotifications = (List<models.Notification>) response;
+                    
+                    // Limit to recent notifications for the sidebar
+                    int limit = Math.min(dbNotifications.size(), MAX_NOTIFICATIONS);
+                    
+                    Platform.runLater(() -> {
+                        notifications.clear();
+                        
+                        for (int i = 0; i < limit; i++) {
+                            models.Notification n = dbNotifications.get(i);
+                            NotificationType type = determineNotificationType(n.getTitle(), n.getBody());
+                            NotificationItem item = new NotificationItem(
+                                n.getNotificationId(),
+                                n.getTitle(),
+                                n.getBody(),
+                                type,
+                                n.getCreatedAt()
+                            );
+                            notifications.add(item);
+                        }
+                        
+                        refreshDisplay();
+                    });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, "load-db-notifications").start();
+    }
+    
+    /**
+     * Request a refresh of the notifications from the database.
+     */
+    public void requestRefresh() {
+        loadDatabaseNotifications();
+    }
+    
+    private NotificationType determineNotificationType(String title, String body) {
+        String combined = (title + " " + body).toLowerCase();
+        if (combined.contains("contribut")) return NotificationType.CONTRIBUTION;
+        if (combined.contains("friend request")) return NotificationType.FRIEND_REQUEST;
+        if (combined.contains("accepted") || combined.contains("now friends")) return NotificationType.FRIEND_ACCEPTED;
+        if (combined.contains("removed") || combined.contains("unfriend")) return NotificationType.FRIEND_REMOVED;
+        if (combined.contains("funded") || combined.contains("milestone") || combined.contains("reached")) return NotificationType.FUNDING_MILESTONE;
+        return NotificationType.INFO;
     }
 
     public void addNotification(String title, String description, NotificationType type) {
@@ -141,17 +217,108 @@ public class NotificationService {
             }
             
             updateClearAllVisibility();
+            updateClearAllVisibility();
         });
     }
 
+    private void onDismissClicked(NotificationItem item) {
+        // Handle database updates (Mark Read + Clear)
+        System.out.println("DEBUG: Dismissing notification ID: " + item.id + ", DB ID: " + item.dbId);
+        new Thread(() -> {
+            try {
+                if (item.dbId != -1) {
+                    System.out.println("DEBUG: Sending MarkRead and Clear requests for DB ID: " + item.dbId);
+                    // 1. Mark as Read
+                    Object readRes = clientSide.appManger.IWishManager.getClient().sendAndWait(
+                        new dtos.requestDtos.notificationHandler.MarkNotificationAsReadRequest(item.dbId));
+                    System.out.println("DEBUG: MarkRead response: " + readRes);
+                        
+                    // 2. Clear (Soft Delete)
+                    Object clearRes = clientSide.appManger.IWishManager.getClient().sendAndWait(
+                        new dtos.requestDtos.notificationHandler.ClearNotificationRequest(item.dbId));
+                    System.out.println("DEBUG: Clear response: " + clearRes);
+                } else {
+                    System.out.println("DEBUG: Skipping DB requests because DB ID is -1");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, "dismiss-sidebar-action").start();
+
+        // Perform UI animation
+        dismissNotification(item.id);
+    }
+    
     /**
-     * Dismiss a single notification by ID.
+     * Dismiss a single notification by ID (UI only).
      */
     public void dismissNotification(String notificationId) {
-        notifications.removeIf(n -> n.id.equals(notificationId));
         Platform.runLater(() -> {
-            refreshDisplay();
-            updateClearAllVisibility();
+            if (activityListContainer == null) {
+                notifications.removeIf(n -> n.id.equals(notificationId));
+                return;
+            }
+            
+            // Find the notification view by ID
+            javafx.scene.Node nodeToRemove = null;
+            for (javafx.scene.Node node : activityListContainer.getChildren()) {
+                if (node.getUserData() != null && node.getUserData().equals(notificationId)) {
+                    nodeToRemove = node;
+                    break;
+                }
+            }
+            
+            if (nodeToRemove != null) {
+                final javafx.scene.Node finalNode = nodeToRemove;
+                
+                // Animate fade out and slide right
+                FadeTransition fade = new FadeTransition(Duration.millis(300), finalNode);
+                fade.setFromValue(1);
+                fade.setToValue(0);
+                
+                TranslateTransition slide = new TranslateTransition(Duration.millis(300), finalNode);
+                slide.setFromX(0);
+                slide.setToX(50);
+                
+                ParallelTransition animation = new ParallelTransition(fade, slide);
+                animation.setOnFinished(e -> {
+                    notifications.removeIf(n -> n.id.equals(notificationId));
+                    activityListContainer.getChildren().remove(finalNode);
+                    updateClearAllVisibility();
+                    
+                    // Show placeholder if empty
+                    if (notifications.isEmpty()) {
+                        refreshDisplay();
+                    }
+                });
+                animation.play();
+            } else {
+                notifications.removeIf(n -> n.id.equals(notificationId));
+                refreshDisplay();
+                updateClearAllVisibility();
+            }
+        });
+    }
+    
+    /**
+     * Dismiss a notification by database ID.
+     */
+    public void dismissNotificationByDbId(int dbId) {
+        Platform.runLater(() -> {
+            if (activityListContainer == null) {
+                notifications.removeIf(n -> n.dbId == dbId);
+                return;
+            }
+            
+            // Find the notification by dbId
+            NotificationItem itemToRemove = notifications.stream()
+                .filter(n -> n.dbId == dbId)
+                .findFirst()
+                .orElse(null);
+            
+            if (itemToRemove != null) {
+                dismissNotification(itemToRemove.id);
+            }
         });
     }
 
@@ -199,7 +366,7 @@ public class NotificationService {
     }
 
     public void showNewFriendshipNotification(String friendName) {
-        addNotification("New Friend", "You are now friends with " + friendName, NotificationType.FRIENDSHIP);
+        addNotification("New Friend", "You are now friends with " + friendName, NotificationType.FRIEND_ACCEPTED);
     }
 
     public void showSuccessNotification(String title, String description) {
@@ -229,6 +396,7 @@ public class NotificationService {
     private HBox createNotificationView(NotificationItem item) {
         // Main container with colored glow effect
         HBox container = new HBox(0);
+        container.setUserData(item.id); // Set ID for finding later
         container.setAlignment(Pos.TOP_LEFT);
         container.setStyle(String.format(
             "-fx-background-color: white; -fx-background-radius: 10; -fx-border-radius: 10; " +
@@ -279,7 +447,7 @@ public class NotificationService {
         closeBtn.setStyle("-fx-background-color: transparent; -fx-padding: 2; -fx-cursor: hand;");
         closeBtn.setOnMouseEntered(e -> closeIcon.setIconColor(Color.web("#ef4444")));
         closeBtn.setOnMouseExited(e -> closeIcon.setIconColor(Color.web("#9ca3af")));
-        closeBtn.setOnAction(e -> dismissNotification(item.id));
+        closeBtn.setOnAction(e -> onDismissClicked(item));
 
         content.getChildren().addAll(icon, textContainer, closeBtn);
         container.getChildren().addAll(leftBorder, content);
