@@ -47,8 +47,10 @@ public class FriendsApis {
 
     public Object acceptFriend(dtos.requestDtos.friendsHandler.AcceptFriendRequest r) {
 
-        User u1 = new User(); u1.setUserId(r.getUser1Id()); // sender
-        User u2 = new User(); u2.setUserId(r.getUser2Id()); // accepter
+        User u1 = new User();
+        u1.setUserId(r.getUser1Id()); // sender
+        User u2 = new User();
+        u2.setUserId(r.getUser2Id()); // accepter
 
         friendsHandler.acceptFriend(u1, u2);
 
@@ -57,7 +59,7 @@ public class FriendsApis {
         String title = "Friend Request Accepted ✅";
         String body = accepterName + " accepted your friend request.";
 
-        notificationService.notifyUser(r.getUser1Id(), title, body);
+        notificationService.notifyUser(r.getUser2Id(), title, body);
 
         return true;
     }
@@ -72,8 +74,10 @@ public class FriendsApis {
 
     public Object reject(RejectFriendRequest r) {
 
-        User sender = new User(); sender.setUserId(r.getUser1Id());
-        User receiver = new User(); receiver.setUserId(r.getUser2Id());
+        User sender = new User(); 
+        sender.setUserId(r.getUser1Id());
+        User receiver = new User(); 
+        receiver.setUserId(r.getUser2Id());
 
         friendsHandler.rejectFriendRequest(sender, receiver);
 
@@ -82,7 +86,7 @@ public class FriendsApis {
         String title = "Friend Request Rejected ❌";
         String body = rejectorName + " rejected your friend request.";
 
-        notificationService.notifyUser(r.getUser2Id(), title, body);
+        notificationService.notifyUser(r.getUser1Id(), title, body);
 
         return true;
     }
