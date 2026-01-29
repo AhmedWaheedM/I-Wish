@@ -145,6 +145,25 @@ mvn javafx:run -pl . -Djavafx.mainClass=clientSide.ClientApp
 mvn exec:java -Dexec.mainClass="serverSide.ServerApp"
 ```
 
+## Feature Spotlight: Notification System
+
+### Soft Delete Mechanism
+To preserve notification history while keeping the user's view clean, the system uses a **Soft Delete** strategy:
+- **Database**: The `Notification` table has a `cleared` boolean column.
+- **Logic**: 
+    - "Deleting" a notification updates `cleared = TRUE`.
+    - Fetch queries filter by `cleared = FALSE`.
+    - This allows for future "History" features or audit trails.
+
+### Right Sidebar Synchronization
+The Right Sidebar ("Recent Activity") is now fully synchronized with the main notifications tab:
+- **Real-time Updates**: Actions on the main tab (Mark Read, Clear) automatically refresh the sidebar.
+- **Smart Dismissal**: Clicking the 'X' on a sidebar notification:
+    1. Sends a `MarkNotificationAsReadRequest` (updates `is_read` status).
+    2. Sends a `ClearNotificationRequest` (soft deletes).
+    3. Performs a smooth fade-out animation locally.
+- **Consistent Styling**: Notification types (Friend Request, Contribution, etc.) share the same color coding and icons across the entire application.
+
 ## Troubleshooting
 
 ### "Duplicate foreign key constraint name"

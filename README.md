@@ -47,5 +47,10 @@ Before running the application, you must initialize the database using the provi
 - **Database Fixes**: Resolved foreign key constraint naming conflicts in the `Wishlist_Item` and `Contribution` tables.
 - **Table Naming**: Standardized table naming to `Wishlist_Item` (CamelCase with underscore) for consistency.
 - **Frontend Overhaul**: Implemented a modern **Dashboard UI** (see `dashboard.fxml`).
-    - The app now runs in **Frontend-Only Mode** (Mock Data) by default for easier UI testing.
     - Database initialization is currently disabled in `IWishManager.java`.
+
+- **Notification System v2.0**:
+    - **Soft Delete Architecture**: Notifications are now preserved in the database (`cleared` flag) instead of permanent deletion, enabling history tracking while keeping the UI clean.
+    - **Smart Synchronization**: The Right Sidebar now intelligently syncs with the main Notifications tab. Dismissing a notification (with the new 'X' button) marks it as read and clears it from the database simultaneously.
+    - **Interactive UI**: Added fade-out animations for dismissals, a "Clear All" button with confirmation dialog, and precise relative timestamps (e.g., "5 min ago", "Yesterday").
+    - **Visual Consistency**: Unified color coding and iconography for notification types (e.g., Red for "Friend Removed", Purple for "Friend Accepted") across all views.
