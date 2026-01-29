@@ -1,25 +1,33 @@
 CREATE DATABASE IF NOT EXISTS iwish;
+
 USE iwish;
 -- =========================
 -- Drop tables if exist
 -- =========================
 DROP TABLE IF EXISTS Contribution;
+
 DROP TABLE IF EXISTS friends;
+
 DROP TABLE IF EXISTS Wishlist_Item;
+
 DROP TABLE IF EXISTS WishListItem;
+
 DROP TABLE IF EXISTS wishlist_item;
+
 DROP TABLE IF EXISTS wishlist;
+
 DROP TABLE IF EXISTS item;
+
 DROP TABLE IF EXISTS user;
 
 -- =========================
 -- User Table
 -- =========================
-CREATE TABLE User (
+CREATE TABLE User(
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(100) NOT NULL,
-    balance DECIMAL(10,2) DEFAULT 0
+    balance DECIMAL(10, 2) DEFAULT 0
 );
 
 -- =========================
@@ -28,11 +36,9 @@ CREATE TABLE User (
 CREATE TABLE Wishlist (
     wishlist_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    current_amount DECIMAL(10,2) DEFAULT 0,
-    total_items_amount DECIMAL(10,2) DEFAULT 0,
-    CONSTRAINT fk_wishlist_user
-        FOREIGN KEY (user_id) REFERENCES User(user_id)
-        ON DELETE CASCADE
+    current_amount DECIMAL(10, 2) DEFAULT 0,
+    total_items_amount DECIMAL(10, 2) DEFAULT 0,
+    CONSTRAINT fk_wishlist_user FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
 -- =========================
@@ -41,7 +47,7 @@ CREATE TABLE Wishlist (
 CREATE TABLE Item (
     item_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    price DECIMAL(10,2) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
     description TEXT
 );
 
@@ -52,14 +58,9 @@ CREATE TABLE Wishlist_Item (
     rec_id INT AUTO_INCREMENT PRIMARY KEY,
     wishlist_id INT NOT NULL,
     item_id INT NOT NULL,
-    CONSTRAINT fk_wishlist_item_wishlist
-        FOREIGN KEY (wishlist_id) REFERENCES Wishlist(wishlist_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_wishlist_item_item
-        FOREIGN KEY (item_id) REFERENCES Item(item_id)
-        ON DELETE CASCADE
+    CONSTRAINT fk_wishlist_item_wishlist FOREIGN KEY (wishlist_id) REFERENCES Wishlist (wishlist_id) ON DELETE CASCADE,
+    CONSTRAINT fk_wishlist_item_item FOREIGN KEY (item_id) REFERENCES Item (item_id) ON DELETE CASCADE
 );
-
 
 -- =========================
 -- Friends Table
@@ -69,12 +70,8 @@ CREATE TABLE Friends (
     user2_id INT NOT NULL,
     status VARCHAR(20),
     PRIMARY KEY (user1_id, user2_id),
-    CONSTRAINT fk_friends_user1
-        FOREIGN KEY (user1_id) REFERENCES User(user_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_friends_user2
-        FOREIGN KEY (user2_id) REFERENCES User(user_id)
-        ON DELETE CASCADE
+    CONSTRAINT fk_friends_user1 FOREIGN KEY (user1_id) REFERENCES User(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_friends_user2 FOREIGN KEY (user2_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
 
 -- =========================
@@ -83,90 +80,121 @@ CREATE TABLE Friends (
 CREATE TABLE Contribution (
     wishlist_item_id INT NOT NULL,
     contributor_id INT NOT NULL,
-    amount DECIMAL(10,2) NOT NULL,
-    PRIMARY KEY (wishlist_item_id, contributor_id),
-    CONSTRAINT fk_contribution_wishlist_item
-        FOREIGN KEY (wishlist_item_id) REFERENCES Wishlist_Item(rec_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_contribution_user
-        FOREIGN KEY (contributor_id) REFERENCES User(user_id)
-        ON DELETE CASCADE
+    amount DECIMAL(10, 2) NOT NULL,
+    PRIMARY KEY (
+        wishlist_item_id,
+        contributor_id
+    ),
+    CONSTRAINT fk_contribution_wishlist_item FOREIGN KEY (wishlist_item_id) REFERENCES Wishlist_Item (rec_id) ON DELETE CASCADE,
+    CONSTRAINT fk_contribution_user FOREIGN KEY (contributor_id) REFERENCES User(user_id) ON DELETE CASCADE
 );
+
 SET SQL_SAFE_UPDATES = 0;
 
 DELETE FROM contribution;
+
 DELETE FROM Wishlist_Item;
 
 SET SQL_SAFE_UPDATES = 1;
-ALTER TABLE Wishlist_Item
-ADD COLUMN quantity INT NOT NULL DEFAULT 1;
+
+ALTER TABLE Wishlist_Item ADD COLUMN quantity INT NOT NULL DEFAULT 1;
 
 SET SQL_SAFE_UPDATES = 0;
-UPDATE iwish.wishlist c
-SET c.current_amount = 0 , c.total_items_amount = 0;
-SET SQL_SAFE_UPDATES = 1;
 
+UPDATE iwish.wishlist c
+SET
+    c.current_amount = 0,
+    c.total_items_amount = 0;
+
+SET SQL_SAFE_UPDATES = 1;
 
 -- =========================
 -- Insert Users
 -- =========================
-INSERT INTO User (username, password, balance) VALUES
-('ahmed', '1234', 500),
-('mohamed', '1234', 300),
-('sara', '1234', 800);
+INSERT INTO
+    User(username, password, balance)
+VALUES ('ahmed', '1234', 500),
+    ('mohamed', '1234', 300),
+    ('sara', '1234', 800);
 
 -- =========================
 -- Insert WishLists
 -- =========================
-INSERT INTO Wishlist (user_id, current_amount, total_items_amount) VALUES
-(1, 100, 500),
-(2, 50, 300),
-(3, 0, 0);
+INSERT INTO
+    Wishlist (
+        user_id,
+        current_amount,
+        total_items_amount
+    )
+VALUES (1, 100, 500),
+    (2, 50, 300),
+    (3, 0, 0);
 
 -- =========================
 -- Insert Items
 -- =========================
-INSERT INTO Item (name, price, description) VALUES
-('Headphones', 200, 'Wireless headphones'),
-('Smart Watch', 300, 'Fitness smartwatch'),
-('Backpack', 150, 'Laptop backpack');
+INSERT INTO
+    Item (name, price, description)
+VALUES (
+        'Headphones',
+        200,
+        'Wireless headphones'
+    ),
+    (
+        'Smart Watch',
+        300,
+        'Fitness smartwatch'
+    ),
+    (
+        'Backpack',
+        150,
+        'Laptop backpack'
+    );
 
 -- =========================
 -- Insert WishList Items
 -- =========================
-INSERT INTO Wishlist_Item (wishlist_id, item_id) VALUES
-(1, 1),
-(1, 2),
-(2, 3);
+INSERT INTO
+    Wishlist_Item (wishlist_id, item_id)
+VALUES (1, 1),
+    (1, 2),
+    (2, 3);
 
 -- =========================
 -- Insert Friends
 -- =========================
-INSERT INTO Friends (user1_id, user2_id, status) VALUES
-(1, 2, 'accepted'),
-(1, 3, 'pending');
+INSERT INTO
+    Friends (user1_id, user2_id, status)
+VALUES (1, 2, 'accepted'),
+    (1, 3, 'pending');
 
 -- =========================
 -- Insert Contributions
 -- =========================
-INSERT INTO Contribution (wishlist_item_id, contributor_id, amount) VALUES
-(1, 2, 50),
-(1, 3, 30),
-(2, 2, 20);
-
+INSERT INTO
+    Contribution (
+        wishlist_item_id,
+        contributor_id,
+        amount
+    )
+VALUES (1, 2, 50),
+    (1, 3, 30),
+    (2, 2, 20);
 
 -- =========================
 -- Notification Table
 -- =========================
+
 CREATE TABLE notification (
     notification_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     title VARCHAR(150) NOT NULL,
     body TEXT NOT NULL,
-    is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    cleared BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_notification_user
-        FOREIGN KEY (user_id) REFERENCES User(user_id)
+        FOREIGN KEY (user_id) REFERENCES `User`(user_id)
         ON DELETE CASCADE
 );
