@@ -6,10 +6,15 @@ import java.util.List;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import models.WishListItem;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 public class WishlistController {
 
@@ -97,7 +102,7 @@ public class WishlistController {
 
         wishlistGrid.getChildren().clear();
         Label loading = new Label(text);
-        loading.setStyle("-fx-font-size: 16px; -fx-padding: 20;");
+        loading.getStyleClass().add("loading-label");
         wishlistGrid.add(loading, 0, 0);
     }
 
@@ -162,11 +167,40 @@ public class WishlistController {
             }
         }
 
-        // Optional: show empty state
+        // Show empty state if no items
         if (wishlistItems.isEmpty()) {
-            Label empty = new Label("No items in your wishlist yet.");
-            empty.setStyle("-fx-font-size: 14px; -fx-padding: 20;");
-            wishlistGrid.add(empty, 0, 0);
+            VBox emptyState = createEmptyState();
+            wishlistGrid.add(emptyState, 0, 0, 3, 1); // Span 3 columns
         }
+    }
+    
+    private VBox createEmptyState() {
+        VBox container = new VBox(16);
+        container.setAlignment(Pos.CENTER);
+        container.getStyleClass().add("empty-state-container");
+        container.setPrefWidth(600);
+        
+        // Icon container
+        StackPane iconContainer = new StackPane();
+        iconContainer.getStyleClass().add("empty-state-icon-container");
+        iconContainer.setAlignment(Pos.CENTER);
+        
+        FontIcon icon = new FontIcon("fas-gift");
+        icon.setIconSize(36);
+        icon.setIconColor(Color.web("#94a3b8"));
+        iconContainer.getChildren().add(icon);
+        
+        // Title
+        Label title = new Label("Your wishlist is empty");
+        title.getStyleClass().add("empty-state-title");
+        
+        // Message
+        Label message = new Label("Add items from the Item Marketplace\nto start building your wishlist!");
+        message.getStyleClass().add("empty-state-message");
+        message.setWrapText(true);
+        message.setAlignment(Pos.CENTER);
+        
+        container.getChildren().addAll(iconContainer, title, message);
+        return container;
     }
 }
