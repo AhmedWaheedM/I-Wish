@@ -383,3 +383,28 @@
     -fx-border-color: rgba(148, 163, 184, 0.12);
     -fx-border-radius: 16;
 }
+/* =======================================================================
+   11) SCROLLBARS
+   ======================================================================= */
+/* Make scrollbar invisible by default */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #334155; /* Dark Grey */
+    -fx-background-radius: 5em;
+}
+.scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
+}
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: #334155; /* Dark Grey */
+    -fx-background-radius: 5em;
+}
+/* Only show when hovering over the scroll area */
+.scroll-pane:hover .scroll-bar:vertical .thumb {
+    -fx-background-color: #475569;
+}
