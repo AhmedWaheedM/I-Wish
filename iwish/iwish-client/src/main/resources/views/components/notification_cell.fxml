@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<HBox xmlns="http://javafx.com/javafx"
+    xmlns:fx="http://javafx.com/fxml"
+    fx:controller="clientSide.controllers.NotificationCellController"
+    spacing="12"
+    alignment="CENTER_LEFT"
+    styleClass="notif-card">
+
+    <padding>
+        <Insets top="12" right="14" bottom="12" left="14" />
+    </padding>
+
+    <StackPane styleClass="notif-icon">
+        <FontIcon fx:id="icon" iconLiteral="fas-bell" iconSize="16" styleClass="notif-icon-glyph" />
+    </StackPane>
+
+    <VBox spacing="4" HBox.hgrow="ALWAYS">
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label fx:id="titleLabel" text="Title" styleClass="notif-title" />
+            <Label fx:id="unreadBadge" text="NEW" styleClass="notif-badge" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="timeLabel" text="" styleClass="notif-time" />
+        </HBox>
+
+        <Label fx:id="bodyLabel" text="Body" wrapText="true" styleClass="notif-body" />
+    </VBox>
+
+    <Button fx:id="markReadBtn" text="Mark read" onAction="#onMarkRead" styleClass="notif-btn" />
+</HBox>
