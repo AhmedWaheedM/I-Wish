@@ -113,7 +113,7 @@
    6) BUTTONS
    ======================================================================= */
 .button-primary {
-    -fx-background-color: linear-gradient(to bottom, #3b82f6, #2563eb);
+    -fx-background-color: linear-gradient(to bottom, #3b83f6c2, #2564ebda);
     -fx-text-fill: white;
     -fx-font-weight: bold;
 
@@ -132,40 +132,44 @@
 }
 
 .button-danger {
-    -fx-background-color: #ffffff;
-    -fx-text-fill: -fx-danger;
+    -fx-background-color: linear-gradient(to bottom, #ef4444a1, #dc2626);
+    -fx-text-fill: white;
 
-    -fx-border-color: #e2e8f0;
-    -fx-border-width: 1.2;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
 
     -fx-background-radius: 10;
     -fx-border-radius: 10;
 
     -fx-padding: 10 14;
     -fx-cursor: hand;
+    
+    -fx-effect: dropshadow(three-pass-box, rgba(239, 68, 68, 0.35), 12, 0, 0, 5);
 }
 
 .button-danger:hover {
-    -fx-background-color: #fef2f2;
-    -fx-border-color: #fecaca;
-    -fx-text-fill: -fx-danger-hover;
+    -fx-background-color: linear-gradient(to bottom, #dc2626, #b91c1c);
+    -fx-effect: dropshadow(three-pass-box, rgba(239, 68, 68, 0.50), 14, 0, 0, 6);
 }
 
 .button-outline {
-    -fx-background-color: transparent;
-    -fx-text-fill: -fx-primary;
-    -fx-border-color: -fx-primary;
-    -fx-border-width: 1;
+    -fx-background-color: linear-gradient(to bottom, #3b83f68f, #2563eb);
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
 
-    -fx-background-radius: 6;
-    -fx-border-radius: 6;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
 
-    -fx-padding: 8 16;
+    -fx-padding: 10 16;
     -fx-cursor: hand;
+    
+    -fx-effect: dropshadow(three-pass-box, rgba(37, 99, 235, 0.30), 10, 0, 0, 4);
 }
 
 .button-outline:hover {
-    -fx-background-color: #eff6ff;
+    -fx-background-color: linear-gradient(to bottom, #2563eb, #1d4ed8);
+    -fx-effect: dropshadow(three-pass-box, rgba(37, 99, 235, 0.45), 12, 0, 0, 5);
 }
 
 /* =======================================================================
@@ -179,6 +183,34 @@
 .progress-bar .bar {
     -fx-background-color: #22c55e;
     -fx-background-radius: 6;
+}
+
+/* =======================================================================
+   7b) CONTRIBUTION SLIDER
+   ======================================================================= */
+.contribution-slider .track {
+    -fx-background-color: #1a28497e;
+    -fx-background-radius: 6;
+    -fx-pref-height: 8;
+}
+
+.contribution-slider .thumb {
+    -fx-background-color: rgb(209, 209, 209);
+    -fx-background-radius: 50%;
+    -fx-pref-width: 20;
+    -fx-pref-height: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 6, 0, 0, 2);
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-border-radius: 50%;
+}
+
+.contribution-slider .thumb:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 8, 0, 0, 3);
+}
+
+.contribution-slider:focused .thumb {
+    -fx-border-color: #3b82f6;
 }
 
 /* =======================================================================

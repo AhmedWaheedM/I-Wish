@@ -1,52 +1,70 @@
 package clientSide.appManger;
 
-
-import clientSide.controllers.ToastController;
+import clientSide.helpers.NotificationService;
 import dtos.Notification;
-import javafx.animation.FadeTransition;
-import javafx.animation.PauseTransition;
-import javafx.animation.SequentialTransition;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
+/**
+ * ToastManager now routes all notifications to the right sidebar instead of showing
+ * a top bar toast. Maintains the same API for backward compatibility.
+ */
 public class ToastManager {
 
-    private static VBox host;
-
-    public static void init(VBox toastHost) {
-        host = toastHost;
+    // No longer needed, but kept for backward compatibility
+    public static void init(javafx.scene.layout.VBox toastHost) {
+        // No-op: notifications now go to the right sidebar
     }
 
+    /**
+     * Route notification to the right sidebar instead of showing a toast.
+     */
     public static void show(Notification n) {
-        if (host == null) return; 
+        if (n == null) return;
 
-        try {
-            FXMLLoader loader = new FXMLLoader(ToastManager.class.getResource("/views/components/toast.fxml"));
-            Parent toastRoot = loader.load();
-            ToastController controller = loader.getController();
-            controller.setContent(n.getTitle(), n.getBody());
+        // Determine notification type based on content
+        NotificationService.NotificationType type = determineNotificationType(n);
 
-            toastRoot.setOpacity(0);
-            host.getChildren().add(0, toastRoot); 
+        // Add to the right sidebar
+        NotificationService.getInstance().addNotification(
+            n.getTitle(),
+            n.getBody(),
+            type
+        );
+    }
 
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(180), toastRoot);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
+    /**
+     * Determine the notification type based on the notification content.
+     */
+    private static NotificationService.NotificationType determineNotificationType(Notification n) {
+        String title = n.getTitle() != null ? n.getTitle().toLowerCase() : "";
+        String body = n.getBody() != null ? n.getBody().toLowerCase() : "";
 
-            PauseTransition stay = new PauseTransition(Duration.seconds(5));
-
-            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), toastRoot);
-            fadeOut.setFromValue(1);
-            fadeOut.setToValue(0);
-
-            SequentialTransition seq = new SequentialTransition(fadeIn, stay, fadeOut);
-            seq.setOnFinished(e -> host.getChildren().remove(toastRoot));
-            seq.play();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Contribution notifications
+        if (title.contains("contribution") || body.contains("contributed")) {
+            return NotificationService.NotificationType.CONTRIBUTION;
         }
+
+        // Friend request notifications
+        if (title.contains("friend request") || body.contains("friend request")) {
+            return NotificationService.NotificationType.FRIEND_REQUEST;
+        }
+
+        // Friend accepted notifications
+        if (title.contains("accepted") || body.contains("accepted")) {
+            return NotificationService.NotificationType.FRIENDSHIP;
+        }
+
+        // Funding/milestone notifications
+        if (title.contains("funding") || title.contains("milestone") || 
+            body.contains("funded") || body.contains("%")) {
+            return NotificationService.NotificationType.FUNDING_MILESTONE;
+        }
+
+        // Wishlist notifications
+        if (title.contains("wishlist") || body.contains("wishlist")) {
+            return NotificationService.NotificationType.WISHLIST_UPDATE;
+        }
+
+        // Default to info
+        return NotificationService.NotificationType.INFO;
     }
 }

@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.geometry.Insets?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
@@ -18,15 +19,16 @@
     <!-- User Profile Section -->
     <VBox styleClass="user-profile" spacing="12">
         <HBox spacing="12" alignment="CENTER_LEFT">
-            <!-- Simulated Avatar -->
-            <Region
-                style="-fx-background-color: linear-gradient(to bottom right, #3b82f6, #2563eb); -fx-background-radius: 50%; -fx-min-width: 48; -fx-min-height: 48; -fx-max-width: 48; -fx-max-height: 48;" />
+            <!-- User Avatar with Icon -->
+            <StackPane style="-fx-background-color: linear-gradient(to bottom right, #3b82f6, #2563eb); -fx-background-radius: 50%; -fx-min-width: 48; -fx-min-height: 48; -fx-max-width: 48; -fx-max-height: 48;" alignment="CENTER">
+                <FontIcon iconLiteral="fas-user" iconColor="white" iconSize="22" />
+            </StackPane>
 
             <VBox>
                 <Label fx:id="userNameLabel" text="Ahmed" styleClass="text-h3"
-                    style="-fx-text-fill: black; -fx-font-size: 16px;" />
+                    style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;" />
                 <Label fx:id="userHandleLabel" text="\@ahmed" styleClass="text-muted"
-                    style="-fx-font-size: 14px;" />
+                    style="-fx-font-size: 14px; -fx-text-fill: #94a3b8;" />
             </VBox>
         </HBox>
 
@@ -99,7 +101,7 @@
         <Button fx:id="logoutBtn" onAction="#onLogoutClicked" text="Logout"
             styleClass="sidebar-button" style="-fx-hover-base: #ef4444;" maxWidth="Infinity">
             <graphic>
-                <FontIcon iconLiteral="fas-sign-out-alt" iconSize="16" />
+                <FontIcon iconLiteral="fas-power-off" iconSize="16" />
             </graphic>
         </Button>
     </VBox>

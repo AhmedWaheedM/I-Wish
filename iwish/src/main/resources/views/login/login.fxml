@@ -53,10 +53,6 @@
                     style="-fx-pref-height: 44; -fx-background-radius: 6;" />
             </VBox>
 
-            <HBox alignment="CENTER_RIGHT">
-                <Hyperlink text="Forgot password?" style="-fx-text-fill: #2563eb;" />
-            </HBox>
-
             <Label fx:id="errorLabel" text="" visible="false" wrapText="true"
                 style="-fx-text-fill: #ef4444; -fx-font-size: 14px;" maxWidth="Infinity"
                 alignment="CENTER" />

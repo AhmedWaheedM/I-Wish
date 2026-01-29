@@ -12,28 +12,43 @@
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" 
       fx:controller="clientSide.controllers.ContributionModalController"
       spacing="24"
-      style="-fx-background-color: white; -fx-padding: 32; -fx-background-radius: 12;"
-      prefWidth="500">
+      style="-fx-background-color: white; -fx-padding: 32;"
+      stylesheets="@../dashboard/dashboard.css"
+      prefWidth="420">
 
+    <!-- Header -->
     <VBox spacing="8">
-        <Label fx:id="itemNameLabel" text="Contribute to Item" styleClass="text-h3" style="-fx-font-size: 18px;"/>
-        <Label fx:id="walletBalanceLabel" text="My Wallet Balance: $500.00" style="-fx-text-fill: #16a34a; -fx-font-weight: bold;"/>
-        <Label fx:id="remainingCostLabel" text="Remaining Cost: $100.00" styleClass="text-muted"/>
+        <Label fx:id="itemNameLabel" text="Contribute to Item" 
+            style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+        <Label fx:id="walletBalanceLabel" text="My Wallet Balance: $500.00" 
+            style="-fx-text-fill: #16a34a; -fx-font-weight: bold; -fx-font-size: 14px;"/>
+        <Label fx:id="remainingCostLabel" text="Remaining Cost: $100.00" 
+            style="-fx-text-fill: #ef4444; -fx-font-weight: bold; -fx-font-size: 13px;"/>
     </VBox>
 
-    <VBox spacing="12">
-        <Label text="Amount ($)" styleClass="text-body"/>
-        <TextField fx:id="amountField" text="0" styleClass="input-field"/>
+    <!-- Amount Input Section -->
+    <VBox spacing="16">
+        <Label text="Amount" style="-fx-font-weight: bold; -fx-text-fill: #334155;"/>
         
-        <HBox alignment="CENTER_LEFT" spacing="12">
-             <Label text="\$0" styleClass="text-muted" style="-fx-font-size: 10px;"/>
-             <Slider fx:id="amountSlider" HBox.hgrow="ALWAYS" style="-fx-cursor: hand;"/> 
-             <Label text="Max" styleClass="text-muted" style="-fx-font-size: 10px;"/>
-        </HBox>
+        <!-- Text Field with better styling -->
+        <TextField fx:id="amountField" text="0" promptText="Enter amount..."
+            style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-width: 1.5; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 12 14; -fx-font-size: 16px;"/>
+        
+        <!-- Slider with labels -->
+        <VBox spacing="6">
+            <Slider fx:id="amountSlider" styleClass="contribution-slider" style="-fx-cursor: hand;"/>
+            <HBox>
+                <Label text="0" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="maxLabel" text="Max: 0" style="-fx-text-fill: #64748b; -fx-font-size: 11px;" minWidth="80"/>
+            </HBox>
+        </VBox>
     </VBox>
 
-    <HBox alignment="CENTER_RIGHT">
-         <Button fx:id="confirmBtn" text="Confirm Contribution" styleClass="button-primary" style="-fx-background-color: #0f172a;" onAction="#handleConfirm"/>
+    <!-- Actions -->
+    <HBox alignment="CENTER_RIGHT" spacing="12">
+         <Button fx:id="confirmBtn" text="Confirm Contribution" onAction="#handleConfirm"
+             style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12 24; -fx-background-radius: 8; -fx-cursor: hand;"/>
     </HBox>
 
 </VBox>

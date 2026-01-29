@@ -2,13 +2,16 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.geometry.Insets?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" 
       fx:controller="clientSide.controllers.RequestsController"
       spacing="24"
       prefWidth="800" prefHeight="600"
-      style="-fx-background-color: -fx-main-bg;"
+      style="-fx-background-color: #f8fafc;"
       stylesheets="@../dashboard/dashboard.css">
 
     <padding>
@@ -16,16 +19,27 @@
     </padding>
 
     <!-- Header -->
-    <VBox spacing="8">
-         <Label text="Friend Requests" styleClass="text-h3" style="-fx-font-size: 24px;"/>
-         <Label text="People who want to connect with you" styleClass="text-muted"/>
-    </VBox>
-
-    <!-- Content -->
-    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
-        <VBox fx:id="requestsListContainer" spacing="12">
-             <!-- Populated by Controller -->
+    <HBox alignment="CENTER_LEFT" spacing="16">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Friend Requests" 
+                style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
+            <Label text="People who want to connect with you" 
+                style="-fx-text-fill: #64748b; -fx-font-size: 14px;"/>
         </VBox>
+        
+        <Label fx:id="countLabel" text="0 pending"
+            style="-fx-text-fill: #64748b; -fx-font-size: 13px; -fx-padding: 8 12; 
+                   -fx-background-color: #f1f5f9; -fx-background-radius: 6;" />
+    </HBox>
+
+    <!-- Content Grid -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+        style="-fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent;">
+        
+        <FlowPane fx:id="requestsContainer" hgap="20" vgap="20" 
+            style="-fx-padding: 4;">
+            <!-- Request cards populated by Controller -->
+        </FlowPane>
     </ScrollPane>
 
 </VBox>

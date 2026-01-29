@@ -44,7 +44,7 @@
 
     <!-- Footer Actions -->
     <HBox spacing="12" alignment="CENTER_RIGHT">
-        <Button onAction="#onCancelClicked" text="Cancel" styleClass="button-outline" style="-fx-border-color: #94a3b8; -fx-text-fill: #0f172a;"/>
+        <Button onAction="#onCancelClicked" text="Cancel" styleClass="button-outline" style="-fx-background-color: white; -fx-border-color: #94a3b8; -fx-text-fill: #0f172a;"/>
         <Button onAction="#onAddFundsClicked" text="Add Funds" styleClass="button-primary" style="-fx-background-color: #16a34a;"/>
     </HBox>
 

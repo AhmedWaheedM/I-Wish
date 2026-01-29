@@ -29,7 +29,7 @@
 
         <Button fx:id="addToWishlistBtn" onAction="#onAddToWishlistClicked" text="Add to Wishlist" styleClass="button-outline" maxWidth="Infinity">
             <graphic>
-                <FontIcon iconLiteral="fas-plus" iconSize="14"/>
+                <FontIcon iconLiteral="fas-plus" iconSize="14" iconColor="white"/>
             </graphic>
         </Button>
     </VBox>

@@ -1,11 +1,17 @@
 package clientSide.controllers;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import org.kordamp.ikonli.javafx.FontIcon;
 import java.util.List;
 import models.User;
@@ -13,7 +19,10 @@ import models.User;
 public class RequestsController {
 
     @FXML
-    private VBox requestsListContainer;
+    private FlowPane requestsContainer;
+    
+    @FXML
+    private Label countLabel;
 
     @FXML
     public void initialize() {
@@ -36,14 +45,19 @@ public class RequestsController {
                 @SuppressWarnings("unchecked")
                 List<User> requests = (List<User>) response;
                 
-                requestsListContainer.getChildren().clear();
+                requestsContainer.getChildren().clear();
+                
+                // Update count label
+                if (countLabel != null) {
+                    countLabel.setText(requests.size() + " pending");
+                }
+                
                 if (requests.isEmpty()) {
-                     Label placeholder = new Label("No pending friend requests.");
-                     placeholder.getStyleClass().add("text-muted");
-                     requestsListContainer.getChildren().add(placeholder);
+                    VBox emptyState = createEmptyState();
+                    requestsContainer.getChildren().add(emptyState);
                 } else {
                     for (User requester : requests) {
-                        requestsListContainer.getChildren().add(createRequestItem(requester));
+                        requestsContainer.getChildren().add(createRequestCard(requester));
                     }
                 }
             }
@@ -51,49 +65,113 @@ public class RequestsController {
             e.printStackTrace();
         }
     }
+    
+    private VBox createEmptyState() {
+        VBox empty = new VBox(12);
+        empty.setAlignment(Pos.CENTER);
+        empty.setPrefWidth(600);
+        empty.setPadding(new Insets(48));
+        
+        FontIcon icon = new FontIcon("fas-user-friends");
+        icon.setIconSize(48);
+        icon.setIconColor(Color.web("#94a3b8"));
+        
+        Label message = new Label("No pending friend requests");
+        message.setStyle("-fx-text-fill: #64748b; -fx-font-size: 16px;");
+        
+        Label subMessage = new Label("When someone sends you a friend request, it will appear here");
+        subMessage.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 13px;");
+        
+        empty.getChildren().addAll(icon, message, subMessage);
+        return empty;
+    }
 
-    private HBox createRequestItem(User requester) {
-        HBox item = new HBox(16);
-        item.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-        item.getStyleClass().add("card");
-        item.setStyle("-fx-padding: 16;");
+    private VBox createRequestCard(User requester) {
+        VBox card = new VBox(16);
+        card.setPrefWidth(280);
+        card.setMinWidth(260);
+        card.setMaxWidth(300);
+        card.setPadding(new Insets(24));
+        card.setAlignment(Pos.TOP_CENTER);
+        
+        // Base shadow style (consistent with other cards)
+        String baseStyle = "-fx-background-color: white; -fx-background-radius: 12; " +
+                          "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);";
+        String hoverStyle = "-fx-background-color: white; -fx-background-radius: 12; " +
+                           "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 16, 0, 0, 4);";
+        
+        card.setStyle(baseStyle);
+        
+        // Add hover effect
+        card.setOnMouseEntered(e -> card.setStyle(hoverStyle));
+        card.setOnMouseExited(e -> card.setStyle(baseStyle));
 
-        // Avatar
-        Region avatar = new Region();
-        avatar.setStyle("-fx-background-color: linear-gradient(to bottom right, #facc15, #ca8a04); -fx-background-radius: 50%; -fx-min-width: 48; -fx-min-height: 48; -fx-max-width: 48; -fx-max-height: 48;");
+        // Avatar with user icon
+        StackPane avatarContainer = new StackPane();
+        avatarContainer.setMinSize(72, 72);
+        avatarContainer.setMaxSize(72, 72);
+        avatarContainer.setStyle("-fx-background-color: linear-gradient(to bottom right, #3b82f6, #2563eb); " +
+                                 "-fx-background-radius: 50%;");
+        avatarContainer.setAlignment(Pos.CENTER);
+        
+        FontIcon userIcon = new FontIcon("fas-user");
+        userIcon.setIconSize(32);
+        userIcon.setIconColor(Color.WHITE);
+        avatarContainer.getChildren().add(userIcon);
 
         // Info
         VBox info = new VBox(4);
+        info.setAlignment(Pos.CENTER);
+        
         String username = requester.getUserName() != null ? requester.getUserName() : "Unknown";
         Label name = new Label(username);
-        name.getStyleClass().add("text-h3");
-        name.setStyle("-fx-font-size: 16px;");
+        name.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
         
         String handleText = "@" + username.toLowerCase().replace(" ", "");
         Label handle = new Label(handleText);
-        handle.getStyleClass().add("text-muted");
+        handle.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13px;");
+        
+        Label requestLabel = new Label("wants to be your friend");
+        requestLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px;");
 
-        info.getChildren().addAll(name, handle);
-
-        // Spacer
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, javafx.scene.layout.Priority.ALWAYS);
+        info.getChildren().addAll(name, handle, requestLabel);
 
         // Actions
-        HBox actions = new HBox(8);
+        HBox actions = new HBox(12);
+        actions.setAlignment(Pos.CENTER);
+        actions.setPadding(new Insets(8, 0, 0, 0));
+        
         Button acceptBtn = new Button("Accept");
         acceptBtn.getStyleClass().add("button-primary");
-        acceptBtn.setStyle("-fx-background-color: #22c55e;"); // Green
+        acceptBtn.setStyle("-fx-background-color: #22c55e; -fx-font-size: 12px;");
+        acceptBtn.setPrefWidth(100);
         acceptBtn.setOnAction(e -> handleAccept(requester));
+        
+        // Add icon to accept button
+        FontIcon checkIcon = new FontIcon("fas-check");
+        checkIcon.setIconSize(12);
+        checkIcon.setIconColor(Color.WHITE);
+        acceptBtn.setGraphic(checkIcon);
+        
+        // Hover effect for accept button
+        acceptBtn.setOnMouseEntered(e -> acceptBtn.setStyle("-fx-background-color: #16a34a; -fx-font-size: 12px;"));
+        acceptBtn.setOnMouseExited(e -> acceptBtn.setStyle("-fx-background-color: #22c55e; -fx-font-size: 12px;"));
 
-        Button rejectBtn = new Button("Reject");
+        Button rejectBtn = new Button("Decline");
         rejectBtn.getStyleClass().add("button-danger");
+        rejectBtn.setPrefWidth(100);
         rejectBtn.setOnAction(e -> handleReject(requester));
+        
+        // Add icon to reject button - WHITE color to match button background
+        FontIcon timesIcon = new FontIcon("fas-times");
+        timesIcon.setIconSize(12);
+        timesIcon.setIconColor(Color.WHITE);
+        rejectBtn.setGraphic(timesIcon);
 
         actions.getChildren().addAll(acceptBtn, rejectBtn);
 
-        item.getChildren().addAll(avatar, info, spacer, actions);
-        return item;
+        card.getChildren().addAll(avatarContainer, info, actions);
+        return card;
     }
 
     private void handleAccept(User requester) {
@@ -101,15 +179,6 @@ public class RequestsController {
         if (user == null) return;
         
         try {
-            // AddFriendRequest handles the accept logic? 
-            // Wait, AddFriendRequest usually INITIATES. 
-            // Is there an AcceptFriendRequest? 
-            // Checking RequestRouter: AddFriendRequest calls friendsHandler.addFriend(u1, u2)
-            // If it's already pending, does addFriend confirm it?
-            // Usually yes, confirm logic is often just "insert" or "update status".
-            // Let's assume AddFriendRequest is reused for acceptance or creates the link.
-            // Wait, logic check: if Request exists, 'AddFriend' might mean 'Confirm'.
-            
             dtos.requestDtos.friendsHandler.AcceptFriendRequest req = 
                 new dtos.requestDtos.friendsHandler.AcceptFriendRequest(requester.getUserId(), user.getUserId());
             
