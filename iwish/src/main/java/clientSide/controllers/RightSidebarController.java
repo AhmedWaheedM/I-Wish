@@ -6,9 +6,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 
-import java.util.List;
-import models.User;
-
 public class RightSidebarController {
 
     @FXML
@@ -33,7 +30,7 @@ public class RightSidebarController {
         // Register the Clear All button
         NotificationService.getInstance().setClearAllButton(clearAllBtn);
         
-        // Load initial activity (like pending friend requests)
+        // Load initial activity from database
         loadActivity();
     }
 
@@ -41,25 +38,8 @@ public class RightSidebarController {
         models.User currentUser = clientSide.appManger.IWishManager.getLoggedInUser();
         if (currentUser == null) return;
 
-        try {
-            clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
-            if (conn != null) {
-                // Get Pending Friends (Friend Requests) and add as notifications
-                dtos.requestDtos.friendsHandler.GetPendingFriendsRequest req = 
-                    new dtos.requestDtos.friendsHandler.GetPendingFriendsRequest(currentUser.getUserId());
-                
-                Object response = conn.sendAndWait(req);
-                if (response instanceof List) {
-                    @SuppressWarnings("unchecked")
-                    List<User> pending = (List<User>) response;
-                    for (User u : pending) {
-                        NotificationService.getInstance().showFriendRequestNotification(u.getUserName());
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // Load notifications from database with proper timestamps
+        NotificationService.getInstance().loadDatabaseNotifications();
     }
     
     /**

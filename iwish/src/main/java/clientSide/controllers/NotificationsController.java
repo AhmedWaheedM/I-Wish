@@ -1,5 +1,8 @@
 package clientSide.controllers;
 
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,13 +53,15 @@ public class NotificationsController {
         private final String body;
         private boolean read;
         private NotificationType type;
+        private Timestamp createdAt;
 
-        public AppNotification(int id, String title, String body, boolean read) {
+        public AppNotification(int id, String title, String body, boolean read, Timestamp createdAt) {
             this.id = id;
             this.title = title;
             this.body = body;
             this.read = read;
             this.type = determineType(title, body);
+            this.createdAt = createdAt;
         }
 
         private NotificationType determineType(String title, String body) {
@@ -75,6 +80,7 @@ public class NotificationsController {
         public boolean isRead() { return read; }
         public void setRead(boolean read) { this.read = read; }
         public NotificationType getType() { return type; }
+        public Timestamp getCreatedAt() { return createdAt; }
     }
 
     @FXML private FlowPane notificationsGrid;
@@ -92,6 +98,7 @@ public class NotificationsController {
     @FXML
     private void onRefresh() {
         refreshAsync();
+        clientSide.helpers.NotificationService.getInstance().requestRefresh();
     }
 
     @FXML
@@ -107,11 +114,146 @@ public class NotificationsController {
                 int userId = IWishManager.getLoggedInUser().getUserId();
                 Object res = IWishManager.getClient().sendAndWait(new MarkAllNotificationsAsReadRequest(userId));
                 if (res == null) refreshAsync();
+                clientSide.helpers.NotificationService.getInstance().requestRefresh();
             } catch (Exception e) {
                 e.printStackTrace();
                 refreshAsync();
             }
         }, "mark-all-read").start();
+    }
+
+    @FXML
+    private void onClearAll() {
+        if (items.isEmpty()) return;
+        
+        // Show confirmation dialog
+        javafx.stage.Stage dialogStage = new javafx.stage.Stage();
+        dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+        dialogStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        
+        javafx.scene.layout.VBox container = new javafx.scene.layout.VBox(20);
+        container.setAlignment(javafx.geometry.Pos.CENTER);
+        container.setPadding(new javafx.geometry.Insets(32));
+        container.setStyle("-fx-background-color: white; -fx-border-color: #d3cbcbff; -fx-background-radius: 10; " +
+                          "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 5);");
+        container.setPrefWidth(380);
+        
+        // Set initial state for animation
+        container.setScaleX(0.8);
+        container.setScaleY(0.8);
+        container.setOpacity(0);
+        
+        // Icon
+        javafx.scene.layout.StackPane iconContainer = new javafx.scene.layout.StackPane();
+        iconContainer.setMinSize(64, 64);
+        iconContainer.setMaxSize(64, 64);
+        iconContainer.setStyle("-fx-background-color: #fef2f2; -fx-background-radius: 50%;");
+        
+        org.kordamp.ikonli.javafx.FontIcon warningIcon = new org.kordamp.ikonli.javafx.FontIcon("fas-exclamation-triangle");
+        warningIcon.setIconSize(28);
+        warningIcon.setIconColor(javafx.scene.paint.Color.web("#f59e0b"));
+        iconContainer.getChildren().add(warningIcon);
+        
+        javafx.scene.control.Label title = new javafx.scene.control.Label("Clear All Notifications?");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
+        
+        javafx.scene.control.Label message = new javafx.scene.control.Label("This will permanently delete all " + items.size() + " notifications.\nThis action cannot be undone.");
+        message.setStyle("-fx-text-fill: #64748b; -fx-font-size: 14px; -fx-text-alignment: center;");
+        message.setWrapText(true);
+        message.setAlignment(javafx.geometry.Pos.CENTER);
+        
+        javafx.scene.layout.HBox buttons = new javafx.scene.layout.HBox(12);
+        buttons.setAlignment(javafx.geometry.Pos.CENTER);
+        
+        javafx.scene.control.Button cancelBtn = new javafx.scene.control.Button("Cancel");
+        cancelBtn.setStyle("-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 8; " +
+                          "-fx-background-radius: 8; -fx-padding: 10 24; -fx-font-size: 14px; " +
+                          "-fx-text-fill: #64748b; -fx-cursor: hand;");
+        cancelBtn.setOnAction(e -> dialogStage.close());
+        
+        javafx.scene.control.Button clearBtn = new javafx.scene.control.Button("Clear All");
+        clearBtn.setStyle("-fx-background-color: #ef4444; -fx-background-radius: 8; -fx-padding: 10 24; " +
+                          "-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
+        clearBtn.setOnAction(e -> {
+            dialogStage.close();
+            performClearAll();
+        });
+        
+        buttons.getChildren().addAll(cancelBtn, clearBtn);
+        container.getChildren().addAll(iconContainer, title, message, buttons);
+        
+        javafx.scene.Scene scene = new javafx.scene.Scene(container);
+        scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+        dialogStage.setScene(scene);
+        
+        // Center over owner window
+        javafx.stage.Stage ownerStage = (javafx.stage.Stage) javafx.stage.Stage.getWindows()
+            .stream()
+            .filter(javafx.stage.Window::isShowing)
+            .findFirst()
+            .orElse(null);
+        if (ownerStage != null) {
+            dialogStage.initOwner(ownerStage);
+            dialogStage.setOnShown(event -> {
+                double ownerX = ownerStage.getX();
+                double ownerY = ownerStage.getY();
+                double ownerW = ownerStage.getWidth();
+                double ownerH = ownerStage.getHeight();
+                double dialogW = dialogStage.getWidth();
+                double dialogH = dialogStage.getHeight();
+                dialogStage.setX(ownerX + (ownerW / 2) - (dialogW / 2));
+                dialogStage.setY(ownerY + (ownerH / 2) - (dialogH / 2));
+                
+                // Play entrance animation
+                javafx.animation.ScaleTransition scaleIn = new javafx.animation.ScaleTransition(
+                    javafx.util.Duration.millis(200), container);
+                scaleIn.setFromX(0.8);
+                scaleIn.setFromY(0.8);
+                scaleIn.setToX(1.0);
+                scaleIn.setToY(1.0);
+                
+                javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
+                    javafx.util.Duration.millis(200), container);
+                fadeIn.setFromValue(0);
+                fadeIn.setToValue(1);
+                
+                new javafx.animation.ParallelTransition(scaleIn, fadeIn).play();
+            });
+        }
+        dialogStage.showAndWait();
+    }
+
+    private void performClearAll() {
+        // Clear from database (soft delete)
+        new Thread(() -> {
+            try {
+                int userId = IWishManager.getLoggedInUser().getUserId();
+                IWishManager.getClient().sendAndWait(new dtos.requestDtos.notificationHandler.ClearAllNotificationsRequest(userId));
+                clientSide.helpers.NotificationService.getInstance().requestRefresh();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, "clear-all-notifications").start();
+        
+        items.clear();
+        refreshGrid();
+        updateHeaderAndEmptyState();
+    }
+
+    private void dismissNotification(AppNotification notification) {
+        // Clear from database (soft delete)
+        new Thread(() -> {
+            try {
+                IWishManager.getClient().sendAndWait(new dtos.requestDtos.notificationHandler.ClearNotificationRequest(notification.getId()));
+                clientSide.helpers.NotificationService.getInstance().dismissNotificationByDbId(notification.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, "clear-notification").start();
+        
+        items.remove(notification);
+        refreshGrid();
+        updateHeaderAndEmptyState();
     }
 
     private void markOneRead(AppNotification n) {
@@ -125,6 +267,7 @@ public class NotificationsController {
             try {
                 Object res = IWishManager.getClient().sendAndWait(new MarkNotificationAsReadRequest(n.getId()));
                 if (res == null) refreshAsync();
+                clientSide.helpers.NotificationService.getInstance().requestRefresh();
             } catch (Exception e) {
                 e.printStackTrace();
                 refreshAsync();
@@ -205,6 +348,7 @@ public class NotificationsController {
         // Header with icon and title
         HBox header = new HBox(10);
         header.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(header, Priority.ALWAYS);
         
         // Icon
         FontIcon icon = new FontIcon(notification.getType().getIcon());
@@ -215,6 +359,7 @@ public class NotificationsController {
         Label titleLabel = new Label(notification.getTitle());
         titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
         titleLabel.setWrapText(true);
+        HBox.setHgrow(titleLabel, Priority.ALWAYS);
         
         header.getChildren().addAll(icon, titleLabel);
         
@@ -227,17 +372,34 @@ public class NotificationsController {
             header.getChildren().add(dot);
         }
         
+        // Dismiss (X) button
+        Button dismissBtn = new Button();
+        FontIcon xIcon = new FontIcon("fas-times");
+        xIcon.setIconSize(12);
+        xIcon.setIconColor(Color.web("#94a3b8"));
+        dismissBtn.setGraphic(xIcon);
+        dismissBtn.setStyle("-fx-background-color: transparent; -fx-padding: 4; -fx-cursor: hand;");
+        dismissBtn.setOnMouseEntered(e -> xIcon.setIconColor(Color.web("#ef4444")));
+        dismissBtn.setOnMouseExited(e -> xIcon.setIconColor(Color.web("#94a3b8")));
+        dismissBtn.setOnAction(e -> dismissNotification(notification));
+        
+        // Header row with dismiss button
+        HBox headerRow = new HBox(8);
+        headerRow.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(header, Priority.ALWAYS);
+        headerRow.getChildren().addAll(header, dismissBtn);
+        
         // Body text
         Label bodyLabel = new Label(notification.getBody());
         bodyLabel.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px;");
         bodyLabel.setWrapText(true);
         bodyLabel.setMaxWidth(260);
         
-        // Timestamp placeholder
-        Label timeLabel = new Label("Just now");
+        // Timestamp - format relative time
+        Label timeLabel = new Label(formatRelativeTime(notification.getCreatedAt()));
         timeLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 11px;");
         
-        content.getChildren().addAll(header, bodyLabel, timeLabel);
+        content.getChildren().addAll(headerRow, bodyLabel, timeLabel);
         
         // Mark read button (only if unread)
         if (!notification.isRead()) {
@@ -293,10 +455,40 @@ public class NotificationsController {
                     n.getNotificationId(),
                     n.getTitle(),
                     n.getBody(),
-                    n.isRead()
+                    n.isRead(),
+                    n.getCreatedAt()
                 ));
             }
         }
         return result;
+    }
+
+    private String formatRelativeTime(Timestamp timestamp) {
+        if (timestamp == null) return "Just now";
+        
+        Instant then = timestamp.toInstant();
+        Instant now = Instant.now();
+        Duration duration = Duration.between(then, now);
+        
+        long seconds = duration.getSeconds();
+        
+        if (seconds < 60) {
+            return "Just now";
+        } else if (seconds < 3600) {
+            long minutes = seconds / 60;
+            return minutes + " min ago";
+        } else if (seconds < 86400) {
+            long hours = seconds / 3600;
+            return hours + (hours == 1 ? " hour ago" : " hours ago");
+        } else if (seconds < 172800) {
+            return "Yesterday";
+        } else if (seconds < 604800) {
+            long days = seconds / 86400;
+            return days + " days ago";
+        } else {
+            // Format as date for older notifications
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("MMM d, yyyy");
+            return sdf.format(timestamp);
+        }
     }
 }
