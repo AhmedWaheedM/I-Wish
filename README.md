@@ -147,14 +147,6 @@ I-Wish/
 
 ---
 
-## 📜 Recent Updates
-
-- **Notification System v2.0**: Soft Delete Architecture, Smart Right Sidebar Synchronization, fade-out animations, "Clear All" with confirmation.
-- **Database Fixes**: Resolved foreign key constraint naming conflicts.
-- **Frontend Overhaul**: Implemented a modern Dashboard UI.
-
----
-
 ## 👥 Authors
 
 Built as part of a learning journey in full-stack Java development at ITI.
