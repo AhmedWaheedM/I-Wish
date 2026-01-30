@@ -3,17 +3,19 @@ package clientSide.controllers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+import clientSide.helpers.MessageDisplayer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import models.WishListItem;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 public class WishlistController {
 
@@ -112,6 +114,37 @@ public class WishlistController {
         int col = 0;
         int row = 0;
 
+        // Show empty state if no items
+        if (wishlistItems.isEmpty()) {
+            VBox emptyState = new VBox();
+            emptyState.getStyleClass().add("empty-state-container");
+            emptyState.setAlignment(Pos.CENTER);
+            
+            // Icon Stack (Circle bg + Icon)
+            StackPane iconStack = new StackPane();
+            iconStack.setMinSize(80, 80);
+            iconStack.setMaxSize(80, 80);
+            iconStack.setStyle("-fx-background-color: #f1f5f9; -fx-background-radius: 50%;");
+            
+            FontIcon giftIcon = new FontIcon("fas-gift");
+            giftIcon.setIconSize(32);
+            giftIcon.setIconColor(Color.web("#94a3b8"));
+            iconStack.getChildren().add(giftIcon);
+            
+            Label title = new Label("Your wishlist is empty");
+            title.getStyleClass().add("empty-state-title");
+            
+            Label subtitle = new Label("Start adding items you love to your wishlist!");
+            subtitle.getStyleClass().add("empty-state-subtitle");
+            
+            emptyState.getChildren().addAll(iconStack, title, subtitle);
+            
+            wishlistGrid.add(emptyState, 0, 0);
+            // Span across multiple columns if grid is wide
+            GridPane.setColumnSpan(emptyState, 3);
+            return;
+        }
+
         for (WishListItem item : new ArrayList<>(wishlistItems)) { // copy to avoid concurrent issues
                 System.out.println("here " );
             try {
@@ -123,41 +156,36 @@ public class WishlistController {
                 cardController.setData(item);
 
                 cardController.setOnRemove(() -> {
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                    alert.setTitle("Remove Item");
-                    alert.setHeaderText("Remove " + item.getItem().getName() + "?");
-                    alert.setContentText("Are you sure you want to remove this item from your wishlist?");
+                    MessageDisplayer.showConfirmation(
+                        "Remove Item",
+                        "Are you sure you want to remove " + item.getItem().getName() + " from your wishlist?",
+                        () -> {
+                            // Do remove request in background thread (NO freeze)
+                            new Thread(() -> {
+                                try {
+                                    clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
+                                    if (conn == null) return;
 
-                    Optional<ButtonType> result = alert.showAndWait();
-                    if (result.isPresent() && result.get() == ButtonType.OK) {
+                                    dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest req =
+                                            new dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest(
+                                                    item.getWishListId(),
+                                                    item.getItem().getItemId()
+                                            );
 
-                        // Do remove request in background thread (NO freeze)
-                        new Thread(() -> {
-                            try {
-                                clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
-                                if (conn == null) return;
+                                    Object response = conn.sendAndWait(req);
 
-                                dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest req =
-                                        new dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest(
-                                                item.getWishListId(),
-                                                item.getItem().getItemId()
-                                        );
+                                    Platform.runLater(() -> {
+                                        if (response instanceof Boolean && (Boolean) response) {
+                                            loadWishlist(); 
+                                        }
+                                    });
 
-                                Object response = conn.sendAndWait(req);
-
-                                Platform.runLater(() -> {
-                                    if (response instanceof Boolean && (Boolean) response) {
-                                        loadWishlist(); 
-                                    }
-                                });
-
-
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }, "Wishlist-RemoveThread").start();
-                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }, "Wishlist-RemoveThread").start();
+                        }
+                    );
                 });
 
                 wishlistGrid.add(card, col, row);
@@ -169,13 +197,6 @@ public class WishlistController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-
-        // Optional: show empty state
-        if (wishlistItems.isEmpty()) {
-            Label empty = new Label("No items in your wishlist yet.");
-            empty.setStyle("-fx-font-size: 14px; -fx-padding: 20;");
-            wishlistGrid.add(empty, 0, 0);
         }
     }
 }

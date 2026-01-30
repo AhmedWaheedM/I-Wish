@@ -273,8 +273,30 @@ public class DashboardController {
 
             FXMLLoader loader = new FXMLLoader(resource);
             Parent view = loader.load();
-            // detailed cache logic removed
+            
+            // Set initial state for animation
+            view.setOpacity(0);
+            view.setScaleX(0.98);
+            view.setScaleY(0.98);
+            
             mainLayout.setCenter(view);
+            
+            // Create entrance animation
+            javafx.animation.FadeTransition fade = new javafx.animation.FadeTransition(
+                javafx.util.Duration.millis(300), view);
+            fade.setFromValue(0);
+            fade.setToValue(1);
+            
+            javafx.animation.ScaleTransition scale = new javafx.animation.ScaleTransition(
+                javafx.util.Duration.millis(300), view);
+            scale.setFromX(0.98);
+            scale.setFromY(0.98);
+            scale.setToX(1.0);
+            scale.setToY(1.0);
+            
+            javafx.animation.ParallelTransition entrance = new javafx.animation.ParallelTransition(fade, scale);
+            entrance.play();
+            
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Could not load view: " + fxml);
