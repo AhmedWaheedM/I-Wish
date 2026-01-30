@@ -132,22 +132,14 @@ public class NotificationsController {
         dialogStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
         
         javafx.scene.layout.VBox container = new javafx.scene.layout.VBox(20);
-        container.setAlignment(javafx.geometry.Pos.CENTER);
-        container.setPadding(new javafx.geometry.Insets(32));
-        container.setStyle("-fx-background-color: white; -fx-border-color: #d3cbcbff; -fx-background-radius: 10; " +
-                          "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 5);");
+        container.getStyleClass().add("alert-box");
         container.setPrefWidth(380);
-        
-        // Set initial state for animation
-        container.setScaleX(0.8);
-        container.setScaleY(0.8);
-        container.setOpacity(0);
         
         // Icon
         javafx.scene.layout.StackPane iconContainer = new javafx.scene.layout.StackPane();
         iconContainer.setMinSize(64, 64);
         iconContainer.setMaxSize(64, 64);
-        iconContainer.setStyle("-fx-background-color: #fef2f2; -fx-background-radius: 50%;");
+        iconContainer.getStyleClass().addAll("alert-icon-container", "alert-icon-warning");
         
         org.kordamp.ikonli.javafx.FontIcon warningIcon = new org.kordamp.ikonli.javafx.FontIcon("fas-exclamation-triangle");
         warningIcon.setIconSize(28);
@@ -155,25 +147,21 @@ public class NotificationsController {
         iconContainer.getChildren().add(warningIcon);
         
         javafx.scene.control.Label title = new javafx.scene.control.Label("Clear All Notifications?");
-        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
+        title.getStyleClass().add("alert-title");
         
         javafx.scene.control.Label message = new javafx.scene.control.Label("This will permanently delete all " + items.size() + " notifications.\nThis action cannot be undone.");
-        message.setStyle("-fx-text-fill: #64748b; -fx-font-size: 14px; -fx-text-alignment: center;");
+        message.getStyleClass().add("alert-message");
         message.setWrapText(true);
-        message.setAlignment(javafx.geometry.Pos.CENTER);
         
         javafx.scene.layout.HBox buttons = new javafx.scene.layout.HBox(12);
         buttons.setAlignment(javafx.geometry.Pos.CENTER);
         
         javafx.scene.control.Button cancelBtn = new javafx.scene.control.Button("Cancel");
-        cancelBtn.setStyle("-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 8; " +
-                          "-fx-background-radius: 8; -fx-padding: 10 24; -fx-font-size: 14px; " +
-                          "-fx-text-fill: #64748b; -fx-cursor: hand;");
+        cancelBtn.getStyleClass().add("button-outline");
         cancelBtn.setOnAction(e -> dialogStage.close());
         
         javafx.scene.control.Button clearBtn = new javafx.scene.control.Button("Clear All");
-        clearBtn.setStyle("-fx-background-color: #ef4444; -fx-background-radius: 8; -fx-padding: 10 24; " +
-                          "-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
+        clearBtn.getStyleClass().add("button-danger");
         clearBtn.setOnAction(e -> {
             dialogStage.close();
             performClearAll();
@@ -182,8 +170,15 @@ public class NotificationsController {
         buttons.getChildren().addAll(cancelBtn, clearBtn);
         container.getChildren().addAll(iconContainer, title, message, buttons);
         
+        // Set initial state for animation
+        container.setScaleX(0.8);
+        container.setScaleY(0.8);
+        container.setOpacity(0);
+        
         javafx.scene.Scene scene = new javafx.scene.Scene(container);
         scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+        // Ensure stylesheet is loaded
+        scene.getStylesheets().add(getClass().getResource("/views/dashboard/dashboard.css").toExternalForm());
         dialogStage.setScene(scene);
         
         // Center over owner window
@@ -321,14 +316,10 @@ public class NotificationsController {
         
         // Card styling with left colored border
         String borderColor = notification.getType().getColor();
-        card.setStyle(String.format(
-            "-fx-background-color: white; -fx-background-radius: 12; " +
-            "-fx-border-color: %s transparent transparent transparent; " +
-            "-fx-border-width: 0 0 0 4; -fx-border-radius: 12; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" +
-            "-fx-border-insets: -1; -fx-background-insets: 0;",
-            borderColor
-        ));
+        card.getStyleClass().add("notif-card-container");
+        card.setStyle("-fx-border-color: " + borderColor + " transparent transparent transparent; " +
+                      "-fx-border-width: 0 0 0 4; -fx-border-radius: 12; " +
+                      "-fx-border-insets: -1; -fx-background-insets: 0;");
         
         // Alternative: Use a wrapper with left border
         HBox wrapper = new HBox(0);
@@ -338,7 +329,8 @@ public class NotificationsController {
         Region leftBorder = new Region();
         leftBorder.setMinWidth(4);
         leftBorder.setMaxWidth(4);
-        leftBorder.setStyle(String.format("-fx-background-color: %s; -fx-background-radius: 12 0 0 12;", borderColor));
+        leftBorder.setStyle("-fx-background-color: " + borderColor + ";");
+        leftBorder.getStyleClass().add("notif-card-left-border");
         
         // Content area
         VBox content = new VBox(8);
@@ -357,7 +349,7 @@ public class NotificationsController {
         
         // Title
         Label titleLabel = new Label(notification.getTitle());
-        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
+        titleLabel.getStyleClass().add("notif-card-title");
         titleLabel.setWrapText(true);
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
         
@@ -391,21 +383,20 @@ public class NotificationsController {
         
         // Body text
         Label bodyLabel = new Label(notification.getBody());
-        bodyLabel.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px;");
+        bodyLabel.getStyleClass().add("notif-card-body");
         bodyLabel.setWrapText(true);
         bodyLabel.setMaxWidth(260);
         
         // Timestamp - format relative time
         Label timeLabel = new Label(formatRelativeTime(notification.getCreatedAt()));
-        timeLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 11px;");
+        timeLabel.getStyleClass().add("notif-card-time");
         
         content.getChildren().addAll(headerRow, bodyLabel, timeLabel);
         
         // Mark read button (only if unread)
         if (!notification.isRead()) {
             Button markReadBtn = new Button("Mark read");
-            markReadBtn.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #64748b; " +
-                                 "-fx-font-size: 11px; -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;");
+            markReadBtn.getStyleClass().add("notif-mark-read-btn");
             markReadBtn.setOnAction(e -> markOneRead(notification));
             
             HBox btnContainer = new HBox();
@@ -417,8 +408,7 @@ public class NotificationsController {
         // Build card with left border
         card.getChildren().clear();
         card.setPadding(new Insets(0));
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
-                      "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);");
+        card.getStyleClass().add("notif-card-container");
         
         wrapper.getChildren().addAll(leftBorder, content);
         card.getChildren().add(wrapper);

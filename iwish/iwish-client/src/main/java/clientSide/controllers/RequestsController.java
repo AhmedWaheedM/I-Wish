@@ -77,7 +77,7 @@ public class RequestsController {
         icon.setIconColor(Color.web("#94a3b8"));
         
         Label message = new Label("No pending friend requests");
-        message.setStyle("-fx-text-fill: #64748b; -fx-font-size: 16px;");
+        message.setStyle("-fx-text-fill: #64748b; -fx-font-size: 16px;"); // Kept simple inline or could extract
         
         Label subMessage = new Label("When someone sends you a friend request, it will appear here");
         subMessage.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 13px;");
@@ -91,28 +91,13 @@ public class RequestsController {
         card.setPrefWidth(280);
         card.setMinWidth(260);
         card.setMaxWidth(300);
-        card.setPadding(new Insets(24));
-        card.setAlignment(Pos.TOP_CENTER);
-        
-        // Base shadow style (consistent with other cards)
-        String baseStyle = "-fx-background-color: white; -fx-background-radius: 12; " +
-                          "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);";
-        String hoverStyle = "-fx-background-color: white; -fx-background-radius: 12; " +
-                           "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 16, 0, 0, 4);";
-        
-        card.setStyle(baseStyle);
-        
-        // Add hover effect
-        card.setOnMouseEntered(e -> card.setStyle(hoverStyle));
-        card.setOnMouseExited(e -> card.setStyle(baseStyle));
+        card.getStyleClass().add("request-card");
 
         // Avatar with user icon
         StackPane avatarContainer = new StackPane();
         avatarContainer.setMinSize(72, 72);
         avatarContainer.setMaxSize(72, 72);
-        avatarContainer.setStyle("-fx-background-color: linear-gradient(to bottom right, #3b82f6, #2563eb); " +
-                                 "-fx-background-radius: 50%;");
-        avatarContainer.setAlignment(Pos.CENTER);
+        avatarContainer.getStyleClass().add("request-avatar");
         
         FontIcon userIcon = new FontIcon("fas-user");
         userIcon.setIconSize(32);
@@ -125,14 +110,14 @@ public class RequestsController {
         
         String username = requester.getUserName() != null ? requester.getUserName() : "Unknown";
         Label name = new Label(username);
-        name.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
+        name.getStyleClass().add("request-name");
         
         String handleText = "@" + username.toLowerCase().replace(" ", "");
         Label handle = new Label(handleText);
-        handle.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13px;");
+        handle.getStyleClass().add("request-handle");
         
         Label requestLabel = new Label("wants to be your friend");
-        requestLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px;");
+        requestLabel.getStyleClass().add("request-subtext");
 
         info.getChildren().addAll(name, handle, requestLabel);
 
@@ -143,7 +128,6 @@ public class RequestsController {
         
         Button acceptBtn = new Button("Accept");
         acceptBtn.getStyleClass().add("button-primary");
-        acceptBtn.setStyle("-fx-background-color: #22c55e; -fx-font-size: 12px;");
         acceptBtn.setPrefWidth(100);
         acceptBtn.setOnAction(e -> handleAccept(requester));
         
@@ -153,10 +137,6 @@ public class RequestsController {
         checkIcon.setIconColor(Color.WHITE);
         acceptBtn.setGraphic(checkIcon);
         
-        // Hover effect for accept button
-        acceptBtn.setOnMouseEntered(e -> acceptBtn.setStyle("-fx-background-color: #16a34a; -fx-font-size: 12px;"));
-        acceptBtn.setOnMouseExited(e -> acceptBtn.setStyle("-fx-background-color: #22c55e; -fx-font-size: 12px;"));
-
         Button rejectBtn = new Button("Decline");
         rejectBtn.getStyleClass().add("button-danger");
         rejectBtn.setPrefWidth(100);

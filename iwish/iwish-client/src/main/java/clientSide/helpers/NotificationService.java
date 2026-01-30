@@ -32,7 +32,7 @@ public class NotificationService {
     private VBox activityListContainer;
     private Button clearAllButton;
     private final List<NotificationItem> notifications = new ArrayList<>();
-    private static final int MAX_NOTIFICATIONS = 20;
+    // private static final int MAX_NOTIFICATIONS = 20;
 
     // Notification types with colors and icons
     public enum NotificationType {
@@ -42,7 +42,7 @@ public class NotificationService {
         WISHLIST_UPDATE("#f97316", "#ffedd5", "fas-plus-circle"),
         FRIEND_ACCEPTED("#a855f7", "#f3e8ff", "fas-user-check"),
         FRIEND_REMOVED("#ef4444", "#fee2e2", "fas-user-minus"),
-        INFO("#6b7280", "#f3f4f6", "fas-info-circle");
+        INFO("#6b7280", "#f3f4f6", "fas-bell");
 
         private final String color;
         private final String bgColor;
@@ -126,14 +126,16 @@ public class NotificationService {
                     @SuppressWarnings("unchecked")
                     List<models.Notification> dbNotifications = (List<models.Notification>) response;
                     
-                    // Limit to recent notifications for the sidebar
-                    int limit = Math.min(dbNotifications.size(), MAX_NOTIFICATIONS);
-                    
                     Platform.runLater(() -> {
                         notifications.clear();
                         
-                        for (int i = 0; i < limit; i++) {
-                            models.Notification n = dbNotifications.get(i);
+                        int count = 0;
+                        for (models.Notification n : dbNotifications) {
+                            // Filter out read notifications (client-side safeguard)
+                            if (n.isRead()) continue;
+                            
+                            // if (count >= MAX_NOTIFICATIONS) break;
+
                             NotificationType type = determineNotificationType(n.getTitle(), n.getBody());
                             NotificationItem item = new NotificationItem(
                                 n.getNotificationId(),
@@ -143,6 +145,7 @@ public class NotificationService {
                                 n.getCreatedAt()
                             );
                             notifications.add(item);
+                            count++;
                         }
                         
                         refreshDisplay();
@@ -183,9 +186,9 @@ public class NotificationService {
         NotificationItem item = new NotificationItem(title, description, type);
         notifications.add(0, item);
         
-        if (notifications.size() > MAX_NOTIFICATIONS) {
-            notifications.remove(notifications.size() - 1);
-        }
+        // if (notifications.size() > MAX_NOTIFICATIONS) {
+        //     notifications.remove(notifications.size() - 1);
+        // }
 
         Platform.runLater(() -> {
             if (activityListContainer == null) return;
@@ -212,9 +215,9 @@ public class NotificationService {
             new ParallelTransition(fade, slide).play();
             
             // Remove oldest if too many displayed
-            if (activityListContainer.getChildren().size() > MAX_NOTIFICATIONS) {
-                activityListContainer.getChildren().remove(activityListContainer.getChildren().size() - 1);
-            }
+            // if (activityListContainer.getChildren().size() > MAX_NOTIFICATIONS) {
+            //     activityListContainer.getChildren().remove(activityListContainer.getChildren().size() - 1);
+            // }
             
             updateClearAllVisibility();
             updateClearAllVisibility();
@@ -222,21 +225,18 @@ public class NotificationService {
     }
 
     private void onDismissClicked(NotificationItem item) {
-        // Handle database updates (Mark Read + Clear)
+        // Handle database updates (Mark Read ONLY)
         System.out.println("DEBUG: Dismissing notification ID: " + item.id + ", DB ID: " + item.dbId);
         new Thread(() -> {
             try {
                 if (item.dbId != -1) {
-                    System.out.println("DEBUG: Sending MarkRead and Clear requests for DB ID: " + item.dbId);
+                    System.out.println("DEBUG: Sending MarkRead request for DB ID: " + item.dbId);
                     // 1. Mark as Read
                     Object readRes = clientSide.appManger.IWishManager.getClient().sendAndWait(
                         new dtos.requestDtos.notificationHandler.MarkNotificationAsReadRequest(item.dbId));
                     System.out.println("DEBUG: MarkRead response: " + readRes);
                         
-                    // 2. Clear (Soft Delete)
-                    Object clearRes = clientSide.appManger.IWishManager.getClient().sendAndWait(
-                        new dtos.requestDtos.notificationHandler.ClearNotificationRequest(item.dbId));
-                    System.out.println("DEBUG: Clear response: " + clearRes);
+                    // NOTE: We no longer clear (soft delete) from here, just mark as read.
                 } else {
                     System.out.println("DEBUG: Skipping DB requests because DB ID is -1");
                 }
@@ -323,9 +323,22 @@ public class NotificationService {
     }
 
     /**
-     * Clear all notifications with animation.
+     * Clear all notifications with animation and mark as read on server.
      */
     public void clearAllNotifications() {
+        // Send request to server
+        new Thread(() -> {
+            try {
+                models.User user = clientSide.appManger.IWishManager.getLoggedInUser();
+                if (user != null) {
+                    clientSide.appManger.IWishManager.getClient().sendAndWait(
+                        new dtos.requestDtos.notificationHandler.MarkAllNotificationsAsReadRequest(user.getUserId()));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }, "clear-all-sidebar").start();
+
         notifications.clear();
         Platform.runLater(() -> {
             if (activityListContainer != null) {
@@ -398,8 +411,8 @@ public class NotificationService {
         HBox container = new HBox(0);
         container.setUserData(item.id); // Set ID for finding later
         container.setAlignment(Pos.TOP_LEFT);
+        container.getStyleClass().add("sidebar-notif-item");
         container.setStyle(String.format(
-            "-fx-background-color: white; -fx-background-radius: 10; -fx-border-radius: 10; " +
             "-fx-effect: dropshadow(gaussian, %s, 8, 0.3, 0, 2);",
             item.type.getColor()
         ));
@@ -430,11 +443,11 @@ public class NotificationService {
 
         Label descLabel = new Label(item.description);
         descLabel.setWrapText(true);
-        descLabel.setStyle("-fx-text-fill: #1f2937; -fx-font-size: 11px;");
+        descLabel.getStyleClass().add("sidebar-notif-text");
         descLabel.setMaxWidth(140);
 
         Label timeLabel = new Label(formatTimestamp(item.timestamp));
-        timeLabel.setStyle("-fx-text-fill: #9ca3af; -fx-font-size: 9px;");
+        timeLabel.getStyleClass().add("sidebar-notif-time");
 
         textContainer.getChildren().addAll(descLabel, timeLabel);
 

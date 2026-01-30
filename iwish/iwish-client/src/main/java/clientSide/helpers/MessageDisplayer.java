@@ -5,6 +5,25 @@ import models.Notification;
 public class MessageDisplayer {
 
     public static void showError(String message, String title) {
+        showDialog(message, title, "alert-icon-error", "fas-times-circle", "#c93939ff");
+    }
+
+    public static void showSuccess(String message, String title) {
+        // Also show a dialog for success if needed, or just notification + dialog
+        // For now, let's keep the original logic of adding to sidebar, but also show a dialog if explicitly called
+        // The original code only added to sidebar. If we want a popup, we can use showDialog.
+        // But based on method name, it seems used for notifications.
+        // Let's check original implementation: it called NotificationService.
+        
+        NotificationService.getInstance().addNotification(
+            title,
+            message,
+            NotificationService.NotificationType.INFO
+        );
+    }
+    
+    // Helper to show a generic styled dialog
+    private static void showDialog(String message, String title, String iconClass, String iconLiteral, String iconColorWeb) {
         javafx.stage.Stage dialogStage = new javafx.stage.Stage();
         dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
         dialogStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
@@ -22,42 +41,34 @@ public class MessageDisplayer {
         
         // Main container
         javafx.scene.layout.VBox container = new javafx.scene.layout.VBox(20);
-        container.setAlignment(javafx.geometry.Pos.CENTER);
-        container.setPadding(new javafx.geometry.Insets(32));
-        container.setStyle("-fx-background-color: white; -fx-border-color: #d3cbcbff; -fx-background-radius: 10; " +
-                          "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 5);");
+        container.getStyleClass().add("alert-box");
         container.setPrefWidth(380);
         
-        // Icon container with red background
+        // Icon container
         javafx.scene.layout.StackPane iconContainer = new javafx.scene.layout.StackPane();
         iconContainer.setMinSize(64, 64);
         iconContainer.setMaxSize(64, 64);
-        iconContainer.setStyle("-fx-background-color: #fef2f2; -fx-background-radius: 50%;");
+        iconContainer.getStyleClass().addAll("alert-icon-container", iconClass);
         
-        org.kordamp.ikonli.javafx.FontIcon errorIcon = new org.kordamp.ikonli.javafx.FontIcon("fas-times-circle");
-        errorIcon.setIconSize(32);
-        errorIcon.setIconColor(javafx.scene.paint.Color.web("#c93939ff"));
-        iconContainer.getChildren().add(errorIcon);
+        org.kordamp.ikonli.javafx.FontIcon icon = new org.kordamp.ikonli.javafx.FontIcon(iconLiteral);
+        icon.setIconSize(32);
+        icon.setIconColor(javafx.scene.paint.Color.web(iconColorWeb));
+        iconContainer.getChildren().add(icon);
         
         // Title
         javafx.scene.control.Label titleLabel = new javafx.scene.control.Label(title);
-        titleLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
+        titleLabel.getStyleClass().add("alert-title");
         
         // Message
         javafx.scene.control.Label messageLabel = new javafx.scene.control.Label(message);
-        messageLabel.setStyle("-fx-text-fill: #64748b; -fx-font-size: 14px; -fx-text-alignment: center;");
+        messageLabel.getStyleClass().add("alert-message");
         messageLabel.setWrapText(true);
-        messageLabel.setAlignment(javafx.geometry.Pos.CENTER);
         
         // OK Button
         javafx.scene.control.Button okBtn = new javafx.scene.control.Button("OK");
-        okBtn.setStyle("-fx-background-color: #3b82f6; -fx-background-radius: 8; -fx-padding: 10 32; " +
-                      "-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
+        okBtn.getStyleClass().add("button-primary"); // Reusing existing primary button class
+        okBtn.setPrefWidth(120);
         okBtn.setOnAction(e -> dialogStage.close());
-        okBtn.setOnMouseEntered(e -> okBtn.setStyle("-fx-background-color: #2563eb; -fx-background-radius: 8; -fx-padding: 10 32; " +
-                      "-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"));
-        okBtn.setOnMouseExited(e -> okBtn.setStyle("-fx-background-color: #3b82f6; -fx-background-radius: 8; -fx-padding: 10 32; " +
-                      "-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"));
         
         container.getChildren().addAll(iconContainer, titleLabel, messageLabel, okBtn);
         
@@ -68,7 +79,11 @@ public class MessageDisplayer {
         
         javafx.scene.Scene scene = new javafx.scene.Scene(container);
         scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+        // Load CSS
+        scene.getStylesheets().add(MessageDisplayer.class.getResource("/views/dashboard/dashboard.css").toExternalForm());
+        
         dialogStage.setScene(scene);
+        
         if (ownerStage != null) {
             dialogStage.setOnShown(event -> {
                 double ownerX = ownerStage.getX();
@@ -98,19 +113,10 @@ public class MessageDisplayer {
                 javafx.animation.ParallelTransition entrance = new javafx.animation.ParallelTransition(scaleIn, fadeIn);
                 entrance.play();
             });
-            } else {
+        } else {
             dialogStage.centerOnScreen();
         }        
         dialogStage.showAndWait();
-    }
-
-    public static void showSuccess(String message, String title) {
-        // Add to right sidebar notification list
-        NotificationService.getInstance().addNotification(
-            title,
-            message,
-            NotificationService.NotificationType.INFO
-        );
     }
 
     public static void showContributionSuccess(String itemName, double amount) {
@@ -120,6 +126,7 @@ public class MessageDisplayer {
             message,
             NotificationService.NotificationType.CONTRIBUTION
         );
+        // Optional: Show a dialog too if desired, but original only showed notification
     }
 
     public static void showFundingMilestone(String itemName, int percentage) {
@@ -132,5 +139,109 @@ public class MessageDisplayer {
             notification.getBody(),
             NotificationService.NotificationType.INFO
         );
+    }
+
+    public static void showConfirmation(String title, String message, Runnable onConfirm) {
+        javafx.stage.Stage dialogStage = new javafx.stage.Stage();
+        dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+        dialogStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        dialogStage.setTitle(title);
+        
+        // Set owner to center over the current window
+        javafx.stage.Stage ownerStage = (javafx.stage.Stage) javafx.stage.Stage.getWindows()
+            .stream()
+            .filter(javafx.stage.Window::isShowing)
+            .findFirst()
+            .orElse(null);
+        if (ownerStage != null) {
+            dialogStage.initOwner(ownerStage);
+        }
+        
+        // Main container
+        javafx.scene.layout.VBox container = new javafx.scene.layout.VBox(20);
+        container.getStyleClass().add("alert-box");
+        container.setPrefWidth(380);
+        
+        // Icon container (Warning/Danger)
+        javafx.scene.layout.StackPane iconContainer = new javafx.scene.layout.StackPane();
+        iconContainer.setMinSize(64, 64);
+        iconContainer.setMaxSize(64, 64);
+        iconContainer.getStyleClass().addAll("alert-icon-container", "alert-icon-warning");
+        
+        org.kordamp.ikonli.javafx.FontIcon icon = new org.kordamp.ikonli.javafx.FontIcon("fas-exclamation-triangle");
+        icon.setIconSize(32);
+        icon.setIconColor(javafx.scene.paint.Color.web("#f59e0b"));
+        iconContainer.getChildren().add(icon);
+        
+        // Title
+        javafx.scene.control.Label titleLabel = new javafx.scene.control.Label(title);
+        titleLabel.getStyleClass().add("alert-title");
+        
+        // Message
+        javafx.scene.control.Label messageLabel = new javafx.scene.control.Label(message);
+        messageLabel.getStyleClass().add("alert-message");
+        messageLabel.setWrapText(true);
+        
+        // Buttons
+        javafx.scene.layout.HBox buttons = new javafx.scene.layout.HBox(12);
+        buttons.setAlignment(javafx.geometry.Pos.CENTER);
+        
+        javafx.scene.control.Button cancelBtn = new javafx.scene.control.Button("Cancel");
+        cancelBtn.getStyleClass().add("button-outline");
+        cancelBtn.setOnAction(e -> dialogStage.close());
+        
+        javafx.scene.control.Button confirmBtn = new javafx.scene.control.Button("Confirm");
+        confirmBtn.getStyleClass().add("button-danger");
+        confirmBtn.setOnAction(e -> {
+            dialogStage.close();
+            if (onConfirm != null) {
+                onConfirm.run();
+            }
+        });
+        
+        buttons.getChildren().addAll(cancelBtn, confirmBtn);
+        
+        container.getChildren().addAll(iconContainer, titleLabel, messageLabel, buttons);
+        
+        // Set initial state for animation
+        container.setScaleX(0.8);
+        container.setScaleY(0.8);
+        container.setOpacity(0);
+        
+        javafx.scene.Scene scene = new javafx.scene.Scene(container);
+        scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+        // Load CSS
+        scene.getStylesheets().add(MessageDisplayer.class.getResource("/views/dashboard/dashboard.css").toExternalForm());
+        
+        dialogStage.setScene(scene);
+        
+        if (ownerStage != null) {
+            dialogStage.setOnShown(event -> {
+                double ownerX = ownerStage.getX();
+                double ownerY = ownerStage.getY();
+                double ownerW = ownerStage.getWidth();
+                double ownerH = ownerStage.getHeight();
+                double dialogW = dialogStage.getWidth();
+                double dialogH = dialogStage.getHeight();
+                dialogStage.setX(ownerX + (ownerW / 2) - (dialogW / 2));
+                dialogStage.setY(ownerY + (ownerH / 2) - (dialogH / 2));
+                
+                // Animation
+                javafx.animation.ScaleTransition scaleIn = new javafx.animation.ScaleTransition(
+                    javafx.util.Duration.millis(200), container);
+                scaleIn.setFromX(0.8);
+                scaleIn.setFromY(0.8);
+                scaleIn.setToX(1.0);
+                scaleIn.setToY(1.0);
+                
+                javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
+                    javafx.util.Duration.millis(200), container);
+                fadeIn.setFromValue(0);
+                fadeIn.setToValue(1);
+                
+                new javafx.animation.ParallelTransition(scaleIn, fadeIn).play();
+            });
+        }
+        dialogStage.showAndWait();
     }
 }

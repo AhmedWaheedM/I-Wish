@@ -72,10 +72,12 @@ public class ClientConnection {
                     if (msg instanceof Notification || msg instanceof dtos.NotificationDto) {
                         Platform.runLater(() -> {
                             clientSide.appManger.ToastManager.show((Notification) msg);
+                            System.out.println("Received notification: " + msg);
                         });
                         continue;
                     }
                     else{
+                        
                         System.out.println("Received message: " + msg);
                     }
 

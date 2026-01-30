@@ -143,7 +143,7 @@
 }
 
 .button-danger {
-    -fx-background-color: linear-gradient(to bottom, #c93939ff, #dc2626);
+    -fx-background-color: linear-gradient(to bottom, rgb(248, 81, 81), #e74848);
     -fx-text-fill: white;
 
     -fx-border-color: transparent;
@@ -377,9 +377,194 @@
 }
 
 .notif-empty {
-    -fx-background-color: rgba(15, 23, 42, 0.65);
-    -fx-background-radius: 16;
-    -fx-padding: 22;
-    -fx-border-color: rgba(148, 163, 184, 0.12);
     -fx-border-radius: 16;
+}
+
+/* =======================================================================
+   11) ALERTS / DIALOGS
+   ======================================================================= */
+.alert-box {
+    -fx-background-color: white;
+    -fx-border-color: #d3cbcb;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 5);
+    -fx-padding: 32;
+    -fx-alignment: center;
+}
+
+.alert-icon-container {
+    -fx-background-radius: 50%;
+    -fx-alignment: center;
+}
+
+.alert-icon-error {
+    -fx-background-color: #fef2f2;
+}
+
+.alert-icon-warning {
+    -fx-background-color: #fffbeb;
+}
+
+.alert-icon-success {
+    -fx-background-color: #f0fdf4;
+}
+
+.alert-icon-confirm {
+    -fx-background-color: #eff6ff;
+}
+
+.alert-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+}
+
+.alert-message {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 14px;
+    -fx-text-alignment: center;
+}
+
+/* =======================================================================
+   12) NOTIFICATION CARDS (Main Page)
+   ======================================================================= */
+.notif-card-container {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+}
+
+.notif-card-left-border {
+    -fx-background-radius: 16 0 0 16;
+}
+
+.notif-card-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+}
+
+.notif-card-body {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 12px;
+}
+
+.notif-card-time {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11px;
+}
+
+.notif-mark-read-btn {
+    -fx-background-color: #f1f5f9;
+    -fx-text-fill: #64748b;
+    -fx-font-size: 11px;
+    -fx-padding: 6 12;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+}
+
+.notif-mark-read-btn:hover {
+    -fx-background-color: #e2e8f0;
+}
+
+/* =======================================================================
+   13) SIDEBAR NOTIFICATIONS
+   ======================================================================= */
+.sidebar-notif-item {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.sidebar-notif-text {
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 11px;
+}
+
+.sidebar-notif-time {
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 9px;
+}
+
+/* =======================================================================
+   14) FRIEND REQUEST CARDS
+   ======================================================================= */
+.request-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-padding: 24;
+    -fx-alignment: top-center;
+}
+
+.request-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 16, 0, 0, 4);
+}
+
+.request-avatar {
+    -fx-background-color: linear-gradient(to bottom right, #3b82f6, #2563eb);
+    -fx-background-radius: 50%;
+    -fx-alignment: center;
+}
+
+.request-name {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f172a;
+}
+
+.request-handle {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+}
+
+.request-subtext {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+}
+
+/* =======================================================================
+   16) EMPTY STATES
+   ======================================================================= */
+.empty-state-container {
+    -fx-alignment: center;
+    -fx-padding: 40;
+    -fx-spacing: 16;
+}
+
+.empty-state-title {
+    -fx-text-fill: #64748b; 
+    -fx-font-size: 18px; 
+    -fx-font-weight: bold;
+}
+
+.empty-state-subtitle {
+     -fx-text-fill: #94a3b8; 
+     -fx-font-size: 14px;
+}
+/* =======================================================================
+   17) SCROLLBARS
+   ======================================================================= */
+/* Make scrollbar invisible by default */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #334155; /* Dark Grey */
+    -fx-background-radius: 5em;
+}
+.scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
+}
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: #334155; /* Dark Grey */
+    -fx-background-radius: 5em;
+}
+/* Only show when hovering over the scroll area */
+.scroll-pane:hover .scroll-bar:vertical .thumb {
+    -fx-background-color: #475569;
 }
