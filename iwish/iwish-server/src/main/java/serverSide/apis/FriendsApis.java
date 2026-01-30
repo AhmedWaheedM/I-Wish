@@ -72,15 +72,20 @@ public class FriendsApis {
 
     public Object reject(RejectFriendRequest r) {
 
-        User sender = new User(); sender.setUserId(r.getUser1Id());
-        User receiver = new User(); receiver.setUserId(r.getUser2Id());
+        System.err.println("r1: " + r.getUser1Id());
+        System.err.println("r2: " + r.getUser2Id());
+
+
+        User sender = new User(); sender.setUserId(r.getUser2Id());
+        User receiver = new User(); receiver.setUserId(r.getUser1Id());
 
         friendsHandler.rejectFriendRequest(sender, receiver);
 
-        String receiverName = userApis.getUserNameById(r.getUser2Id());
+
+        String senderName = userApis.getUserNameById(r.getUser1Id());
 
         String title = "Friend Request Rejected ❌";
-        String body = receiverName + " rejected your friend request.";
+        String body = senderName + " rejected your friend request.";
 
         notificationService.notifyUser(r.getUser2Id(), title, body);
 

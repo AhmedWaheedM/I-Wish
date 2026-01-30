@@ -1,27 +1,28 @@
 package clientSide.helpers;
 
-import javafx.animation.FadeTransition;
-import javafx.animation.TranslateTransition;
-import javafx.animation.ParallelTransition;
-import javafx.application.Platform;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
-import javafx.geometry.Pos;
-import javafx.geometry.Insets;
-import javafx.util.Duration;
-import org.kordamp.ikonli.javafx.FontIcon;
-
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import org.kordamp.ikonli.javafx.FontIcon;
+
+import javafx.animation.FadeTransition;
+import javafx.animation.ParallelTransition;
+import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 /**
  * Service to manage and display notifications in the right sidebar.
@@ -175,13 +176,6 @@ public class NotificationService {
     }
 
     public void addNotification(String title, String description, NotificationType type) {
-        // Check for duplicates - don't add if same title and description exists
-        boolean isDuplicate = notifications.stream()
-            .anyMatch(n -> n.title.equals(title) && n.description.equals(description));
-        
-        if (isDuplicate) {
-            return; // Skip duplicate notification
-        }
         
         NotificationItem item = new NotificationItem(title, description, type);
         notifications.add(0, item);

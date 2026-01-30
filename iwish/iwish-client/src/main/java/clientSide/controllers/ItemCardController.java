@@ -1,13 +1,16 @@
 package clientSide.controllers;
 
+import org.kordamp.ikonli.javafx.FontIcon;
+
+import clientSide.helpers.ItemImageSelector;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import models.WishListItem;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 public class ItemCardController {
 
@@ -43,10 +46,10 @@ public class ItemCardController {
 
     @FXML
     private Button contributeBtn;
-    
+
     @FXML
     private StackPane completedOverlay;
-    
+
     @FXML
     private StackPane imageContainer;
 
@@ -68,12 +71,17 @@ public class ItemCardController {
             quantityLabel.setText("x" + qty);
         }
 
-        // Name + total price
         double totalPrice = 0;
-        if (item.getItem() != null) {
+        String itemName = "";
+
+        if (item != null && item.getItem() != null) {
+            itemName = safe(item.getItem().getName());
+
             if (itemNameLabel != null) {
-                itemNameLabel.setText(item.getItem().getName());
+                itemNameLabel.setText(itemName);
             }
+
+            loadImage(itemName);
 
             double unitPrice = item.getItem().getPrice();
             totalPrice = unitPrice * qty;
@@ -83,9 +91,8 @@ public class ItemCardController {
             }
         }
 
-        // Collected sum from contributions
         double collected = 0.0;
-        if (item.getContributions() != null) {
+        if (item != null && item.getContributions() != null) {
             for (models.Contribution c : item.getContributions()) {
                 collected += c.getAmount();
             }
@@ -95,12 +102,10 @@ public class ItemCardController {
             collectedLabel.setText(String.format("$%.2f collected", collected));
         }
 
-        // Progress based on TOTAL price (price * quantity)
         double progress = 0;
         if (totalPrice > 0) {
             progress = collected / totalPrice;
 
-            // clamp 0..1
             if (progress < 0) progress = 0;
             if (progress > 1) progress = 1;
 
@@ -118,20 +123,34 @@ public class ItemCardController {
             }
         }
 
-        // Check if fully funded (100%)
         isFullyFunded = progress >= 1.0;
-        
-        // Show completed overlay if fully funded
+
         if (completedOverlay != null) {
             completedOverlay.setVisible(isFullyFunded);
+            completedOverlay.setManaged(isFullyFunded);
         }
 
-        // Owner label (adjust if you later support showing real owner)
         if (ownerLabel != null) {
             ownerLabel.setText("by Me");
         }
 
         updateButtons();
+    }
+
+    private void loadImage(String itemName) {
+        if (itemImage == null) return;
+
+        Image img = ItemImageSelector.getImageByItemName(itemName);
+        if (img == null) return;
+
+        itemImage.setImage(img);
+        itemImage.setPreserveRatio(false);
+        itemImage.setSmooth(true);
+
+    }
+
+    private String safe(String s) {
+        return s == null ? "" : s;
     }
 
     public void setOnRemove(Runnable onRemove) {
@@ -170,18 +189,21 @@ public class ItemCardController {
 
             contributeBtn.setVisible(true);
             contributeBtn.setManaged(true);
-            
-            // If fully funded, change button to "Fully Funded" and disable
+
             if (isFullyFunded) {
                 contributeBtn.setText("Fully Funded");
                 contributeBtn.setStyle("-fx-background-color: #6b7280; -fx-cursor: default;");
                 contributeBtn.setDisable(true);
-                
-                // Change icon
+
                 FontIcon checkIcon = new FontIcon("fas-check-circle");
                 checkIcon.setIconSize(14);
                 checkIcon.setIconColor(javafx.scene.paint.Color.WHITE);
                 contributeBtn.setGraphic(checkIcon);
+            } else {
+                contributeBtn.setText("Contribute");
+                contributeBtn.setDisable(false);
+                contributeBtn.setGraphic(null);
+                contributeBtn.setStyle("");
             }
         } else {
             removeBtn.setVisible(true);
@@ -189,6 +211,11 @@ public class ItemCardController {
 
             contributeBtn.setVisible(false);
             contributeBtn.setManaged(false);
+
+            contributeBtn.setText("Contribute");
+            contributeBtn.setDisable(false);
+            contributeBtn.setGraphic(null);
+            contributeBtn.setStyle("");
         }
     }
 }

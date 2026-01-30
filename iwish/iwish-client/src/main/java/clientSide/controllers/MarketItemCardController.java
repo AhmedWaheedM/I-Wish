@@ -1,9 +1,11 @@
 package clientSide.controllers;
 
+import clientSide.helpers.ItemImageSelector;
 import clientSide.helpers.MessageDisplayer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import models.Item;
 
@@ -29,10 +31,28 @@ public class MarketItemCardController {
         this.targetWishListId = targetWishListId;
 
         if (item != null) {
-            if (itemNameLabel != null) itemNameLabel.setText(item.getName());
+            String name = safe(item.getName());
+
+            if (itemNameLabel != null) itemNameLabel.setText(name);
             if (priceLabel != null) priceLabel.setText(String.format("$%.2f", item.getPrice()));
-            // Image logic placeholder
+
+            loadImage(name);
         }
+    }
+
+    private void loadImage(String itemName) {
+        if (itemImage == null) return;
+
+        Image img = ItemImageSelector.getImageByItemName(itemName);
+        if (img == null) return;
+
+        itemImage.setImage(img);
+        itemImage.setPreserveRatio(false);
+        itemImage.setSmooth(true);
+    }
+
+    private String safe(String s) {
+        return s == null ? "" : s;
     }
 
     @FXML
@@ -46,13 +66,17 @@ public class MarketItemCardController {
             clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
             if (conn != null) {
                 System.out.println("Adding item " + item.getName() + " to wishlist " + targetWishListId);
-                dtos.requestDtos.wishListItemHandler.AddWishListItemRequest req = 
-                    new dtos.requestDtos.wishListItemHandler.AddWishListItemRequest(targetWishListId, item.getItemId());
-                
+
+                dtos.requestDtos.wishListItemHandler.AddWishListItemRequest req =
+                        new dtos.requestDtos.wishListItemHandler.AddWishListItemRequest(
+                                targetWishListId,
+                                item.getItemId()
+                        );
+
                 Object response = conn.sendAndWait(req);
                 if (response instanceof Boolean && (Boolean) response) {
                     System.out.println("Item added successfully!");
-                    if(addToWishlistBtn != null) {
+                    if (addToWishlistBtn != null) {
                         addToWishlistBtn.setText("Added");
                         addToWishlistBtn.setDisable(true);
                         MessageDisplayer.showSuccess("Item added to wishlist successfully!", "Success");

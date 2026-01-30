@@ -76,6 +76,15 @@ public class ClientConnection {
                         });
                         continue;
                     }
+                    else if (msg instanceof dtos.ServerShutdownNotification) {
+                        Platform.runLater(() -> {
+                            clientSide.helpers.MessageDisplayer.showError("The server has been stopped. You are now disconnected.", "Server Shutdown");
+                            clientSide.appManger.IWishManager.logout();
+                            clientSide.appManger.IWishManager.switchScene("login", "I-Wish - Login");
+                        });
+                        close(); 
+                        break;  
+                    }
                     else{
                         
                         System.out.println("Received message: " + msg);
