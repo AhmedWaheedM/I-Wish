@@ -1,6 +1,6 @@
 package serverSide.services;
 
-import dtos.NotificationDto;
+import models.Notification;
 import serverSide.NotificationManger;
 import serverSide.dbLayer.NotificationHandler;
 
@@ -13,10 +13,12 @@ public class NotificationService {
     }
 
     public void notifyUser(int userId, String title, String body) {
+            System.out.println("Creating notification for user " + userId + ": " + title + " - " + body);
         models.Notification saved = notificationHandler.addNotification(userId, title, body);
 
         try {
-            NotificationDto realtime = new NotificationDto(saved.getTitle(), saved.getBody());
+            System.out.println("Notification saved: " + saved.getTitle() + " - " + saved.getBody());
+            Notification realtime = new Notification(saved.getUserId(), saved.getTitle(), saved.getBody());
             NotificationManger.sendNotificaiton(userId, realtime);
         } catch (Exception e) {
             e.printStackTrace();

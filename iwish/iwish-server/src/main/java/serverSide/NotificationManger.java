@@ -1,10 +1,10 @@
 package serverSide;
 
-import dtos.NotificationDto;
+import models.Notification;
 
 public class NotificationManger {
 
-    public static void sendNotificaiton(int userId , NotificationDto notification){
+    public static void sendNotificaiton(int userId , Notification notification){
         ClientHandler clientHandler = OnlineUserTracker.onlineUsers.get(userId);
         
 

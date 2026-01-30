@@ -1,7 +1,7 @@
 package clientSide.appManger;
 
 import clientSide.helpers.NotificationService;
-import dtos.NotificationDto;
+import models.Notification;
 
 /**
  * ToastManager now routes all notifications to the right sidebar instead of showing
@@ -17,7 +17,9 @@ public class ToastManager {
     /**
      * Route notification to the right sidebar instead of showing a toast.
      */
-    public static void show(NotificationDto n) {
+    public static void show(Notification n) {
+
+        System.out.println("ToastManager routing notification: " + n.getTitle() + " - " + n.getBody());
         if (n == null) return;
 
         // Determine notification type based on content
@@ -29,12 +31,13 @@ public class ToastManager {
             n.getBody(),
             type
         );
+
     }
 
     /**
      * Determine the notification type based on the notification content.
      */
-    private static NotificationService.NotificationType determineNotificationType(NotificationDto n) {
+    private static NotificationService.NotificationType determineNotificationType(Notification n) {
         String title = n.getTitle() != null ? n.getTitle().toLowerCase() : "";
         String body = n.getBody() != null ? n.getBody().toLowerCase() : "";
 

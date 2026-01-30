@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import clientSide.appManger.IWishManager;
-import clientSide.helpers.MessageDisplayer;
 import dtos.requestDtos.notificationHandler.GetNotificationsRequest;
 import dtos.requestDtos.notificationHandler.MarkAllNotificationsAsReadRequest;
 import dtos.requestDtos.notificationHandler.MarkNotificationAsReadRequest;
@@ -29,26 +28,23 @@ public class NotificationsController {
 
     // Notification type for styling
     public enum NotificationType {
-        CONTRIBUTION("#22c55e", "fas-dollar-sign", "notif-left-border-green"),
-        FRIEND_REQUEST("#3b82f6", "fas-user-plus", "notif-left-border-blue"),
-        FUNDING_MILESTONE("#22c55e", "fas-chart-line", "notif-left-border-green"),
-        FRIEND_ACCEPTED("#a855f7", "fas-user-check", "notif-left-border-purple"),
-        FRIEND_REMOVED("#ef4444", "fas-user-minus", "notif-left-border-red"),
-        INFO("#6b7280", "fas-bell", "notif-left-border-gray");
+        CONTRIBUTION("#22c55e", "fas-dollar-sign"),
+        FRIEND_REQUEST("#3b82f6", "fas-user-plus"),
+        FUNDING_MILESTONE("#22c55e", "fas-chart-line"),
+        FRIEND_ACCEPTED("#a855f7", "fas-user-check"),
+        FRIEND_REMOVED("#ef4444", "fas-user-minus"),
+        INFO("#6b7280", "fas-bell");
 
         private final String color;
         private final String icon;
-        private final String cssClass;
 
-        NotificationType(String color, String icon, String cssClass) {
+        NotificationType(String color, String icon) {
             this.color = color;
             this.icon = icon;
-            this.cssClass = cssClass;
         }
 
         public String getColor() { return color; }
         public String getIcon() { return icon; }
-        public String getCssClass() { return cssClass; }
     }
 
     public static class AppNotification {
@@ -130,8 +126,101 @@ public class NotificationsController {
     private void onClearAll() {
         if (items.isEmpty()) return;
         
-        String message = "This will permanently delete all " + items.size() + " notifications.\nThis action cannot be undone.";
-        MessageDisplayer.showConfirmation("Clear All Notifications?", message, this::performClearAll);
+        // Show confirmation dialog
+        javafx.stage.Stage dialogStage = new javafx.stage.Stage();
+        dialogStage.initModality(javafx.stage.Modality.APPLICATION_MODAL);
+        dialogStage.initStyle(javafx.stage.StageStyle.TRANSPARENT);
+        
+        javafx.scene.layout.VBox container = new javafx.scene.layout.VBox(20);
+        container.setAlignment(javafx.geometry.Pos.CENTER);
+        container.setPadding(new javafx.geometry.Insets(32));
+        container.setStyle("-fx-background-color: white; -fx-border-color: #d3cbcbff; -fx-background-radius: 10; " +
+                          "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 20, 0, 0, 5);");
+        container.setPrefWidth(380);
+        
+        // Set initial state for animation
+        container.setScaleX(0.8);
+        container.setScaleY(0.8);
+        container.setOpacity(0);
+        
+        // Icon
+        javafx.scene.layout.StackPane iconContainer = new javafx.scene.layout.StackPane();
+        iconContainer.setMinSize(64, 64);
+        iconContainer.setMaxSize(64, 64);
+        iconContainer.setStyle("-fx-background-color: #fef2f2; -fx-background-radius: 50%;");
+        
+        org.kordamp.ikonli.javafx.FontIcon warningIcon = new org.kordamp.ikonli.javafx.FontIcon("fas-exclamation-triangle");
+        warningIcon.setIconSize(28);
+        warningIcon.setIconColor(javafx.scene.paint.Color.web("#f59e0b"));
+        iconContainer.getChildren().add(warningIcon);
+        
+        javafx.scene.control.Label title = new javafx.scene.control.Label("Clear All Notifications?");
+        title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
+        
+        javafx.scene.control.Label message = new javafx.scene.control.Label("This will permanently delete all " + items.size() + " notifications.\nThis action cannot be undone.");
+        message.setStyle("-fx-text-fill: #64748b; -fx-font-size: 14px; -fx-text-alignment: center;");
+        message.setWrapText(true);
+        message.setAlignment(javafx.geometry.Pos.CENTER);
+        
+        javafx.scene.layout.HBox buttons = new javafx.scene.layout.HBox(12);
+        buttons.setAlignment(javafx.geometry.Pos.CENTER);
+        
+        javafx.scene.control.Button cancelBtn = new javafx.scene.control.Button("Cancel");
+        cancelBtn.setStyle("-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-radius: 8; " +
+                          "-fx-background-radius: 8; -fx-padding: 10 24; -fx-font-size: 14px; " +
+                          "-fx-text-fill: #64748b; -fx-cursor: hand;");
+        cancelBtn.setOnAction(e -> dialogStage.close());
+        
+        javafx.scene.control.Button clearBtn = new javafx.scene.control.Button("Clear All");
+        clearBtn.setStyle("-fx-background-color: #ef4444; -fx-background-radius: 8; -fx-padding: 10 24; " +
+                          "-fx-font-size: 14px; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
+        clearBtn.setOnAction(e -> {
+            dialogStage.close();
+            performClearAll();
+        });
+        
+        buttons.getChildren().addAll(cancelBtn, clearBtn);
+        container.getChildren().addAll(iconContainer, title, message, buttons);
+        
+        javafx.scene.Scene scene = new javafx.scene.Scene(container);
+        scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
+        dialogStage.setScene(scene);
+        
+        // Center over owner window
+        javafx.stage.Stage ownerStage = (javafx.stage.Stage) javafx.stage.Stage.getWindows()
+            .stream()
+            .filter(javafx.stage.Window::isShowing)
+            .findFirst()
+            .orElse(null);
+        if (ownerStage != null) {
+            dialogStage.initOwner(ownerStage);
+            dialogStage.setOnShown(event -> {
+                double ownerX = ownerStage.getX();
+                double ownerY = ownerStage.getY();
+                double ownerW = ownerStage.getWidth();
+                double ownerH = ownerStage.getHeight();
+                double dialogW = dialogStage.getWidth();
+                double dialogH = dialogStage.getHeight();
+                dialogStage.setX(ownerX + (ownerW / 2) - (dialogW / 2));
+                dialogStage.setY(ownerY + (ownerH / 2) - (dialogH / 2));
+                
+                // Play entrance animation
+                javafx.animation.ScaleTransition scaleIn = new javafx.animation.ScaleTransition(
+                    javafx.util.Duration.millis(200), container);
+                scaleIn.setFromX(0.8);
+                scaleIn.setFromY(0.8);
+                scaleIn.setToX(1.0);
+                scaleIn.setToY(1.0);
+                
+                javafx.animation.FadeTransition fadeIn = new javafx.animation.FadeTransition(
+                    javafx.util.Duration.millis(200), container);
+                fadeIn.setFromValue(0);
+                fadeIn.setToValue(1);
+                
+                new javafx.animation.ParallelTransition(scaleIn, fadeIn).play();
+            });
+        }
+        dialogStage.showAndWait();
     }
 
     private void performClearAll() {
@@ -227,17 +316,29 @@ public class NotificationsController {
         card.setPrefWidth(300);
         card.setMinWidth(280);
         card.setMaxWidth(320);
-        card.setPadding(new Insets(0));
+        card.setPadding(new Insets(16, 20, 16, 16));
         card.setAlignment(Pos.TOP_LEFT);
-        card.getStyleClass().add("notif-card");
         
-        // Wrapper with left border
+        // Card styling with left colored border
+        String borderColor = notification.getType().getColor();
+        card.setStyle(String.format(
+            "-fx-background-color: white; -fx-background-radius: 12; " +
+            "-fx-border-color: %s transparent transparent transparent; " +
+            "-fx-border-width: 0 0 0 4; -fx-border-radius: 12; " +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);" +
+            "-fx-border-insets: -1; -fx-background-insets: 0;",
+            borderColor
+        ));
+        
+        // Alternative: Use a wrapper with left border
         HBox wrapper = new HBox(0);
         wrapper.setAlignment(Pos.TOP_LEFT);
         
-        // Left border strip - use CSS class based on type
+        // Left border strip
         Region leftBorder = new Region();
-        leftBorder.getStyleClass().add(notification.getType().getCssClass());
+        leftBorder.setMinWidth(4);
+        leftBorder.setMaxWidth(4);
+        leftBorder.setStyle(String.format("-fx-background-color: %s; -fx-background-radius: 12 0 0 12;", borderColor));
         
         // Content area
         VBox content = new VBox(8);
@@ -252,11 +353,11 @@ public class NotificationsController {
         // Icon
         FontIcon icon = new FontIcon(notification.getType().getIcon());
         icon.setIconSize(16);
-        icon.setIconColor(Color.web(notification.getType().getColor()));
+        icon.setIconColor(Color.web(borderColor));
         
         // Title
         Label titleLabel = new Label(notification.getTitle());
-        titleLabel.getStyleClass().add("notif-title");
+        titleLabel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
         titleLabel.setWrapText(true);
         HBox.setHgrow(titleLabel, Priority.ALWAYS);
         
@@ -265,7 +366,9 @@ public class NotificationsController {
         // Unread indicator (blue dot)
         if (!notification.isRead()) {
             Region dot = new Region();
-            dot.getStyleClass().add("notif-unread-dot");
+            dot.setMinSize(8, 8);
+            dot.setMaxSize(8, 8);
+            dot.setStyle("-fx-background-color: #3b82f6; -fx-background-radius: 50%;");
             header.getChildren().add(dot);
         }
         
@@ -275,7 +378,7 @@ public class NotificationsController {
         xIcon.setIconSize(12);
         xIcon.setIconColor(Color.web("#94a3b8"));
         dismissBtn.setGraphic(xIcon);
-        dismissBtn.getStyleClass().add("notif-dismiss-btn");
+        dismissBtn.setStyle("-fx-background-color: transparent; -fx-padding: 4; -fx-cursor: hand;");
         dismissBtn.setOnMouseEntered(e -> xIcon.setIconColor(Color.web("#ef4444")));
         dismissBtn.setOnMouseExited(e -> xIcon.setIconColor(Color.web("#94a3b8")));
         dismissBtn.setOnAction(e -> dismissNotification(notification));
@@ -288,20 +391,21 @@ public class NotificationsController {
         
         // Body text
         Label bodyLabel = new Label(notification.getBody());
-        bodyLabel.getStyleClass().add("notif-body");
+        bodyLabel.setStyle("-fx-text-fill: #64748b; -fx-font-size: 12px;");
         bodyLabel.setWrapText(true);
         bodyLabel.setMaxWidth(260);
         
         // Timestamp - format relative time
         Label timeLabel = new Label(formatRelativeTime(notification.getCreatedAt()));
-        timeLabel.getStyleClass().add("notif-time");
+        timeLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 11px;");
         
         content.getChildren().addAll(headerRow, bodyLabel, timeLabel);
         
         // Mark read button (only if unread)
         if (!notification.isRead()) {
             Button markReadBtn = new Button("Mark read");
-            markReadBtn.getStyleClass().add("notif-mark-read-btn");
+            markReadBtn.setStyle("-fx-background-color: #f1f5f9; -fx-text-fill: #64748b; " +
+                                 "-fx-font-size: 11px; -fx-padding: 6 12; -fx-background-radius: 6; -fx-cursor: hand;");
             markReadBtn.setOnAction(e -> markOneRead(notification));
             
             HBox btnContainer = new HBox();
@@ -309,6 +413,12 @@ public class NotificationsController {
             btnContainer.getChildren().add(markReadBtn);
             content.getChildren().add(btnContainer);
         }
+        
+        // Build card with left border
+        card.getChildren().clear();
+        card.setPadding(new Insets(0));
+        card.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
+                      "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);");
         
         wrapper.getChildren().addAll(leftBorder, content);
         card.getChildren().add(wrapper);

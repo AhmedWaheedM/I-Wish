@@ -46,6 +46,11 @@ public class ContributionApis {
         double wishListCurrent = wishListApis.getWishListCurrentAmount(r.getWishListId());
         double wishListRemaining = Math.max(0, wishListTotal - wishListCurrent);
 
+        wishListTotal = Math.round(wishListTotal * 100.0) / 100.0;
+        wishListCurrent = Math.round(wishListCurrent * 100.0) / 100.0;
+        wishListRemaining = Math.round(wishListRemaining * 100.0) / 100.0;
+
+
         boolean fullyFunded = contributionHandler.isItemFullyFunded(r.getWishListItemId());
 
         String title;

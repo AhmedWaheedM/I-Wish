@@ -6,8 +6,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-import dtos.NotificationDto;
 import javafx.application.Platform;
+import models.Notification;
 
 public class ClientConnection {
 
@@ -69,19 +69,14 @@ public class ClientConnection {
                 while (running) {
                     Object msg = in.readObject();
 
-                    if (msg instanceof dtos.NotificationDto) {
+                    if (msg instanceof Notification || msg instanceof dtos.NotificationDto) {
                         Platform.runLater(() -> {
-                            clientSide.appManger.ToastManager.show((dtos.NotificationDto) msg);
+                            clientSide.appManger.ToastManager.show((Notification) msg);
                         });
                         continue;
-                    } else if (msg instanceof dtos.ServerShutdownNotification) {
-                        Platform.runLater(() -> {
-                            clientSide.helpers.MessageDisplayer.showError("The server has been stopped. You are now disconnected.", "Server Shutdown");
-                            clientSide.appManger.IWishManager.logout();
-                            clientSide.appManger.IWishManager.switchScene("login", "I-Wish - Login");
-                        });
-                        close(); // Close connection
-                        break;   // Exit loop
+                    }
+                    else{
+                        System.out.println("Received message: " + msg);
                     }
 
                     synchronized (lock) {

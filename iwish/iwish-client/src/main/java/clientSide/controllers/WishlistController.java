@@ -3,18 +3,17 @@ package clientSide.controllers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import models.WishListItem;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 public class WishlistController {
 
@@ -102,7 +101,7 @@ public class WishlistController {
 
         wishlistGrid.getChildren().clear();
         Label loading = new Label(text);
-        loading.getStyleClass().add("loading-label");
+        loading.setStyle("-fx-font-size: 16px; -fx-padding: 20;");
         wishlistGrid.add(loading, 0, 0);
     }
 
@@ -124,36 +123,41 @@ public class WishlistController {
                 cardController.setData(item);
 
                 cardController.setOnRemove(() -> {
-                    clientSide.helpers.MessageDisplayer.showConfirmation(
-                        "Remove " + item.getItem().getName() + "?",
-                        "Are you sure you want to remove this item from your wishlist?",
-                        () -> {
-                            // Do remove request in background thread (NO freeze)
-                            new Thread(() -> {
-                                try {
-                                    clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
-                                    if (conn == null) return;
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Remove Item");
+                    alert.setHeaderText("Remove " + item.getItem().getName() + "?");
+                    alert.setContentText("Are you sure you want to remove this item from your wishlist?");
 
-                                    dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest req =
-                                            new dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest(
-                                                    item.getWishListId(),
-                                                    item.getItem().getItemId()
-                                            );
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.isPresent() && result.get() == ButtonType.OK) {
 
-                                    Object response = conn.sendAndWait(req);
+                        // Do remove request in background thread (NO freeze)
+                        new Thread(() -> {
+                            try {
+                                clientSide.ClientConnection conn = clientSide.ClientApp.getClientConnection();
+                                if (conn == null) return;
 
-                                    Platform.runLater(() -> {
-                                        if (response instanceof Boolean && (Boolean) response) {
-                                            loadWishlist(); 
-                                        }
-                                    });
+                                dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest req =
+                                        new dtos.requestDtos.wishListItemHandler.RemoveWishListItemRequest(
+                                                item.getWishListId(),
+                                                item.getItem().getItemId()
+                                        );
 
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }, "Wishlist-RemoveThread").start();
-                        }
-                    );
+                                Object response = conn.sendAndWait(req);
+
+                                Platform.runLater(() -> {
+                                    if (response instanceof Boolean && (Boolean) response) {
+                                        loadWishlist(); 
+                                    }
+                                });
+
+
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }, "Wishlist-RemoveThread").start();
+                    }
                 });
 
                 wishlistGrid.add(card, col, row);
@@ -167,40 +171,11 @@ public class WishlistController {
             }
         }
 
-        // Show empty state if no items
+        // Optional: show empty state
         if (wishlistItems.isEmpty()) {
-            VBox emptyState = createEmptyState();
-            wishlistGrid.add(emptyState, 0, 0, 3, 1); // Span 3 columns
+            Label empty = new Label("No items in your wishlist yet.");
+            empty.setStyle("-fx-font-size: 14px; -fx-padding: 20;");
+            wishlistGrid.add(empty, 0, 0);
         }
-    }
-    
-    private VBox createEmptyState() {
-        VBox container = new VBox(16);
-        container.setAlignment(Pos.CENTER);
-        container.getStyleClass().add("empty-state-container");
-        container.setPrefWidth(600);
-        
-        // Icon container
-        StackPane iconContainer = new StackPane();
-        iconContainer.getStyleClass().add("empty-state-icon-container");
-        iconContainer.setAlignment(Pos.CENTER);
-        
-        FontIcon icon = new FontIcon("fas-gift");
-        icon.setIconSize(36);
-        icon.setIconColor(Color.web("#94a3b8"));
-        iconContainer.getChildren().add(icon);
-        
-        // Title
-        Label title = new Label("Your wishlist is empty");
-        title.getStyleClass().add("empty-state-title");
-        
-        // Message
-        Label message = new Label("Add items from the Item Marketplace\nto start building your wishlist!");
-        message.getStyleClass().add("empty-state-message");
-        message.setWrapText(true);
-        message.setAlignment(Pos.CENTER);
-        
-        container.getChildren().addAll(iconContainer, title, message);
-        return container;
     }
 }

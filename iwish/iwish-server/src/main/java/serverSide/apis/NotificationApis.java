@@ -1,13 +1,13 @@
 package serverSide.apis;
 
-import dtos.NotificationDto; // (your DTO used for real-time push)
-import dtos.requestDtos.notificationHandler.AddNotificationRequest;
+import dtos.requestDtos.notificationHandler.AddNotificationRequest; // (your DTO used for real-time push)
 import dtos.requestDtos.notificationHandler.ClearAllNotificationsRequest;
 import dtos.requestDtos.notificationHandler.ClearNotificationRequest;
 import dtos.requestDtos.notificationHandler.GetNotificationsRequest;
 import dtos.requestDtos.notificationHandler.GetUnreadNotificationsRequest;
 import dtos.requestDtos.notificationHandler.MarkAllNotificationsAsReadRequest;
 import dtos.requestDtos.notificationHandler.MarkNotificationAsReadRequest;
+import models.Notification;
 import serverSide.NotificationManger;
 import serverSide.dbLayer.NotificationHandler;
 
@@ -22,7 +22,7 @@ public class NotificationApis {
     public Object addNotification(AddNotificationRequest r) {
         notificationHandler.addNotification(r.getUserId(), r.getTitle(), r.getBody());
 
-        NotificationDto n = new NotificationDto(r.getTitle(), r.getBody());
+        Notification n = new Notification(r.getUserId(), r.getTitle(), r.getBody());
         NotificationManger.sendNotificaiton(r.getUserId(), n);
 
         return true;

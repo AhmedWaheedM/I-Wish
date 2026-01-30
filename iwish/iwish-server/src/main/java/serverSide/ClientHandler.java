@@ -29,10 +29,8 @@ public class ClientHandler extends Thread {
 
             while (isRunning) {
                 Request request = (Request) inputStream.readObject();
-                System.err.println("DEBUG: ClientHandler received request: " + request);
                 Object response = RequestRouter.handleRequest(request);
 
-                System.err.println("DEBUG: ClientHandler received response: " + response);
                 if(response instanceof User){
                     User user = (User) response;
                     OnlineUserTracker.onlineUsers.put(user.getUserId(), this);
@@ -53,6 +51,7 @@ public class ClientHandler extends Thread {
 
     public void sendNotification(Object msg) {
         try {
+            System.err.println("FROMM client handler Sending notification to client: " + msg);
             outputStream.writeObject(msg);
             outputStream.flush();
         } catch (Exception e) {

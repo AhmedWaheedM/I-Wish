@@ -7,6 +7,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -75,10 +77,10 @@ public class RequestsController {
         icon.setIconColor(Color.web("#94a3b8"));
         
         Label message = new Label("No pending friend requests");
-        message.getStyleClass().add("request-empty-message");
+        message.setStyle("-fx-text-fill: #64748b; -fx-font-size: 16px;");
         
         Label subMessage = new Label("When someone sends you a friend request, it will appear here");
-        subMessage.getStyleClass().add("request-empty-sub");
+        subMessage.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 13px;");
         
         empty.getChildren().addAll(icon, message, subMessage);
         return empty;
@@ -91,13 +93,25 @@ public class RequestsController {
         card.setMaxWidth(300);
         card.setPadding(new Insets(24));
         card.setAlignment(Pos.TOP_CENTER);
-        card.getStyleClass().add("request-card");
+        
+        // Base shadow style (consistent with other cards)
+        String baseStyle = "-fx-background-color: white; -fx-background-radius: 12; " +
+                          "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);";
+        String hoverStyle = "-fx-background-color: white; -fx-background-radius: 12; " +
+                           "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 16, 0, 0, 4);";
+        
+        card.setStyle(baseStyle);
+        
+        // Add hover effect
+        card.setOnMouseEntered(e -> card.setStyle(hoverStyle));
+        card.setOnMouseExited(e -> card.setStyle(baseStyle));
 
         // Avatar with user icon
         StackPane avatarContainer = new StackPane();
         avatarContainer.setMinSize(72, 72);
         avatarContainer.setMaxSize(72, 72);
-        avatarContainer.getStyleClass().add("request-avatar");
+        avatarContainer.setStyle("-fx-background-color: linear-gradient(to bottom right, #3b82f6, #2563eb); " +
+                                 "-fx-background-radius: 50%;");
         avatarContainer.setAlignment(Pos.CENTER);
         
         FontIcon userIcon = new FontIcon("fas-user");
@@ -111,14 +125,14 @@ public class RequestsController {
         
         String username = requester.getUserName() != null ? requester.getUserName() : "Unknown";
         Label name = new Label(username);
-        name.getStyleClass().add("request-name");
+        name.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #0f172a;");
         
         String handleText = "@" + username.toLowerCase().replace(" ", "");
         Label handle = new Label(handleText);
-        handle.getStyleClass().add("request-handle");
+        handle.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13px;");
         
         Label requestLabel = new Label("wants to be your friend");
-        requestLabel.getStyleClass().add("request-tagline");
+        requestLabel.setStyle("-fx-text-fill: #94a3b8; -fx-font-size: 12px;");
 
         info.getChildren().addAll(name, handle, requestLabel);
 
@@ -128,7 +142,8 @@ public class RequestsController {
         actions.setPadding(new Insets(8, 0, 0, 0));
         
         Button acceptBtn = new Button("Accept");
-        acceptBtn.getStyleClass().addAll("button-primary", "btn-accept");
+        acceptBtn.getStyleClass().add("button-primary");
+        acceptBtn.setStyle("-fx-background-color: #22c55e; -fx-font-size: 12px;");
         acceptBtn.setPrefWidth(100);
         acceptBtn.setOnAction(e -> handleAccept(requester));
         
@@ -137,6 +152,10 @@ public class RequestsController {
         checkIcon.setIconSize(12);
         checkIcon.setIconColor(Color.WHITE);
         acceptBtn.setGraphic(checkIcon);
+        
+        // Hover effect for accept button
+        acceptBtn.setOnMouseEntered(e -> acceptBtn.setStyle("-fx-background-color: #16a34a; -fx-font-size: 12px;"));
+        acceptBtn.setOnMouseExited(e -> acceptBtn.setStyle("-fx-background-color: #22c55e; -fx-font-size: 12px;"));
 
         Button rejectBtn = new Button("Decline");
         rejectBtn.getStyleClass().add("button-danger");

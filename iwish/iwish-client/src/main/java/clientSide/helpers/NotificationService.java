@@ -380,7 +380,7 @@ public class NotificationService {
 
         if (notifications.isEmpty()) {
             Label placeholder = new Label("No recent activity");
-            placeholder.getStyleClass().add("sidebar-notif-placeholder");
+            placeholder.setStyle("-fx-text-fill: #9ca3af; -fx-font-size: 12px; -fx-padding: 8 0;");
             activityListContainer.getChildren().add(placeholder);
             updateClearAllVisibility();
             return;
@@ -394,18 +394,17 @@ public class NotificationService {
     }
 
     private HBox createNotificationView(NotificationItem item) {
-        // Main container with colored glow effect - needs dynamic styling for the shadow color
+        // Main container with colored glow effect
         HBox container = new HBox(0);
         container.setUserData(item.id); // Set ID for finding later
         container.setAlignment(Pos.TOP_LEFT);
-        container.getStyleClass().add("sidebar-notif-item");
-        // Dynamic effect based on notification type color
         container.setStyle(String.format(
+            "-fx-background-color: white; -fx-background-radius: 10; -fx-border-radius: 10; " +
             "-fx-effect: dropshadow(gaussian, %s, 8, 0.3, 0, 2);",
             item.type.getColor()
         ));
 
-        // Left colored border strip - needs dynamic color
+        // Left colored border strip
         Region leftBorder = new Region();
         leftBorder.setMinWidth(4);
         leftBorder.setMaxWidth(4);
@@ -431,11 +430,11 @@ public class NotificationService {
 
         Label descLabel = new Label(item.description);
         descLabel.setWrapText(true);
-        descLabel.getStyleClass().add("sidebar-notif-desc");
+        descLabel.setStyle("-fx-text-fill: #1f2937; -fx-font-size: 11px;");
         descLabel.setMaxWidth(140);
 
         Label timeLabel = new Label(formatTimestamp(item.timestamp));
-        timeLabel.getStyleClass().add("sidebar-notif-time");
+        timeLabel.setStyle("-fx-text-fill: #9ca3af; -fx-font-size: 9px;");
 
         textContainer.getChildren().addAll(descLabel, timeLabel);
 
@@ -445,7 +444,7 @@ public class NotificationService {
         closeIcon.setIconColor(Color.web("#9ca3af"));
         closeIcon.setIconSize(10);
         closeBtn.setGraphic(closeIcon);
-        closeBtn.getStyleClass().add("sidebar-notif-close");
+        closeBtn.setStyle("-fx-background-color: transparent; -fx-padding: 2; -fx-cursor: hand;");
         closeBtn.setOnMouseEntered(e -> closeIcon.setIconColor(Color.web("#ef4444")));
         closeBtn.setOnMouseExited(e -> closeIcon.setIconColor(Color.web("#9ca3af")));
         closeBtn.setOnAction(e -> onDismissClicked(item));
