@@ -4,6 +4,7 @@
 ![JavaFX](https://img.shields.io/badge/JavaFX-0078D4?style=for-the-badge&logo=java&logoColor=white)
 ![MySQL](https://img.shields.io/badge/mysql-%234479A5.svg?style=for-the-badge&logo=mysql&logoColor=white)
 ![Maven](https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white)
+[![Documentation](https://img.shields.io/badge/Documentation-Read%20Now-blue?style=for-the-badge&logo=markdown&logoColor=white)](DOCUMENTATION.md)
 
 **I-Wish** is a full-featured, **real-time collaborative wishlist platform** designed to make gift-giving and group contributions fun, organized, and transparent. Users can create personal wishlists, add items with details (name, price, link, description), share them with friends, and allow others to contribute toward gifts—while seeing live updates and notifications when contributions happen.
 
