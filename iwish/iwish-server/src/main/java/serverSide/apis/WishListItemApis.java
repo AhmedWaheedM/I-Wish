@@ -35,6 +35,8 @@ public class WishListItemApis {
 
         int itemId = r.getItemId();
         Integer wishListId = r.getWishListId();
+        Integer ownerId = wishListApis.getUserIdByWishListId(wishListId);
+        String userName = userApis.getUserNameById(ownerId);
 
         int wishListItemRecId = wishListItemHandler.getRecIdByWishListAndItem(r.getWishListId(), r.getItemId());
 
@@ -44,6 +46,7 @@ public class WishListItemApis {
 
         for (Integer userId : new java.util.HashSet<>(contributorIds)) {
 
+            String contributorName = userApis.getUserNameById(userId);
             double amount = contributionApis.getUserContributionToItem(userId, wishListItemRecId);
             if (amount <= 0) continue;
 
@@ -51,9 +54,13 @@ public class WishListItemApis {
 
             notificationService.notifyUser(
                 userId,
-                "Contribution Refunded 💸",
-                "The item you contributed " + amount + " to was removed from the wishlist. Your contribution has been refunded."
+                "Contribution Refunded",
+                "Dear " + contributorName + ", " +
+                "the item you contributed " + amount +
+                " to has been removed from " + userName + "’s wishlist. " +
+                "Your contribution has been refunded to your account balance."
             );
+
 
             UpdateBalanceRequest updateBalanceRequest = new UpdateBalanceRequest(
                 userId,
