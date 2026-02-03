@@ -52,8 +52,15 @@ public class ToastManager {
         }
 
         // Friend accepted notifications
-        if (title.contains("accepted") || body.contains("accepted")) {
+        if (title.contains("accepted") || body.contains("accepted") || 
+            title.contains("now friends") || body.contains("now friends")) {
             return NotificationService.NotificationType.FRIEND_ACCEPTED;
+        }
+
+        // Friend removed notifications
+        if (title.contains("removed") || body.contains("removed") || 
+            title.contains("unfriend") || body.contains("unfriend")) {
+            return NotificationService.NotificationType.FRIEND_REMOVED;
         }
 
         // Funding/milestone notifications
